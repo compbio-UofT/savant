@@ -33,6 +33,7 @@ import savant.api.data.SequenceRecord;
 import savant.api.util.Resolution;
 import savant.util.DownloadEvent;
 import savant.util.MiscUtils;
+import savant.view.tracks.SequenceTrack;
 
 
 /**
@@ -108,7 +109,14 @@ public class FastaExporter extends TrackExporter {
         }
 
         fireEvent(new DownloadEvent(-1.0));
-        byte[] seq = ((SequenceRecord)track.getDataSource().getRecords(ref, r, Resolution.HIGH, null).get(0)).getSequence();
+        byte[] seq = ((SequenceTrack)track).getSequence(ref, r);
+        if (seq == null) {
+            // No data for this chromosome (often a problem if chrM is missing from the Fasta file).
+            seq = new byte[r.getLength()];
+            for (int i = 0; i < seq.length; i++) {
+                seq[i] = 'N';
+            }
+        }
         int j = 0;
         if (linePos > 0) {
             int numBytes = Math.min(seq.length, LINE_SIZE - linePos);

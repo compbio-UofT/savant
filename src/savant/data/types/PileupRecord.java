@@ -17,6 +17,7 @@
 package savant.data.types;
 
 import savant.api.data.Record;
+import savant.api.data.Strand;
 import savant.api.data.VariantType;
 import savant.util.Pileup;
 
@@ -33,33 +34,39 @@ public class PileupRecord implements Record {
     int position;
     int coverage[][];
     double percentage[][];
+    double quality[][];
 
     public PileupRecord(Pileup p, boolean stranded) {
         position = p.getPosition();
         if (stranded) {
             coverage = new int[2][7];
             percentage = new double[2][7];
-            double denominator0 = p.getTotalStrandCoverage(true) * 0.01;
-            double denominator1 = p.getTotalStrandCoverage(false) * 0.01;
+            quality = new double[2][7];
+            double denominator0 = p.getTotalCoverage(Strand.FORWARD) * 0.01;
+            double denominator1 = p.getTotalCoverage(Strand.REVERSE) * 0.01;
             int i = 0;
             for (VariantType nuc: VariantType.values()) {
                 if (nuc != VariantType.NONE) {
-                    coverage[0][i] = (int)p.getStrandCoverage(nuc, true);
+                    coverage[0][i] = p.getCoverage(nuc, Strand.FORWARD);
                     percentage[0][i] = coverage[0][i] / denominator0;
-                    coverage[1][i] = (int)p.getStrandCoverage(nuc, false);
+                    quality[0][i] = p.getAverageQuality(nuc, Strand.FORWARD);
+                    coverage[1][i] = p.getCoverage(nuc, Strand.REVERSE);
                     percentage[1][i] = coverage[1][i] / denominator1;
+                    quality[1][i] = p.getAverageQuality(nuc, Strand.REVERSE);
                     i++;
                 }
             }
         } else {
             coverage = new int[1][7];
             percentage = new double[1][7];
-            double denominator = p.getTotalCoverage() * 0.01;
+            quality = new double[1][7];
+            double denominator = p.getTotalCoverage(null) * 0.01;
             int i = 0;
             for (VariantType nuc: VariantType.values()) {
                 if (nuc != VariantType.NONE) {
-                    coverage[0][i] = (int)p.getCoverage(nuc);
+                    coverage[0][i] = p.getCoverage(nuc, null);
                     percentage[0][i] = coverage[0][i] / denominator;
+                    quality[0][i] = p.getAverageQuality(nuc, null);
                     i++;
                 }
             }
@@ -95,17 +102,25 @@ public class PileupRecord implements Record {
     
     /**
      * Retrieve an array of 7 nucleotide coverage values for the given strand
-     * @param strand 0=forward or unstranded; 1=reverse
+     * @param strand FORWARD, REVERSE, or null
      */
-    public int[] getCoverage(int strand) {
-        return coverage[strand];
+    public int[] getCoverage(Strand strand) {
+        return coverage[strand == Strand.REVERSE ? 1 : 0];
     } 
     
     /**
      * Retrieve an array of 7 nucleotide coverage values for the given strand
-     * @param strand 0=reverse or unstranded; 1=forward
+     * @param strand FORWARD, REVERSE, or null
      */
-    public double[] getPercentage(int strand) {
-        return percentage[strand];
+    public double[] getPercentage(Strand strand) {
+        return percentage[strand == Strand.REVERSE ? 1 : 0];
+    } 
+    
+    /**
+     * Retrieve an array of 7 quality values for the given strand
+     * @param strand FORWARD, REVERSE, or null
+     */
+    public double[] getAverageQuality(Strand strand) {
+        return quality[strand == Strand.REVERSE ? 1 : 0];
     } 
 }

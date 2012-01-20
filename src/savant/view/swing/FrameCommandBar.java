@@ -45,6 +45,7 @@ import savant.util.MiscUtils;
 import savant.view.dialog.BAMFilterDialog;
 import savant.view.tracks.BAMTrack;
 import savant.view.tracks.RichIntervalTrack;
+import savant.view.tracks.SequenceTrack;
 import savant.view.tracks.Track;
 
 
@@ -148,7 +149,7 @@ public final class FrameCommandBar extends JMenuBar {
                 public void actionPerformed(ActionEvent ae) {
                     try {
                         LocationController lc = LocationController.getInstance();
-                        byte[] seq = ((SequenceRecord)mainTrack.getDataSource().getRecords(lc.getReferenceName(), lc.getRange(), Resolution.HIGH, null).get(0)).getSequence();
+                        byte[] seq = ((SequenceTrack)mainTrack).getSequence(lc.getReferenceName(), lc.getRange());
                         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(new String(seq)), null);
                     } catch (Throwable x) {
                         LOG.error(x);

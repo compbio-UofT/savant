@@ -18,6 +18,7 @@ package savant.selection;
 
 import javax.swing.JLabel;
 
+import savant.api.data.Strand;
 import savant.data.types.PileupRecord;
 import savant.util.DrawingMode;
 
@@ -38,12 +39,12 @@ public class PileupPopup extends PopupPanel {
         PileupRecord rec = (PileupRecord)record;
         add(new JLabel("Position: " + rec.getPosition()));
         if (mode == DrawingMode.STRAND_SNP) {
-            add(new JLabel("Strand -"));
-            addStrand(rec, 0, "   ");
             add(new JLabel("Strand +"));
-            addStrand(rec, 1, "   ");
+            addStrand(rec, Strand.FORWARD, "   ");
+            add(new JLabel("Strand -"));
+            addStrand(rec, Strand.REVERSE, "   ");
         } else {
-            addStrand(rec, 0, "");
+            addStrand(rec, null, "");
         }
     }
 
@@ -54,12 +55,13 @@ public class PileupPopup extends PopupPanel {
     protected void initStandardButtons() {
     }
 
-    private void addStrand(PileupRecord rec, int strand, String indent) {
+    private void addStrand(PileupRecord rec, Strand strand, String indent) {
         int[] coverage = rec.getCoverage(strand);
         double[] percentage = rec.getPercentage(strand);
+        double[] quality = rec.getAverageQuality(strand);
         for (int i = 0; i < coverage.length; i++) {
             if (coverage[i] > 0) {
-                add(new JLabel(String.format("%s%s: %d (%.1f%%)", indent, PileupRecord.NUCLEOTIDE_NAMES[i], coverage[i], percentage[i])));
+                add(new JLabel(String.format("%s%s: %d (%.1f%%) (avg. BQ %.1f)", indent, PileupRecord.NUCLEOTIDE_NAMES[i], coverage[i], percentage[i], quality[i])));
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +37,7 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
+import savant.api.data.Strand;
 import savant.api.data.VariantType;
 import savant.api.event.DataRetrievalEvent;
 import savant.api.util.Resolution;
@@ -59,18 +59,11 @@ import savant.util.*;
 public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
-    private static final Font MISMATCH_FONT = LEGEND_FONT.deriveFont(12.0f);
+    private static final Font MISMATCH_FONT = LEGEND_FONT.deriveFont(8.0f);
 
     private byte[] refSeq = null;
     private DrawingMode lastMode;
     private Resolution lastResolution;
-
-    private static boolean fontFits(Font f, double width, double height, Graphics2D g2) {
-        String baseChar = "G";
-        Rectangle2D charRect = f.getStringBounds(baseChar, g2.getFontRenderContext());
-        if (charRect.getWidth() > width || charRect.getHeight() > height) return false;
-        else return true;
-    }
 
     public BAMTrackRenderer() {
     }
@@ -299,6 +292,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private ColourKey getSubPileColour(VariantType snpNuc, VariantType genomeNuc) {
         if (snpNuc == genomeNuc || snpNuc == VariantType.INSERTION) {
+            // We return REVERSE_STRAND here because that's the colour we want when we're
+            // doing the non-stranded SNP mode.
             return ColourKey.REVERSE_STRAND;
         } else {
             switch (snpNuc) {
@@ -348,6 +343,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         int readCursor = alignmentStart;
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
+        FontMetrics fm = g2.getFontMetrics(MISMATCH_FONT);
+        Rectangle2D charRect = fm.getStringBounds("G", g2);
+        boolean fontFits = charRect.getWidth() <= unitWidth && charRect.getHeight() <= unitHeight;
+        if (fontFits) {
+            g2.setFont(MISMATCH_FONT);
+        }
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         for (CigarElement cigarElement : cigar.getCigarElements()) {
 
             int operatorLength = cigarElement.getLength();
@@ -395,18 +398,18 @@ public class BAMTrackRenderer extends TrackRenderer {
                                     }
 
                                     double xCoordinate = gp.transformXPos(sequenceCursor + i);
+                                    double top = gp.transformYPos(0) - ((level + 1) * unitHeight) - offset;
                                     if (col != null) {
-                                        opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
+                                        opRect = new Rectangle2D.Double(xCoordinate, top, unitWidth, unitHeight);
                                         g2.setColor(col);
                                         g2.fill(opRect);
                                     }
-                                    if (lastMode != DrawingMode.SEQUENCE && mismatched && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                    if (lastMode != DrawingMode.SEQUENCE && mismatched && fontFits) {
                                         // If it's a real mismatch, we want to draw the base letter (space permitting).
-                                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                                         g2.setColor(new Color(10, 10, 10));
-                                        g2.setFont(MISMATCH_FONT);
-                                        g2.drawBytes(readBases, readIndex, 1, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().bytesWidth(readBases, readIndex, 1)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
-                                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                                        String s = new String(readBases, readIndex, 1);
+                                        charRect = fm.getStringBounds(s, g2);
+                                        g2.drawString(s, (float)(xCoordinate + (unitWidth - charRect.getWidth()) * 0.5), (float)(top + fm.getAscent() + (unitHeight - charRect.getHeight()) * 0.5));
                                     }
                                 }
                             }
@@ -426,11 +429,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (operator.consumesReadBases()) readCursor += operatorLength;
             if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
         }
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
     
     /**
@@ -579,7 +580,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         double maxHeight = 0;
         for (Pileup p : pileups) {
-            double current = p.getTotalCoverage();
+            int current = p.getTotalCoverage(null);
             if (current > maxHeight) maxHeight = current;
         }
 
@@ -593,25 +594,25 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         for (Pileup p : pileups) {
-
-            if (p.getTotalCoverage() > 0.0) {
+            int totalCoverage = p.getTotalCoverage(null);
+            if (totalCoverage > 0) {
                 VariantType snpNuc = null;
                 double bottom = gp.transformYPos(0);
                 double x = gp.transformXPos(p.getPosition());
-                double h = unitHeight * p.getTotalCoverage();
+                double h = unitHeight * totalCoverage;
 
                 VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
                     genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - startPosition]);
                     snpNuc = genomeNuc;
                 }
-                if (p.getTotalCoverage() > p.getCoverage(genomeNuc)) {
+                if (totalCoverage > p.getCoverage(genomeNuc, null)) {
                     // Only record a shape if we have at least some mismatches.
                     recordToShapeMap.put(new PileupRecord(p, false), new Rectangle2D.Double(x, bottom - h, unitWidth, h));
                 }
 
                 while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
-                    h = unitHeight * p.getCoverage(snpNuc);
+                    h = unitHeight * p.getCoverage(snpNuc, null);
                     Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                     accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
                     if (snpNuc == VariantType.INSERTION) {
@@ -654,8 +655,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         double maxHeight = 0.0;
         for (Pileup p : pileups) {
-            double current1 = p.getTotalStrandCoverage(true);
-            double current2 = p.getTotalStrandCoverage(false);
+            int current1 = p.getTotalCoverage(Strand.REVERSE);
+            int current2 = p.getTotalCoverage(Strand.FORWARD);
             if (current1 > maxHeight) maxHeight = current1;
             if (current2 > maxHeight) maxHeight = current2;
         }
@@ -672,12 +673,12 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         for (Pileup p : pileups) {
 
-            if (p.getTotalCoverage() > 0.0) {
+            if (p.getTotalCoverage(null) > 0) {
                 VariantType snpNuc = null;
                 double bottom = axis;
                 double top = axis;
                 double x = gp.transformXPos(p.getPosition());
-                double h = unitHeight * p.getTotalCoverage();
+                double h = unitHeight * p.getTotalCoverage(null);
 
                 VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
@@ -685,35 +686,35 @@ public class BAMTrackRenderer extends TrackRenderer {
                     snpNuc = genomeNuc;
                 }
 
-                if (p.getTotalCoverage() > p.getCoverage(genomeNuc)) {
+                if (p.getTotalCoverage(null) > p.getCoverage(genomeNuc, null)) {
                     // Only record a shape if we have at least some mismatches.
-                    recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalStrandCoverage(true), unitWidth, h));
+                    recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalCoverage(Strand.FORWARD), unitWidth, h));
                 }
 
                 while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
 
-                    double coverage1 = p.getStrandCoverage(snpNuc, false);
-                    double coverage2 = p.getStrandCoverage(snpNuc, true);
+                    int forwardCoverage = p.getCoverage(snpNuc, Strand.FORWARD);
+                    int reverseCoverage = p.getCoverage(snpNuc, Strand.REVERSE);
 
                     ColourKey col = getSubPileColour(snpNuc, genomeNuc);
-                    if (coverage1 > 0.0) {
-                        h = unitHeight * coverage1;
-                        Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
+                    if (forwardCoverage > 0) {
+                        h = unitHeight * forwardCoverage;
+                        Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                         accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
                         if (snpNuc == VariantType.INSERTION) {
                             insertions.add(rect);
                         } else {
-                            top += h;
+                            bottom -= h;
                         }
                     }
-                    if (coverage2 > 0.0) {
-                        h = unitHeight * coverage2;
-                        Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
+                    if (reverseCoverage > 0) {
+                        h = unitHeight * reverseCoverage;
+                        Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
                         accumulator.addShape(col, rect);
                         if (snpNuc == VariantType.INSERTION) {
                             insertions.add(rect);
                         } else {
-                            bottom -= h;
+                            top += h;
                         }
                     }
 
@@ -741,7 +742,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             return;
         }
 
-        boolean strand = samRecord.getReadNegativeStrandFlag();
+        Strand strand = samRecord.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD;
         
         int alignmentStart = samRecord.getAlignmentStart();
 
@@ -750,6 +751,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();
+        byte[] baseQualities = samRecord.getBaseQualities();
 
         // set cursors for the reference and read
         int sequenceCursor = alignmentStart;
@@ -768,7 +770,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(VariantType.DELETION, 1.0, strand);
+                            p.pileOn(VariantType.DELETION, baseQualities[readCursor - alignmentStart + i], strand);
                         }
                     }
                     break;
@@ -777,7 +779,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     int insPos = sequenceCursor - startPosition;
                     if (insPos >= 0 && insPos < pileups.size()) {
                         Pileup p = pileups.get(insPos);
-                        p.pileOn(VariantType.INSERTION, 1.0, strand);
+                        p.pileOn(VariantType.INSERTION, readCursor - alignmentStart, strand);
                     }
                     break;
                 case M:
@@ -790,7 +792,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(readN, 1.0, strand);
+                            p.pileOn(readN, baseQualities[readIndex], strand);
                         }
                     }
                     break;

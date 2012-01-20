@@ -19,6 +19,7 @@ package savant.util;
 import java.util.EnumMap;
 import java.util.Map;
 
+import savant.api.data.Strand;
 import savant.api.data.VariantType;
 
 
@@ -48,7 +49,7 @@ public final class Pileup {
         return position;
     }
 
-    public void pileOn(VariantType n, double quality, boolean strand) {
+    public void pileOn(VariantType n, double quality, Strand strand) {
         coverage.get(n).pileOn(quality, strand);
     }
 
@@ -62,8 +63,8 @@ public final class Pileup {
         VariantType snpNuc = null;
 
         for (VariantType n : nucs) {
-            if(n == notThis) continue;
-            if(this.getCoverage(n) > 0 && (snpNuc == null || this.getCoverage(n) > this.getCoverage(snpNuc))){
+            if (n == notThis) continue;
+            if (this.getCoverage(n, null) > 0 && (snpNuc == null || getCoverage(n, null) > getCoverage(snpNuc, null))){
                 snpNuc = n;
             }
         }
@@ -73,22 +74,6 @@ public final class Pileup {
 
     public void clearVariantType(VariantType n) {
         coverage.put(n, new Coverage());
-    }
-
-    public double getTotalCoverage() {
-        double total = 0.0;
-        for (Coverage cov: coverage.values()) {
-            total += cov.total;
-        }
-        return total;
-    }
-    
-    public double getTotalStrandCoverage(boolean reverse) {
-        double total = 0.0;
-        for (Coverage cov: coverage.values()) {
-            total += cov.strand[reverse ? 1 : 0];
-        }
-        return total;
     }
 
     public static VariantType getVariantType(char c) {
@@ -110,26 +95,60 @@ public final class Pileup {
         }
     }
 
-    public double getCoverage(VariantType n) {
-        return coverage.get(n).total;
-    }
-    
-        
-    public double getStrandCoverage(VariantType n, boolean reverse) {
-        return coverage.get(n).strand[reverse ? 1 : 0];
+    public int getCoverage(VariantType n, Strand strand) {
+        Coverage cov = coverage.get(n);
+        if (strand == Strand.FORWARD) {
+            return cov.forwardCount;
+        } else if (strand == Strand.REVERSE) {
+            return cov.reverseCount;
+        } else {
+            return cov.count;
+        }
     }
 
-    public double getCoverageProportion(VariantType n) {
-        return getCoverage(n) / getTotalCoverage();
+    public int getTotalCoverage(Strand strand) {
+        int total = 0;
+        if (strand == Strand.FORWARD) {
+            for (Coverage cov: coverage.values()) {
+                total += cov.forwardCount;
+            }
+        } else if (strand == Strand.REVERSE) {
+            for (Coverage cov: coverage.values()) {
+                total += cov.reverseCount;
+            }
+        } else {
+            for (Coverage cov: coverage.values()) {
+                total += cov.count;
+            }
+        }
+        return total;
+    }
+
+    public double getAverageQuality(VariantType n, Strand strand) {
+        Coverage cov = coverage.get(n);
+        if (strand == Strand.FORWARD) {
+            return cov.forwardSum / cov.forwardCount;
+        } else if (strand == Strand.REVERSE) {
+            return cov.reverseSum / cov.reverseCount;
+        } else {
+            return cov.sum / cov.count;
+        }
     }
 
     private class Coverage {
-        double total = 0.0;
-        double[] strand = { 0.0, 0.0 };
+        int count = 0, forwardCount = 0, reverseCount = 0;
+        double sum = 0.0, forwardSum = 0.0, reverseSum = 0.0;
         
-        void pileOn(double value, boolean reverse) {
-            total += value;
-            strand[reverse ? 1 : 0] += value;
+        void pileOn(double quality, Strand strand) {
+            count++;
+            sum += quality;
+            if (strand == Strand.FORWARD) {
+                forwardCount++;
+                forwardSum += quality;
+            } else {
+                reverseCount++;
+                reverseSum += quality;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import savant.api.adapter.SequenceDataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.SequenceRecord;
 import savant.api.util.DialogUtils;
-import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.settings.BrowserSettings;
@@ -159,7 +158,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException, InterruptedException {
-        return isSequenceSet() ? ((SequenceRecord)(sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.HIGH, null).get(0)).getSequence() : null;
+        return isSequenceSet() ? sequenceTrack.getSequence(reference, range) : null;
     }
 
     @Override

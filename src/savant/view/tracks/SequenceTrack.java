@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 
 package savant.view.tracks;
 
+import java.io.IOException;
+import java.util.List;
+
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.SequenceRecord;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
@@ -69,5 +73,17 @@ public class SequenceTrack extends Track {
             renderer.addInstruction(DrawingInstruction.RANGE, r);
             renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
         }
+    }
+    
+    /**
+     * We often want to retrieve just the sequence.  This will be stored in a single SequenceRecord.
+     */
+    public byte[] getSequence(String ref, RangeAdapter r) throws IOException, InterruptedException {
+        List<SequenceRecord> recs = getDataSource().getRecords(ref, r, Resolution.HIGH, null);
+        if (recs != null && recs.size() > 0) {
+            return recs.get(0).getSequence();
+        }
+        // No data retrieved.
+        return null;
     }
 }
