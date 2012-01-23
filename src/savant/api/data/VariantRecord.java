@@ -37,11 +37,11 @@ public interface VariantRecord extends IntervalRecord {
     public String getRefBases();
     
     /**
-     * Comma separated list of alternate non-reference alleles called on at least one of the samples.
+     * Array alternate non-reference alleles called on at least one of the samples.
      *
-     * @return a non-empty string containing reference bases
+     * @return an array containing the non-reference alleles
      */
-    public String getAltBases();
+    public String[] getAltAlleles();
 
     /**
      * Get the number of participants represented by this record (probably the same for
@@ -54,7 +54,14 @@ public interface VariantRecord extends IntervalRecord {
     /**
      * Given a participant, determine what type of variant (if any) they have for this record.
      * @param index the participant's index (0-based)
-     * @return the variant for this participant (possibly NONE)
+     * @return one or two variants for this participant
      */
-    public VariantType getVariantForParticipant(int index);
+    public VariantType[] getVariantsForParticipant(int index);
+
+    /**
+     * Given a participant, determine which of the alleles from <code>getAltAlleles()</code> they have for this record.
+     * @param index the participant's index (0-based)
+     * @return one or two 1-based indices of the participants allele within <code>getAltAlleles()</code>; 0 indicates reference
+     */
+    public int[] getAllelesForParticipant(int index);
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -84,6 +85,7 @@ public class PluginController extends Controller {
     /**
      * Try to load all JAR and XML files in the given directory.
      */
+    @SuppressWarnings("CallToThreadRun")
     public void loadPlugins(File pluginsDir) {
         File[] files = pluginsDir.listFiles(new PluginFileFilter());
         for (File f: files) {
@@ -104,7 +106,7 @@ public class PluginController extends Controller {
                 }
             }
             if (updated.size() > 0) {
-                DialogUtils.displayMessage("Plugins Updated", String.format("<html>The following plugins were updated to be compatible with Savant %s:<br><br><i>%s</i></html>", BrowserSettings.VERSION, MiscUtils.join(updated, ", ")));
+                DialogUtils.displayMessage("Plugins Updated", String.format("<html>The following plugins were updated to be compatible with Savant %s:<br><br><i>%s</i></html>", BrowserSettings.VERSION, StringUtils.join(updated, ", ")));
                 for (String s: updated) {
                     pluginErrors.remove(s);
                 }

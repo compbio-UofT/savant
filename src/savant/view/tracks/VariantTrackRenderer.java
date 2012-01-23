@@ -17,6 +17,7 @@
 package savant.view.tracks;
 
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.logging.Log;
@@ -25,16 +26,11 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
+import savant.api.data.VariantType;
 import savant.api.event.DataRetrievalEvent;
 import savant.exception.RenderingException;
 import savant.settings.ColourSettings;
-import savant.util.AxisRange;
-import savant.util.ColourAccumulator;
-import savant.util.ColourKey;
-import savant.util.ColourScheme;
-import savant.util.DrawingInstruction;
-import savant.util.DrawingMode;
-import savant.util.Range;
+import savant.util.*;
 
 
 /**
@@ -42,7 +38,7 @@ import savant.util.Range;
  *
  * @author tarkvara
  */
-class VariantTrackRenderer extends TrackRenderer {
+public class VariantTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(VariantTrackRenderer.class);
 
     VariantTrackRenderer() {
@@ -109,29 +105,7 @@ class VariantTrackRenderer extends TrackRenderer {
             double w = unitWidth * varRec.getInterval().getLength();
 
             for (int j = 0; j < participantCount; j++) {
-                Rectangle2D rect = new Rectangle2D.Double(x, y, w, unitHeight);
-                switch (varRec.getVariantForParticipant(j)) {
-                    case SNP_A:
-                        accumulator.addBaseShape('A', rect);
-                        break;
-                    case SNP_C:
-                        accumulator.addBaseShape('C', rect);
-                        break;
-                    case SNP_G:
-                        accumulator.addBaseShape('G', rect);
-                        break;
-                    case SNP_T:
-                        accumulator.addBaseShape('T', rect);
-                        break;
-                    case INSERTION:
-                        // Because the scaling of a VCF track is not base-based, it doesn't make sense
-                        // to draw insertions using the rhombus we employ elsewhere.
-                        accumulator.addShape(ColourKey.INSERTED_BASE, rect);
-                        break;
-                    case DELETION:
-                        accumulator.addShape(ColourKey.DELETED_BASE, rect);
-                        break;
-                }
+                accumulateZygoteShapes(varRec.getVariantsForParticipant(j), accumulator, new Rectangle2D.Double(x, y, w, unitHeight));
                 y -= unitHeight;
             }
             recordToShapeMap.put(varRec, new Rectangle2D.Double(x, 0.0, w, unitHeight * participantCount));
@@ -146,6 +120,46 @@ class VariantTrackRenderer extends TrackRenderer {
                 drawFeatureLabel(g2, participants[i], 0.0, y);
                 y -= unitHeight;
             }
+        }
+    }
+    
+    /**
+     * If we're homozygotic, accumulate a rectangle for this variant.  If we're heterozygotic, accumulate a triangle for each parent.
+     * @param vars array of one or two variant types
+     * @param accumulator a colour accumulator
+     * @param rect bounding box used for rendering both zygotes
+     */
+    public static void accumulateZygoteShapes(VariantType[] vars, ColourAccumulator accumulator, Rectangle2D rect) {
+        if (vars.length == 1) {
+            accumulateShape(vars[0], accumulator, rect);
+        } else {
+//            accumulateShape(vars[0], accumulator, MiscUtils.createPolygon(rect.getX(), rect.getY(), rect.getMaxX(), rect.getY(), rect.getMaxX(), rect.getMaxY()));
+//            accumulateShape(vars[1], accumulator, MiscUtils.createPolygon(rect.getX(), rect.getY(), rect.getMaxX(), rect.getMaxY(), rect.getX(), rect.getMaxY()));
+            accumulateShape(vars[0], accumulator, new Rectangle2D.Double(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight() * 0.5));
+            accumulateShape(vars[1], accumulator, new Rectangle2D.Double(rect.getX(), rect.getCenterY(), rect.getWidth(), rect.getHeight() * 0.5));
+        }
+    }
+
+    public static void accumulateShape(VariantType var, ColourAccumulator accumulator, Shape shape) {
+        switch (var) {
+            case SNP_A:
+                accumulator.addBaseShape('A', shape);
+                break;
+            case SNP_C:
+                accumulator.addBaseShape('C', shape);
+                break;
+            case SNP_G:
+                accumulator.addBaseShape('G', shape);
+                break;
+            case SNP_T:
+                accumulator.addBaseShape('T', shape);
+                break;
+            case INSERTION:
+                accumulator.addShape(ColourKey.INSERTED_BASE, shape);
+                break;
+            case DELETION:
+                accumulator.addShape(ColourKey.DELETED_BASE, shape);
+                break;
         }
     }
 }

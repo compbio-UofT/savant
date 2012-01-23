@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.apache.commons.lang3.StringUtils;
+
 import savant.api.adapter.BAMDataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
@@ -39,7 +41,6 @@ import savant.api.event.TrackEvent;
 import savant.api.util.Listener;
 import savant.api.util.TrackUtils;
 import savant.controller.LocationController;
-import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
 
@@ -323,7 +324,7 @@ class ToolSettingsPanel extends JPanel {
                         checks.add(cb.getText());
                     }
                 }
-                argument.value = MiscUtils.join(checks, ",");
+                argument.value = StringUtils.join(checks, ',');
                 tool.displayCommandLine(commandLine);
             }
         };

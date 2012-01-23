@@ -51,7 +51,7 @@ import savant.view.tracks.VariantTrack;
  * @author tarkvara
  */
 public class VariationSheet extends JPanel implements Listener<DataRetrievalEvent> {
-    private static final Log LOG = LogFactory.getLog(VariationSheet.class);
+    static final Log LOG = LogFactory.getLog(VariationSheet.class);
     private static final String ZOOM_MESSAGE = MiscUtils.MAC ? "<html><center>Zoom in to see data<br><small>To view data at this range, change Preferences > Track Resolutions</small></center></html>" : "<html><center>Zoom in to see data<br><small>To view data at this range, change Edit > Preferences > Track Resolutions</small></center></html>";
 
     private static final Comparator<VariantRecord> VARIANT_COMPARATOR = new Comparator<VariantRecord>() {
@@ -79,6 +79,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     private JTable table;
     private VariantMap map;
     private LDPlot ldPlot;
+    private AlleleFrequencyPlot frequencyPlot;
     
     private JTextField rangeField;
     private JScrollBar mapScroller;
@@ -158,6 +159,9 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         mapPanel.add(mapScroller, gbc);
         tabs.addTab("Map", mapPanel);
 
+        frequencyPlot = new AlleleFrequencyPlot(this);
+        tabs.addTab("Allele Frequency", frequencyPlot);
+        
         JPanel ldPanel = new JPanel();
         ldPanel.setLayout(new GridBagLayout());
 

@@ -102,7 +102,7 @@ public class LDPlot extends JPanel {
                     VariantType varI = recI.getVariantType();
                     int n1 = 0;
                     for (int k = 0; k < participantCount; k++) {
-                        if (recI.getVariantForParticipant(k) == varI) {
+                        if (recI.getVariantsForParticipant(k)[0] == varI) {
                             n1++;
                         }
                     }
@@ -117,9 +117,9 @@ public class LDPlot extends JPanel {
                             n1 = 0;
                             int n11 = 0;
                             for (int k = 0; k < participantCount; k++) {
-                                if (recJ.getVariantForParticipant(k) == varJ) {
+                                if (recJ.getVariantsForParticipant(k)[0] == varJ) {
                                     n1++;
-                                    if (recI.getVariantForParticipant(k) == varI) {
+                                    if (recI.getVariantsForParticipant(k)[0] == varI) {
                                         n11++;
                                     }
                                 }

@@ -125,7 +125,8 @@ public class VariantTrack extends Track {
             VariantRecord varRec = (VariantRecord)rec;
             int count = getParticipantCount();
             for (int i = 0; i < count; i++) {
-                if (varRec.getVariantForParticipant(i) != VariantType.NONE) {
+                VariantType[] participantVars = varRec.getVariantsForParticipant(i);
+                if (participantVars.length > 1 || participantVars[0] != VariantType.NONE) {
                     return true;
                 }
             }

@@ -16,7 +16,9 @@
 
 package savant.data.types;
 
-import java.util.Arrays;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -75,7 +77,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
             }
             String[] alleleIndices = info.split("[|/]");
             participants0[i] = Byte.parseByte(alleleIndices[0]);
-            participants1[i] = Byte.parseByte(alleleIndices[1]);
+            if (alleleIndices.length > 1) {
+                participants1[i] = Byte.parseByte(alleleIndices[1]);
+            } else {
+                participants1[i] = (byte)-1;
+            }
         }
 
         values = null;
@@ -90,48 +96,29 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+    public int compareTo(Object t) {
+        VariantRecord that = (VariantRecord)t;
+        return new CompareToBuilder().append(getInterval(), that.getInterval()).
+                                      append(getRefBases(), that.getRefBases()).
+                                      append(getAltAlleles(), that.getAltAlleles()).toComparison();
+    }
+
+    @Override
+    public boolean equals(Object t) {
+        if (t instanceof VariantRecord) {
+            VariantRecord that = (VariantRecord)t;
+            return new EqualsBuilder().append(getInterval(), that.getInterval()).
+                                       append(getRefBases(), that.getRefBases()).
+                                       append(getAltAlleles(), that.getAltAlleles()).isEquals();
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final VCFVariantRecord other = (VCFVariantRecord) obj;
-        if (!interval.equals(other.interval)) return false;
-        if ((this.refBases == null) ? (other.refBases != null) : !this.refBases.equals(other.refBases)) {
-            return false;
-        }
-        if (!Arrays.deepEquals(this.altBases, other.altBases)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 83 * hash + (interval != null ? interval.hashCode() : 0);
-        hash = 83 * hash + (this.refBases != null ? this.refBases.hashCode() : 0);
-        hash = 83 * hash + Arrays.deepHashCode(this.altBases);
-        return hash;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-
-        VariantRecord that = (VariantRecord) o;
-
-        // Compare position.  This should be unique.
-        if (!interval.equals(that.getInterval())) {
-            return interval.compareTo(that.getInterval());
-        }
-        
-        if (!refBases.equals(that.getRefBases())) {
-            return refBases.compareTo(that.getRefBases());
-        }
-        
-        return getAltBases().compareTo(that.getAltBases());
+        return new HashCodeBuilder().append(getInterval()).
+                                     append(getRefBases()).
+                                     append(getAltAlleles()).toHashCode();
     }
 
     @Override
@@ -150,12 +137,8 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     }
 
     @Override
-    public String getAltBases() {
-        String result = altBases[0];
-        for (int i = 1; i < altBases.length; i++) {
-            result += "," + altBases[i];
-        }
-        return result;
+    public String[] getAltAlleles() {
+        return altBases;
     }
 
     @Override
@@ -165,30 +148,39 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
 
     /**
      * Get the variant for the given individual.
-     * TODO: Distinguish between homozygous and heterozygous variants.
      *
      * @param index between 0 and getParticipantCount() - 1
      * @return the variant for this participant (possibly NONE)
      */
     @Override
-    public VariantType getVariantForParticipant(int index) {
-        if (participants0[index] == 0) {
-            if (participants1[index] == 0) {
-                // Both are 0, so we have no variant for this participant.
-                return VariantType.NONE;
-            } else {
-                // Heterozygous variant.
-                return getVariantType(altBases[participants1[index] - 1]);
-            }
+    public VariantType[] getVariantsForParticipant(int index) {
+        int[] alleles = getAllelesForParticipant(index);
+        if (alleles.length == 1) {
+            // Either haploid or homozygous.
+            return new VariantType[] { getVariantType(alleles[0]) };
         } else {
-            return getVariantType(altBases[participants0[index] - 1]);
+            return new VariantType[] { getVariantType(alleles[0]), getVariantType(alleles[1]) };
         }
     }
-    
-    public boolean isHeterozygousForParticipant(int index) {
-        return participants0[index] != participants1[index];
-    }
 
+    /**
+     * Get the indices of the allele for the given individual.
+     *
+     * @param index between 0 and getParticipantCount() - 1
+     * @return one or two alleles for this participant (0 for reference)
+     */
+    @Override
+    public int[] getAllelesForParticipant(int index) {
+        int allele0 = participants0[index];
+        int allele1 = participants1[index];
+        if (allele0 == allele1 || allele1 < 0) {
+            // Either haploid or homozygous.
+            return new int[] { allele0 };
+        }
+        // Heterozygous.
+        return new int[] { allele0, allele1 };
+    }
+    
     /**
      * Return the type of this record without reference to any participant.  When there
      * are multiple ALT values, we return the first one.
@@ -202,8 +194,15 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     }
 
     /**
+     * Get the variant type for the given allele.
+     * @param index 0-based allele index where 0 = reference
+     */
+    private VariantType getVariantType(int index) {
+        return index > 0 ? getVariantType(altBases[index - 1]) : VariantType.NONE;
+    }
+
+    /**
      * TODO: Interpret ALT strings which contain descriptive information rather than bases.
-     * TODO: Interpret ALT strings which contain multiple comma-separated values.
      * @return the type of variant represented by this record
      */
     private VariantType getVariantType(String alt) {

@@ -43,6 +43,7 @@ import savant.util.ColourScheme;
 import savant.util.Hoverer;
 import savant.util.MiscUtils;
 import savant.view.tracks.Track;
+import savant.view.tracks.VariantTrackRenderer;
 
 
 /**
@@ -145,27 +146,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
 
                 double x = 0.0;
                 for (int j = 0; j < participantCount; j++) {
-                    Rectangle2D rect = new Rectangle2D.Double(x, y + topGap, unitWidth, unitHeight - topGap - bottomGap);
-                    switch (varRec.getVariantForParticipant(j)) {
-                        case SNP_A:
-                            accumulator.addBaseShape('A', rect);
-                            break;
-                        case SNP_C:
-                            accumulator.addBaseShape('C', rect);
-                            break;
-                        case SNP_G:
-                            accumulator.addBaseShape('G', rect);
-                            break;
-                        case SNP_T:
-                            accumulator.addBaseShape('T', rect);
-                            break;
-                        case INSERTION:
-                            accumulator.addShape(ColourKey.INSERTED_BASE, rect);
-                            break;
-                        case DELETION:
-                            accumulator.addShape(ColourKey.DELETED_BASE, rect);
-                            break;
-                    }
+                    VariantTrackRenderer.accumulateZygoteShapes(varRec.getVariantsForParticipant(j), accumulator, new Rectangle2D.Double(x, y + topGap, unitWidth, unitHeight - topGap - bottomGap));
                     x += unitWidth;
                 }
                 topGap = bottomGap;

@@ -54,8 +54,8 @@ class PaddedVariantRecord implements VariantRecord {
     }
 
     @Override
-    public String getAltBases() {
-        return original.getAltBases();
+    public String[] getAltAlleles() {
+        return original.getAltAlleles();
     }
 
     @Override
@@ -64,13 +64,21 @@ class PaddedVariantRecord implements VariantRecord {
     }
 
     @Override
-    public VariantType getVariantForParticipant(int index) {
-        if (index < padding) {
-            return VariantType.NONE;
-        } else if (index < getParticipantCount()) {
-            return original.getVariantForParticipant(index - padding);
+    public VariantType[] getVariantsForParticipant(int index) {
+        if (index >= padding && index < getParticipantCount()) {
+            return original.getVariantsForParticipant(index - padding);
         }
-        return VariantType.NONE;
+        // Participants which fall into the padding implicitly have NONE at this location.
+        return new VariantType[] { VariantType.NONE };
+    }
+
+    @Override
+    public int[] getAllelesForParticipant(int index) {
+        if (index >= padding && index < getParticipantCount()) {
+            return original.getAllelesForParticipant(index - padding);
+        }
+        // Participants which fall into the padding implicitly have allele 0 (i.e. ref) at this location.
+        return new int[] { 0 };
     }
 
     @Override

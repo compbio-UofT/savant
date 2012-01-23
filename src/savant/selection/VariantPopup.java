@@ -18,6 +18,8 @@ package savant.selection;
 
 import javax.swing.JLabel;
 
+import org.apache.commons.lang3.StringUtils;
+
 import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
 
@@ -45,6 +47,6 @@ public class VariantPopup extends PopupPanel {
         add(new JLabel("Type: " + rec.getVariantType().getDescription()));
         add(new JLabel("Position: " + start));
         add(new JLabel("Reference: " + rec.getRefBases()));
-        add(new JLabel("Alt: " + rec.getAltBases()));
+        add(new JLabel("Alt: " + StringUtils.join(rec.getAltAlleles(), ',')));
     }
 }

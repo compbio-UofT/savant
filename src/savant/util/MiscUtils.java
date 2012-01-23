@@ -114,20 +114,6 @@ public class MiscUtils {
         return DateFormat.getTimeInstance().format(cal.getTime());
     }
 
-
-    public static String join(Collection<? extends Object> strs, String separator) {
-        StringBuilder result = null;
-        for (Object o: strs) {
-            if (result == null) {
-                result = new StringBuilder();
-            } else {
-                result.append(separator);
-            }
-            result.append(o);
-        }
-        return result.toString();
-    }
-
     /**
      * Remove the specified character from the given string.
      * @param s The string from which to remove the character

@@ -66,7 +66,7 @@ class VariantTableModel extends AbstractTableModel {
                 case 3:
                     return rec.getRefBases();
                 case 4:
-                    return rec.getAltBases();
+                    return rec.getAltAlleles();
                 default:
                     return "";
             }

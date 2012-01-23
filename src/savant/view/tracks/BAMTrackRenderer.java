@@ -47,7 +47,6 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.data.types.PileupRecord;
 import savant.exception.RenderingException;
-import savant.settings.BrowserSettings;
 import savant.util.*;
 
 
