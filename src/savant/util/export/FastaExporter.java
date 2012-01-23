@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ import net.sf.samtools.SAMSequenceRecord;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
-import savant.api.data.SequenceRecord;
-import savant.api.util.Resolution;
 import savant.util.DownloadEvent;
 import savant.util.MiscUtils;
 import savant.view.tracks.SequenceTrack;
@@ -52,7 +50,7 @@ public class FastaExporter extends TrackExporter {
     FastaOutputStream fastaOutput;
 
     /** Keeps track of the file offsets where each chromosome's data starts. */
-    Map<String, Integer> refOffsets = new HashMap<String, Integer>();
+    Map<String, Long> refOffsets = new HashMap<String, Long>();
     
     /**
      * Should be instantiated from TrackExporter.getExporter();
@@ -156,7 +154,7 @@ public class FastaExporter extends TrackExporter {
             // We need to write entries for every contig, even though they may not actually exist in the Fasta file.
             for (SAMSequenceRecord samRec: samDict.getSequences()) {
                 String samRef = samRec.getSequenceName();
-                int offset = 0;
+                long offset = 0;
                 if (refOffsets.containsKey(samRef)) {
                     offset = refOffsets.get(samRef);
                 }
@@ -202,7 +200,7 @@ public class FastaExporter extends TrackExporter {
      * so that we can record the current offset.
      */
     private static class FastaOutputStream extends BufferedOutputStream {
-        int numWritten = 0;
+        long numWritten = 0;
 
         FastaOutputStream(OutputStream os) {
             super(os);
