@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -158,26 +158,28 @@ public class TabixFormatter extends SavantFileFormatter {
             PrintWriter output = new PrintWriter(new BlockCompressedOutputStream(outFile));
             String line;
             while ((line = input.readLine()) != null) {
-                output.println(line);
-                if ((mapping.name >= 0 || mapping.name2 >= 0) && !line.startsWith("#")) {
-                    String[] columns = line.split("\\t");
-                    String chrom = columns[mapping.chrom];
-                    int start = Integer.valueOf(columns[mapping.start]);
-                    int len = 1;
-                    if (mapping.end >= 0) {
-                        len = Integer.valueOf(columns[mapping.end]) - start;
-                    }
-                    String value = chrom + ":" + start + "+" + len;
-                    if (mapping.name >= 0) {
-                        String name = columns[mapping.name];
-                        if (name != null && name.length() > 0) {
-                            dictionary.add(name + "\t" + value);
+                if (!line.isEmpty()) {
+                    output.println(line);
+                    if ((mapping.name >= 0 || mapping.name2 >= 0) && !line.startsWith("#")) {
+                        String[] columns = line.split("\\t");
+                        String chrom = columns[mapping.chrom];
+                        int start = Integer.valueOf(columns[mapping.start]);
+                        int len = 1;
+                        if (mapping.end >= 0) {
+                            len = Integer.valueOf(columns[mapping.end]) - start;
                         }
-                    }
-                    if (mapping.name2 >= 0) {
-                        String name2 = columns[mapping.name2];
-                        if (name2 != null && name2.length() > 0) {
-                            dictionary.add(name2 + "\t" + value);
+                        String value = chrom + ":" + start + "+" + len;
+                        if (mapping.name >= 0) {
+                            String name = columns[mapping.name];
+                            if (name != null && name.length() > 0) {
+                                dictionary.add(name + "\t" + value);
+                            }
+                        }
+                        if (mapping.name2 >= 0) {
+                            String name2 = columns[mapping.name2];
+                            if (name2 != null && name2.length() > 0) {
+                                dictionary.add(name2 + "\t" + value);
+                            }
                         }
                     }
                 }
