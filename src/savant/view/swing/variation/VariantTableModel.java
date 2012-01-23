@@ -62,7 +62,7 @@ class VariantTableModel extends AbstractTableModel {
                 case 1:
                     return rec.getVariantType().getDescription();
                 case 2:
-                    return rec.getInterval().getStart();
+                    return rec.getPosition();
                 case 3:
                     return rec.getRefBases();
                 case 4:

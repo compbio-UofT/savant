@@ -19,15 +19,25 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+
+import savant.api.data.Strand;
 import savant.api.data.VariantRecord;
+import savant.api.data.VariantType;
 import savant.settings.ColourSettings;
+import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
+import savant.util.ColourScheme;
+import savant.util.Pileup;
+import savant.view.tracks.VariantTrackRenderer;
+
 
 /**
  * Simple graph of allele frequency for each point.
+ *
  * @author tarkvara
  */
 public class AlleleFrequencyPlot extends JPanel {
@@ -56,30 +66,42 @@ public class AlleleFrequencyPlot extends JPanel {
         if (data != null && !data.isEmpty()) {
             int participantCount = owner.getParticipantCount();
             unitHeight = (double)h / data.size();
-            unitWidth = (double)w / participantCount;
+            unitWidth = (double)w / (participantCount * 2.0);
             
-            double y = 0.0;
-            GeneralPath path = new GeneralPath();
-            path.moveTo(0.0, y);
-            for (VariantRecord varRec: data) {
+            List<Pileup> pileups = new ArrayList<Pileup>(data.size());
+            for (int i = 0; i < data.size(); i++) {
+                VariantRecord varRec = data.get(i);
+                Pileup pile = new Pileup(varRec.getPosition());
+                pileups.add(pile);
                 
+                for (int j = 0; j < varRec.getParticipantCount(); j++) {
+                    VariantType[] jVariants = varRec.getVariantsForParticipant(j);
+                    if (jVariants.length == 1) {
+                        pile.pileOn(jVariants[0], 1.0, null);
+                        pile.pileOn(jVariants[0], 1.0, null);
+                    } else {
+                        pile.pileOn(jVariants[0], 1.0, null);
+                        pile.pileOn(jVariants[1], 1.0, null);
+                    }
+                }
+            }
+
+            ColourAccumulator accumulator = new ColourAccumulator(new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE));
+
+            double y = 0.0;
+            double x = 0.0;
+
+            for (Pileup p : pileups) {
+                VariantType snpNuc;
+                while ((snpNuc = p.getLargestVariantType(VariantType.NONE)) != null) {
+                    Rectangle2D rect = new Rectangle2D.Double(x, y, p.getCoverage(snpNuc, null) * unitWidth, unitHeight);
+                    VariantTrackRenderer.accumulateShape(snpNuc, accumulator, rect);
+                    p.clearVariantType(snpNuc);
+                }
                 y += unitHeight;
             }
+
+            accumulator.fill(g2);
         }
-    }
-    
-    private double[] calculateFrequencies(VariantRecord varRec) {
-        int total;
-        double[] alleleTotals = new double[varRec.getAltAlleles().length + 1];
-        for (int i = 0; i < varRec.getParticipantCount(); i++) {
-            int[] alleles = varRec.getAllelesForParticipant(i);
-            if (alleles.length == 1) {
-                alleleTotals[alleles[0]]++;
-            } else {
-                alleleTotals[alleles[0]] += 0.5;
-                alleleTotals[alleles[1]] += 0.5;
-            }
-        }
-        return alleleTotals;
     }
 }

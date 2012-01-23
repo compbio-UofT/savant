@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ public interface PointRecord extends Record {
     /**
      * Position associated with this record.
      */
-    public int getPoint();
+    public int getPosition();
 
     /**
      * Description associated with this point.
      */
-    public String getDescription();
+    public String getName();
 }

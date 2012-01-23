@@ -21,7 +21,7 @@ package savant.api.data;
  *
  * @author tarkvara
  */
-public interface VariantRecord extends IntervalRecord {
+public interface VariantRecord extends PointRecord {
     /**
      * Type of variant represented by this record.
      *

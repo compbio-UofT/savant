@@ -139,7 +139,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 double bottomGap = 0.0;
                 if (gappable && i + 1 < data.size()) {
                     VariantRecord nextRec = data.get(i + 1);
-                    if (nextRec.getInterval().getStart() - varRec.getInterval().getEnd() > 1) {
+                    if (nextRec.getPosition() - varRec.getPosition() > 1) {
                         bottomGap = GAP_HEIGHT * 0.5;
                     }
                 }
@@ -201,7 +201,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             float labelX = 0.0F;    // Labels may get stacked up.
             for (int i = 0; i < ticks.length && index < data.size(); i++) {
                 int t = ticks[i];
-                while (index < data.size() && t > data.get(index).getInterval().getStart()) {
+                while (index < data.size() && t > data.get(index).getPosition()) {
                     index++;
                     labelX = 0.0F;
                 }
@@ -242,7 +242,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             double y = unitHeight;
             double w = getWidth();
             for (int i = 1; i < data.size(); i++) {
-                int gapSize = data.get(i).getInterval().getStart() - data.get(i - 1).getInterval().getEnd() - 1;
+                int gapSize = data.get(i).getPosition() - data.get(i - 1).getPosition() - 1;
                 if (gapSize > 0) {
                     String s = gapSize > 1 ? String.format("%d bases", gapSize) : "1 base";
 

@@ -414,7 +414,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
      * One of our panels has clicked or double-clicked.  Navigate to the record in the main window.
      */
     void navigateToRecord(VariantRecord rec) {
-        LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(rec.getInterval().getStart(), rec.getInterval().getEnd())));
+        LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(rec.getPosition(), rec.getPosition())));
     }
     
     /**
@@ -422,7 +422,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
      */
     void updateStatusBar(VariantRecord rec) {
         if (rec != null) {
-            GraphPaneController.getInstance().setMouseXPosition(rec.getInterval().getStart());
+            GraphPaneController.getInstance().setMouseXPosition(rec.getPosition());
         } else {
             GraphPaneController.getInstance().setMouseXPosition(-1);
         }

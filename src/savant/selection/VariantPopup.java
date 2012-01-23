@@ -37,10 +37,8 @@ public class VariantPopup extends PopupPanel {
     @Override
     protected void initInfo() {
         VariantRecord rec = (VariantRecord)record;
-        Interval inter = rec.getInterval();
         name = rec.getName();
-        start = inter.getStart();
-        end = inter.getEnd();
+        start = end = rec.getPosition();
         if (name != null) {
             add(new JLabel("Name: " + name));
         }

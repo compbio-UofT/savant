@@ -40,7 +40,7 @@ class PaddedVariantRecord implements VariantRecord {
      */
     @Override
     public String toString() {
-        return getVariantType().toString() + "@" + getInterval().getStart();
+        return getVariantType().toString() + "@" + getPosition();
     }
 
     @Override
@@ -82,8 +82,8 @@ class PaddedVariantRecord implements VariantRecord {
     }
 
     @Override
-    public Interval getInterval() {
-        return original.getInterval();
+    public int getPosition() {
+        return original.getPosition();
     }
 
     @Override

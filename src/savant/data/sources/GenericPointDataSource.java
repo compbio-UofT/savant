@@ -68,7 +68,7 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
                 savantFile.seek(reference, (indexOfStart++) * getRecordSize());
                 List<Object> record = SavantFileUtils.readBinaryRecord(savantFile, savantFile.getFields());
                 GenericPointRecord p = convertRecordToGenericPointRecord(record);
-                int pnt = p.getPoint();
+                int pnt = p.getPosition();
 
                 // TODO: remove the necessity to trim ... this is a problem with the delimiter in formatting
                 if (pnt > range.getTo() || !p.getReference().trim().equals(reference)) {

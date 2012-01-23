@@ -63,7 +63,7 @@ public class PointTrackRenderer extends TrackRenderer {
             for (Record record: data) {
                 Polygon p = new Polygon();
 
-                int sp = ((PointRecord)record).getPoint();
+                int sp = ((PointRecord)record).getPosition();
 
                 Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp),0);
                 Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp + 1),0);

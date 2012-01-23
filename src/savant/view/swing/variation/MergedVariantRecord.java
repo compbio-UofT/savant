@@ -84,7 +84,7 @@ class MergedVariantRecord implements VariantRecord {
                 alleles1.add(alleles2[i]);
             }
             if (i + 1 != index + 1) {
-                VariationSheet.LOG.info("At " + rec1.getInterval().getStart() + " " + (i + 1) + " will be renumbered to " + (index + 1));
+                VariationSheet.LOG.info("At " + rec1.getPosition() + " " + (i + 1) + " will be renumbered to " + (index + 1));
             }
             renumberedAlleles[i + 1] = (byte)(index + 1);
         }
@@ -96,7 +96,7 @@ class MergedVariantRecord implements VariantRecord {
      */
     @Override
     public String toString() {
-        return getVariantType().toString() + "@" + getInterval().getStart();
+        return getVariantType().toString() + "@" + getPosition();
     }
 
     @Override
@@ -147,8 +147,8 @@ class MergedVariantRecord implements VariantRecord {
     }
 
     @Override
-    public Interval getInterval() {
-        return original1.getInterval();
+    public int getPosition() {
+        return original1.getPosition();
     }
 
     @Override
@@ -164,7 +164,7 @@ class MergedVariantRecord implements VariantRecord {
     @Override
     public int compareTo(Object t) {
         VariantRecord that = (VariantRecord)t;
-        return new CompareToBuilder().append(getInterval(), that.getInterval()).
+        return new CompareToBuilder().append(getPosition(), that.getPosition()).
                                       append(getRefBases(), that.getRefBases()).
                                       append(getAltAlleles(), that.getAltAlleles()).toComparison();
     }
@@ -174,7 +174,7 @@ class MergedVariantRecord implements VariantRecord {
         if (t instanceof VariantRecord) {
             VariantRecord that = (VariantRecord)t;
             return new EqualsBuilder().appendSuper(super.equals(that)).
-                                       append(getInterval(), that.getInterval()).
+                                       append(getPosition(), that.getPosition()).
                                        append(getRefBases(), that.getRefBases()).
                                        append(getAltAlleles(), that.getAltAlleles()).isEquals();
         }
@@ -184,7 +184,7 @@ class MergedVariantRecord implements VariantRecord {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().appendSuper(super.hashCode()).
-                                     append(getInterval()).
+                                     append(getPosition()).
                                      append(getRefBases()).
                                      append(getAltAlleles()).toHashCode();
     }

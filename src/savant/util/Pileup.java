@@ -50,7 +50,9 @@ public final class Pileup {
     }
 
     public void pileOn(VariantType n, double quality, Strand strand) {
-        coverage.get(n).pileOn(quality, strand);
+        if (n != VariantType.NONE) {
+            coverage.get(n).pileOn(quality, strand);
+        }
     }
 
     /**
@@ -145,7 +147,7 @@ public final class Pileup {
             if (strand == Strand.FORWARD) {
                 forwardCount++;
                 forwardSum += quality;
-            } else {
+            } else if (strand == Strand.REVERSE) {
                 reverseCount++;
                 reverseSum += quality;
             }

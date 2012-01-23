@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -47,12 +47,12 @@ public class GenericPointRecord implements PointRecord {
     }
 
     @Override
-    public int getPoint() {
+    public int getPosition() {
         return point;
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return description;
     }
 
@@ -106,9 +106,9 @@ public class GenericPointRecord implements PointRecord {
         }
 
         //compare position
-        if (point == that.getPoint()) {
+        if (point == that.getPosition()) {
             return 0;
-        } else if(point < that.getPoint()) {
+        } else if(point < that.getPosition()) {
             return -1;
         } else {
             return 1;

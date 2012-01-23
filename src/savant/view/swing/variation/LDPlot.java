@@ -251,7 +251,7 @@ public class LDPlot extends JPanel {
                 for (VariantRecord varRec: data) {
                     String name = varRec.getName();
                     if (name == null || name.isEmpty()) {
-                        name = varRec.getReference() + ":" + varRec.getInterval().getStart();
+                        name = varRec.getReference() + ":" + varRec.getPosition();
                     }
                     Rectangle2D labelRect = fm.getStringBounds(name, g2);
                     double baseline = y + unitHeight * 0.5 + baselineOffset;
