@@ -18,6 +18,7 @@ package savant.view.swing.variation;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,6 +38,7 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.data.sources.TabixDataSource;
 import savant.settings.TrackResolutionSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -64,6 +66,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     List<VariantTrack> tracks = new ArrayList<VariantTrack>();
     List<List<VariantRecord>> rawData = new ArrayList<List<VariantRecord>>();
     List<VariantRecord> aggregateData = null;
+    List<String> participantNames = new ArrayList<String>();
 
     private int participantCount;
     private String visibleRef;
@@ -206,7 +209,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         // Create the informative cards, but don't use them.
         messageLabel = new JLabel();
         messageLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 24));
-        messageLabel.setAlignmentX(0.5f);;
+        messageLabel.setAlignmentX(0.5f);
         progressPanel = new ProgressPanel(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -294,6 +297,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         if (aggregateData == null) {
             int n = 0;
             int i = 0;
+            participantNames.clear();
             for (VariantTrack t: tracks) {
                 List<VariantRecord> trackData = rawData.get(i++);
                 if (trackData != null) {
@@ -326,6 +330,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                             }
                         }
                     }
+                    participantNames.addAll(Arrays.asList(((TabixDataSource)t.getDataSource()).getExtraColumns()));
                     n += t.getParticipantCount();
                 }
             }

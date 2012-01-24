@@ -114,6 +114,11 @@ public class TabixFormatter extends SavantFileFormatter {
             line = reader.readLine();
         }
         reader.close();
+        if (header != null) {
+            while (header.length() > 0 && header.charAt(0) == '#') {
+                header = header.substring(1);
+            }
+        }
     }
 
     @Override

@@ -20,8 +20,8 @@ import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
 
-import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
+import savant.data.types.ParticipantRecord;
 
 
 /**
@@ -36,15 +36,27 @@ public class VariantPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        VariantRecord rec = (VariantRecord)record;
-        name = rec.getName();
-        start = end = rec.getPosition();
-        if (name != null) {
-            add(new JLabel("Name: " + name));
+        VariantRecord varRec;
+        ParticipantRecord partRec = null;
+        if (record instanceof VariantRecord) {
+            varRec = (VariantRecord)record;
+        } else {
+            partRec = (ParticipantRecord)record;
+            varRec = partRec.getVariantRecord();
+            add(new JLabel("Participant: " + partRec.getName()));
         }
-        add(new JLabel("Type: " + rec.getVariantType().getDescription()));
+        name = varRec.getName();
+        start = end = varRec.getPosition();
+        if (name != null) {
+            add(new JLabel("Variant Name: " + name));
+        }
+        add(new JLabel("Type: " + varRec.getVariantType().getDescription()));
         add(new JLabel("Position: " + start));
-        add(new JLabel("Reference: " + rec.getRefBases()));
-        add(new JLabel("Alt: " + StringUtils.join(rec.getAltAlleles(), ',')));
+        add(new JLabel("Reference: " + varRec.getRefBases()));
+        if (partRec == null) {
+            add(new JLabel("Alt: " + StringUtils.join(varRec.getAltAlleles(), ',')));
+        } else {
+            add(new JLabel("Alleles: " + StringUtils.join(partRec.getAlleles(), ", ")));
+        }
     }
 }

@@ -31,11 +31,15 @@ import java.util.Map;
  * @author tarkvara
  */
 public class ColourAccumulator {
-    ColourScheme scheme;
-    Map<Color, Path2D> areas = new HashMap<Color, Path2D>();
+    private final ColourScheme scheme;
+    private final Map<Color, Path2D> areas = new HashMap<Color, Path2D>();
     
     public ColourAccumulator(ColourScheme cs) {
         scheme = cs;
+    }
+
+    public ColourScheme getScheme() {
+        return scheme;
     }
 
     /**

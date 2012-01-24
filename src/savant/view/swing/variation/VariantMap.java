@@ -32,8 +32,10 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.PopupHostingAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
+import savant.api.data.VariantType;
 import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
+import savant.data.types.ParticipantRecord;
 import savant.selection.PopupPanel;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
@@ -67,23 +69,26 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
         setFont(BrowserSettings.getTrackFont());
 
         MouseAdapter listener = new Hoverer() {
-            private Point dragStart = null;
 
             @Override
             public void actionPerformed(ActionEvent evt) {
-                LOG.info("Hoverer fired for " + hoverPos);
-                VariantRecord varRec = pointToRecord(hoverPos.y);
-                if (varRec != null) {
+                ParticipantRecord partRec = pointToParticipantRecord(hoverPos);
+                if (partRec != null) {
                     PopupPanel.hidePopup();
-                    Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
-                    PopupPanel.showPopup(VariantMap.this, globalPt, owner.tracks.get(0), varRec);
+                    VariantType[] partVars = partRec.getVariants();
+                    
+                    // Only display a popup if this participant actually has variation here.
+                    if (partVars[0] != VariantType.NONE || (partVars.length > 1 && partVars[1] != VariantType.NONE)) {
+                        Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
+                        PopupPanel.showPopup(VariantMap.this, globalPt, owner.tracks.get(0), partRec);
+                    }
                 }
                 hoverPos = null;
             }
             
             @Override
             public void mouseMoved(MouseEvent evt) {
-                owner.updateStatusBar(pointToRecord(evt.getPoint().y));
+                owner.updateStatusBar(pointToVariantRecord(evt.getPoint().y));
                 Point oldHover = hoverPos;
                 super.mouseMoved(evt);
                 if (oldHover != null && !isHoverable(oldHover)) {
@@ -93,12 +98,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
 
             @Override
             public void mouseClicked(MouseEvent evt) {
-                owner.navigateToRecord(pointToRecord(evt.getY()));
-            }
-            
-            @Override
-            public void mousePressed(MouseEvent evt) {
-                dragStart = evt.getPoint();
+                owner.navigateToRecord(pointToVariantRecord(evt.getY()));
             }
         };
         addMouseListener(listener);
@@ -165,14 +165,28 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
 
     /**
      * Given a point on this panel, figure out which record it corresponds to.
-     * @param y y-coordinate of the point we're interested in
+     * @param pt the point we're interested in
      * @return 
      */
-    private VariantRecord pointToRecord(double y) {
+    private VariantRecord pointToVariantRecord(int y) {
         int logicalY = (int)(y / unitHeight);
         List<VariantRecord> data = owner.getData();
         if (data != null && logicalY >= 0 && logicalY < data.size()) {
-            return (VariantRecord)data.get(logicalY);
+            return data.get(logicalY);
+        }
+        return null;
+    }
+
+    /**
+     * Given a point on this panel, figure out which record it corresponds to.
+     * @param pt the point we're interested in
+     * @return 
+     */
+    private ParticipantRecord pointToParticipantRecord(Point pt) {
+        VariantRecord varRec = pointToVariantRecord(pt.y);
+        if (varRec != null) {
+            int logicalX = (int)(pt.x / unitWidth);
+            return new ParticipantRecord(varRec, logicalX, owner.participantNames.get(logicalX));
         }
         return null;
     }
@@ -275,10 +289,11 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
 
     /**
      * Invoked when user chooses Select/Deselect from the popup menu.
-     * @param rec the record which should be selected
+     * @param rec the Participant record which should be selected
      */
     @Override
     public void recordSelected(Record rec) {
+        rec = ((ParticipantRecord)rec).getVariantRecord();
         for (Track t: owner.tracks) {
             boolean sel = false;
             if (rec instanceof MergedVariantRecord) {

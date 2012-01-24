@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package savant.util;
 import java.awt.Color;
 import java.util.EnumMap;
 
+import savant.api.data.VariantType;
 import savant.settings.ColourSettings;
 
 /**
@@ -73,6 +74,25 @@ public class ColourScheme {
                 return getColor(ColourKey.T);
             case 'N':
                 return getColor(ColourKey.N);
+            default:
+                return null;
+        }
+    }
+
+    public Color getVariantColor(VariantType var) {
+        switch (var) {
+            case SNP_A:
+                return getBaseColor('A');
+            case SNP_C:
+                return getBaseColor('C');
+            case SNP_G:
+                return getBaseColor('G');
+            case SNP_T:
+                return getBaseColor('T');
+            case INSERTION:
+                return getColor(ColourKey.INSERTED_BASE);
+            case DELETION:
+                return getColor(ColourKey.DELETED_BASE);
             default:
                 return null;
         }

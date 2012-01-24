@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
-import savant.api.data.Strand;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
 import savant.settings.ColourSettings;
@@ -86,7 +85,8 @@ public class AlleleFrequencyPlot extends JPanel {
                 }
             }
 
-            ColourAccumulator accumulator = new ColourAccumulator(new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE));
+            ColourScheme scheme = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
+            ColourAccumulator accumulator = new ColourAccumulator(scheme);
 
             double y = 0.0;
             double x = 0.0;
@@ -95,7 +95,7 @@ public class AlleleFrequencyPlot extends JPanel {
                 VariantType snpNuc;
                 while ((snpNuc = p.getLargestVariantType(VariantType.NONE)) != null) {
                     Rectangle2D rect = new Rectangle2D.Double(x, y, p.getCoverage(snpNuc, null) * unitWidth, unitHeight);
-                    VariantTrackRenderer.accumulateShape(snpNuc, accumulator, rect);
+                    accumulator.addShape(scheme.getVariantColor(snpNuc), rect);
                     p.clearVariantType(snpNuc);
                 }
                 y += unitHeight;

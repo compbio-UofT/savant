@@ -16,6 +16,7 @@
 
 package savant.view.tracks;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -130,36 +131,21 @@ public class VariantTrackRenderer extends TrackRenderer {
      * @param rect bounding box used for rendering both zygotes
      */
     public static void accumulateZygoteShapes(VariantType[] vars, ColourAccumulator accumulator, Rectangle2D rect) {
+        ColourScheme scheme = accumulator.getScheme();
         if (vars.length == 1) {
-            accumulateShape(vars[0], accumulator, rect);
+            accumulator.addShape(scheme.getVariantColor(vars[0]), rect);
         } else {
-//            accumulateShape(vars[0], accumulator, MiscUtils.createPolygon(rect.getX(), rect.getY(), rect.getMaxX(), rect.getY(), rect.getMaxX(), rect.getMaxY()));
-//            accumulateShape(vars[1], accumulator, MiscUtils.createPolygon(rect.getX(), rect.getY(), rect.getMaxX(), rect.getMaxY(), rect.getX(), rect.getMaxY()));
-            accumulateShape(vars[0], accumulator, new Rectangle2D.Double(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight() * 0.5));
-            accumulateShape(vars[1], accumulator, new Rectangle2D.Double(rect.getX(), rect.getCenterY(), rect.getWidth(), rect.getHeight() * 0.5));
-        }
-    }
-
-    public static void accumulateShape(VariantType var, ColourAccumulator accumulator, Shape shape) {
-        switch (var) {
-            case SNP_A:
-                accumulator.addBaseShape('A', shape);
-                break;
-            case SNP_C:
-                accumulator.addBaseShape('C', shape);
-                break;
-            case SNP_G:
-                accumulator.addBaseShape('G', shape);
-                break;
-            case SNP_T:
-                accumulator.addBaseShape('T', shape);
-                break;
-            case INSERTION:
-                accumulator.addShape(ColourKey.INSERTED_BASE, shape);
-                break;
-            case DELETION:
-                accumulator.addShape(ColourKey.DELETED_BASE, shape);
-                break;
+            Color color0 = scheme.getVariantColor(vars[0]);
+            Color color1 = scheme.getVariantColor(vars[1]);
+            Color blend;
+            if (color0 == null) {
+                blend = new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), 128);
+            } else if (color1 == null) {
+                blend = new Color(color0.getRed(), color0.getGreen(), color0.getBlue(), 128);
+            } else {
+                blend = new Color((color0.getRed() + color1.getRed()) / 2, (color0.getGreen() + color1.getGreen()) / 2, (color0.getBlue() + color1.getBlue()) / 2);
+            }
+            accumulator.addShape(blend, rect);
         }
     }
 }
