@@ -78,6 +78,7 @@ public class Tool extends SavantPanelPlugin {
     private String workingRef;
     private RangeAdapter workingRange;
     boolean useHomoRefs;
+    private Process toolProc;
 
     @Override
     public void init(JPanel panel) {
@@ -112,6 +113,11 @@ public class Tool extends SavantPanelPlugin {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                if (toolProc != null) {
+                    Process p = toolProc;
+                    toolProc = null;
+                    p.destroy();
+                }
                 showCard("Settings");
             }
         });
@@ -480,34 +486,43 @@ public class Tool extends SavantPanelPlugin {
             List<String> commandLine = buildCommandLine();
             ProcessBuilder builder = new ProcessBuilder(commandLine);
             builder.redirectErrorStream(true);
-            Process proc = builder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                line += "\n";
-                console.append(line);
-                if (errorRegex != null) {
-                    Matcher m = errorRegex.matcher(line);
-                    if (m.find()) {
-                        errorMessage = m.group(1);
-                        LOG.info("Retrieved error message \"" + errorMessage + "\".");
-                        continue;
+            toolProc = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(toolProc.getInputStream()));
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line += "\n";
+                    console.append(line);
+                    if (errorRegex != null) {
+                        Matcher m = errorRegex.matcher(line);
+                        if (m.find()) {
+                            errorMessage = m.group(1);
+                            LOG.info("Retrieved error message \"" + errorMessage + "\".");
+                            continue;
+                        }
                     }
-                }
-                
-                if (progressRegex != null) {
-                    Matcher m = progressRegex.matcher(line);
-                    if (m.find()) {
-                        String progress = m.group(1);
-                        try {
-                            showProgress(PREP_PORTION + Double.valueOf(progress) * WORK_PORTION * 0.01);
-                        } catch (NumberFormatException ignored) {
-                            // So it's not a valid number.  Unfortunate, but no disaster.
-                            LOG.info("Unable to interpret \"" + progress + "\" as a percentage.");
+
+                    if (progressRegex != null) {
+                        Matcher m = progressRegex.matcher(line);
+                        if (m.find()) {
+                            String progress = m.group(1);
+                            try {
+                                showProgress(PREP_PORTION + Double.valueOf(progress) * WORK_PORTION * 0.01);
+                            } catch (NumberFormatException ignored) {
+                                // So it's not a valid number.  Unfortunate, but no disaster.
+                                LOG.info("Unable to interpret \"" + progress + "\" as a percentage.");
+                            }
                         }
                     }
                 }
+                toolProc = null;
+            } catch (IOException x) {
+                // If user cancelled the process, we'll get a harmless IOException trying to read its output.
+                if (toolProc != null) {
+                    throw x;
+                }
             }
+
             // We're done.  We may have picked up an error message along the way.
             if (errorMessage != null) {
                 throw new IOException(errorMessage);
