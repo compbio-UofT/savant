@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
@@ -67,6 +69,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     List<List<VariantRecord>> rawData = new ArrayList<List<VariantRecord>>();
     List<VariantRecord> aggregateData = null;
     List<String> participantNames = new ArrayList<String>();
+    Set<String> controls = new HashSet<String>();
 
     private int participantCount;
     private String visibleRef;
@@ -119,6 +122,20 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
             }
         });
         tools.add(zoomOutButton);
+
+        tools.addSeparator();
+        JButton controlsButton = new JButton("Controls");
+        controlsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (tracks.size() > 0) {
+                    new CaseControlDialog(VariationSheet.this).setVisible(true);
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            }
+        });
+        tools.add(controlsButton);
         
         tabs = new JTabbedPane();
         table = new JTable(new VariantTableModel(null));

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package savant.view.swing.variation;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import savant.api.data.VariantRecord;
 
 /**
@@ -66,7 +67,7 @@ class VariantTableModel extends AbstractTableModel {
                 case 3:
                     return rec.getRefBases();
                 case 4:
-                    return rec.getAltAlleles();
+                    return StringUtils.join(rec.getAltAlleles(), ',');
                 default:
                     return "";
             }

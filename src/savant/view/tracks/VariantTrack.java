@@ -112,6 +112,10 @@ public class VariantTrack extends Track {
         return ((TabixDataSource)getDataSource()).getExtraColumns().length;
     }
 
+    public String[] getParticipantNames() {
+        return ((TabixDataSource)getDataSource()).getExtraColumns();
+    }
+
     /**
      * Record filter which only accepts records for which one of the relevant participants
      * has the given variant.

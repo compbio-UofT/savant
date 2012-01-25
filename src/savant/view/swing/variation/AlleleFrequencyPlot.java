@@ -31,7 +31,6 @@ import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.Pileup;
-import savant.view.tracks.VariantTrackRenderer;
 
 
 /**
