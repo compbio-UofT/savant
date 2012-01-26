@@ -16,23 +16,17 @@
 package savant.view.swing.variation;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.PopupHostingAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
-import savant.api.data.VariantType;
 import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
 import savant.data.types.ParticipantRecord;
@@ -42,7 +36,6 @@ import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
-import savant.util.Hoverer;
 import savant.util.MiscUtils;
 import savant.view.tracks.Track;
 import savant.view.tracks.VariantTrackRenderer;
@@ -53,56 +46,24 @@ import savant.view.tracks.VariantTrackRenderer;
  *
  * @author tarkvara
  */
-public class VariantMap extends JPanel implements PopupHostingAdapter {
+public class VariantMap extends JPanel implements VariationPanel {
     private static final Log LOG = LogFactory.getLog(VariantMap.class);
 
     /** Height in pixels of gap between blocks (when we have enough space to draw gap sizes). */
     private static final double GAP_HEIGHT = 9.0;
 
-    private VariationSheet owner;
+    private VariationController controller;
     
     private double unitHeight;
     private double unitWidth;
 
-    VariantMap(VariationSheet p) {
-        this.owner = p;
+    VariantMap(VariationController vc) {
+        controller = vc;
         setFont(BrowserSettings.getTrackFont());
 
-        MouseAdapter listener = new Hoverer() {
-
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                ParticipantRecord partRec = pointToParticipantRecord(hoverPos);
-                if (partRec != null) {
-                    PopupPanel.hidePopup();
-                    VariantType[] partVars = partRec.getVariants();
-                    
-                    // Only display a popup if this participant actually has variation here.
-                    if (partVars[0] != VariantType.NONE || (partVars.length > 1 && partVars[1] != VariantType.NONE)) {
-                        Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
-                        PopupPanel.showPopup(VariantMap.this, globalPt, owner.tracks.get(0), partRec);
-                    }
-                }
-                hoverPos = null;
-            }
-            
-            @Override
-            public void mouseMoved(MouseEvent evt) {
-                owner.updateStatusBar(pointToVariantRecord(evt.getPoint().y));
-                Point oldHover = hoverPos;
-                super.mouseMoved(evt);
-                if (oldHover != null && !isHoverable(oldHover)) {
-                    PopupPanel.hidePopup();
-                }
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                owner.navigateToRecord(pointToVariantRecord(evt.getY()));
-            }
-        };
-        addMouseListener(listener);
-        addMouseMotionListener(listener);
+        VariantPopper popper = new VariantPopper(this);
+        addMouseListener(popper);
+        addMouseMotionListener(popper);
     }
 
     @Override
@@ -119,9 +80,9 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
         g2.fillRect(0, 0, w, h);
 
 
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
         if (data != null && !data.isEmpty()) {
-            int participantCount = owner.getParticipantCount();
+            int participantCount = controller.getParticipantCount();
             unitHeight = (double)h / data.size();
             unitWidth = (double)w / participantCount;
 
@@ -168,9 +129,10 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
      * @param pt the point we're interested in
      * @return 
      */
-    private VariantRecord pointToVariantRecord(int y) {
-        int logicalY = (int)(y / unitHeight);
-        List<VariantRecord> data = owner.getData();
+    @Override
+    public VariantRecord pointToVariantRecord(Point pt) {
+        int logicalY = (int)(pt.y / unitHeight);
+        List<VariantRecord> data = controller.getData();
         if (data != null && logicalY >= 0 && logicalY < data.size()) {
             return data.get(logicalY);
         }
@@ -178,16 +140,18 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
     }
 
     /**
-     * Given a point on this panel, figure out which record it corresponds to.
+     * Given a point on this panel, figure out which participant it corresponds to.
      * @param pt the point we're interested in
      * @return 
      */
-    private ParticipantRecord pointToParticipantRecord(Point pt) {
-        VariantRecord varRec = pointToVariantRecord(pt.y);
+    @Override
+    public Record pointToRecord(Point pt) {
+        VariantRecord varRec = pointToVariantRecord(pt);
         if (varRec != null) {
             int logicalX = (int)(pt.x / unitWidth);
-            return new ParticipantRecord(varRec, logicalX, owner.participantNames.get(logicalX));
+            return new ParticipantRecord(varRec, logicalX, controller.participantNames.get(logicalX));
         }
+        // Return null for the blank spaces between participants.
         return null;
     }
 
@@ -195,10 +159,10 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
      * At low resolutions we draw the axis lines to indicate the non-linearity.
      */
     private void labelAxis(Graphics2D g2) {
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
 
         if (data.size() > 0) {
-            int[] ticks = MiscUtils.getTickPositions(owner.getVisibleRange());
+            int[] ticks = MiscUtils.getTickPositions(controller.getVisibleRange());
 
             Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
 
@@ -243,7 +207,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
      * @param g2 
      */
     private void drawGapSizes(Graphics2D g2) {
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
         if (data.size() > 1) {
             Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
 
@@ -267,46 +231,6 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                     g2.draw(new Line2D.Double(0.0, y + GAP_HEIGHT * 0.5, w, y + GAP_HEIGHT * 0.5));
                 }
                 y += unitHeight;
-            }
-        }
-    }
-
-    @Override
-    public void addPopupListener(Listener<PopupEvent> l) {
-    }
-
-    @Override
-    public void removePopupListener(Listener<PopupEvent> l) {
-    }
-
-    @Override
-    public void firePopupEvent(PopupPanel panel) {
-    }
-
-    @Override
-    public void popupHidden() {
-    }
-
-    /**
-     * Invoked when user chooses Select/Deselect from the popup menu.
-     * @param rec the Participant record which should be selected
-     */
-    @Override
-    public void recordSelected(Record rec) {
-        rec = ((ParticipantRecord)rec).getVariantRecord();
-        for (Track t: owner.tracks) {
-            boolean sel = false;
-            if (rec instanceof MergedVariantRecord) {
-                for (VariantRecord rec2: ((MergedVariantRecord)rec).getConstituents()) {
-                    t.getRenderer().addToSelected(rec2);
-                    sel = true;
-                }
-            } else {
-                t.getRenderer().addToSelected(rec);
-                sel = true;
-            }
-            if (sel) {
-                t.repaintSelection();
             }
         }
     }

@@ -15,7 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.view.swing.variation.VariationSheet;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
@@ -70,6 +69,7 @@ import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.start.WelcomePage;
+import savant.view.swing.variation.VariationController;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackFactory;
 
@@ -1501,7 +1501,7 @@ public class Savant extends JFrame {
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
         auxDockingManager.addFrame(df);
         MiscUtils.setFrameVisibility("Variation", false, auxDockingManager);
-        df.getContentPane().add(new VariationSheet());
+        df.getContentPane().add(VariationController.getInstance().getSheet());
     }
 
     private void askToDispose() {

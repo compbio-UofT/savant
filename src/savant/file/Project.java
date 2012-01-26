@@ -20,6 +20,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.*;
@@ -41,6 +42,8 @@ import savant.util.DrawingMode;
 import savant.util.NetworkUtils;
 import savant.util.Range;
 import savant.view.swing.Frame;
+import savant.view.swing.variation.VariationController;
+import savant.view.tracks.VariantTrack;
 
 
 /**
@@ -61,7 +64,8 @@ public class Project {
         genome,
         reference,
         track,
-        bookmark
+        bookmark,
+        control
     };
 
     private enum XMLAttribute {
@@ -78,6 +82,7 @@ public class Project {
     private List<Bookmark> bookmarks;
     private List<String> trackPaths;
     private List<DrawingMode> trackModes;
+    private List<String> controls;
     private String reference;
     private Range range;
     private String genomePath;
@@ -154,6 +159,7 @@ public class Project {
         trackPaths = new ArrayList<String>();
         trackModes = new ArrayList<DrawingMode>();
         bookmarks = new ArrayList<Bookmark>();
+        controls = new ArrayList<String>();
         String genomeName = null;
         String genomeDesc = null;
         String cytobandPath = null;
@@ -195,6 +201,9 @@ public class Project {
                             Bookmark b = new Bookmark(readAttribute(XMLAttribute.range));
                             b.setAnnotation(reader.getElementText());
                             bookmarks.add(b);
+                            break;
+                        case control:
+                            controls.add(reader.getElementText());
                             break;
                     }
                     break;
@@ -262,13 +271,18 @@ public class Project {
             }
         }
 
-        for (Bookmark b : BookmarkController.getInstance().getBookmarks()) {
+        for (Bookmark b: BookmarkController.getInstance().getBookmarks()) {
             writeStartElement(XMLElement.bookmark, "  ");
             writeAttribute(XMLAttribute.range, b.getLocationText());
             writer.writeCharacters(b.getAnnotation());
             writer.writeEndElement();
         }
 
+        for (String p: VariationController.getInstance().getControls()) {
+            writeStartElement(XMLElement.control, "   ");
+            writer.writeCharacters(p);
+            writer.writeEndElement();
+        }
         writer.writeCharacters("\r\n");
         writer.writeEndElement();
         writer.writeEndDocument();
@@ -323,11 +337,14 @@ public class Project {
             for (int i = 0; i < trackPaths.size(); i++) {
                 String path = trackPaths.get(i);
                 DrawingMode mode = trackModes != null ? trackModes.get(i) : null;
-                Frame fr = FrameController.getInstance().addTrackFromPath(path, null, mode);
+                FrameController.getInstance().addTrackFromPath(path, null, mode);
             }
         }
         if (bookmarks != null && bookmarks.size() > 0) {
             BookmarkController.getInstance().addBookmarks(bookmarks);
+        }
+        if (controls != null) {
+            VariationController.getInstance().setControls(controls);
         }
     }
 }

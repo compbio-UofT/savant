@@ -37,16 +37,17 @@ import savant.view.tracks.VariantTrack;
 
 
 /**
- *
+ * Dialog which lets user select which individuals to use as controls.
  * @author tarkvara
  */
 public class CaseControlDialog extends JDialog {
-    VariationSheet owner;
+    VariationController controller;
     JPanel checksPanel;
     
-    CaseControlDialog(VariationSheet v) {
+    CaseControlDialog(VariationController vc) {
         super(DialogUtils.getMainWindow(), Dialog.ModalityType.APPLICATION_MODAL);
-        owner = v;
+        controller = vc;
+        setTitle("Select Controls");
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -55,17 +56,18 @@ public class CaseControlDialog extends JDialog {
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.anchor = GridBagConstraints.WEST;
-        for (VariantTrack t: owner.tracks) {
+        for (VariantTrack t: controller.tracks) {
             gbc.insets = new Insets(0, 0, 0, 0);
             JCheckBox cb1 = new JCheckBox(t.getName());
-            cb1.setSelected(owner.controls.contains(t.getName()));
+            boolean trackSelected = controller.controls.contains(t.getName());
+            cb1.setSelected(trackSelected);
             checksPanel.add(cb1, gbc);
 
             List<JCheckBox> dependents = new ArrayList<JCheckBox>();
             gbc.insets = new Insets(0, 40, 0, 0);
             for (String p: t.getParticipantNames()) {
                 JCheckBox cb2 = new JCheckBox(p);
-                cb2.setSelected(owner.controls.contains(p));
+                cb2.setSelected(trackSelected || controller.controls.contains(p));
                 cb2.addActionListener(new ParticipantCheckListener(cb1));
                 checksPanel.add(cb2, gbc);
                 dependents.add(cb2);
@@ -112,10 +114,10 @@ public class CaseControlDialog extends JDialog {
     }
     
     void updateControls() {
-        owner.controls.clear();
+        controller.controls.clear();
         for (Component c: checksPanel.getComponents()) {
             if (((JCheckBox)c).isSelected()) {
-                owner.controls.add(((JCheckBox)c).getText());
+                controller.controls.add(((JCheckBox)c).getText());
             }
         }
     }

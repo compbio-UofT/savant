@@ -15,7 +15,6 @@
  */
 package savant.view.swing.variation;
 
-import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
 

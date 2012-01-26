@@ -62,10 +62,10 @@ public class LDPlot extends JPanel {
     private double x0, y0;
     private double unitHeight;
 
-    VariationSheet owner;
+    VariationController controller;
 
-    LDPlot(VariationSheet p) {
-        this.owner = p;
+    LDPlot(VariationController p) {
+        controller = p;
         MouseAdapter listener = new MouseAdapter() {
             /**
              * We're only interested in mouse-moves over near the right edge.
@@ -76,13 +76,13 @@ public class LDPlot extends JPanel {
                 if (event.getX() >= getWidth() - AXIS_WIDTH) {
                     rec = pointToRecord(event.getPoint().y);
                 }
-                owner.updateStatusBar(rec);
+                controller.updateStatusBar(rec);
             }
 
             @Override
             public void mouseClicked(MouseEvent event) {
                 if (event.getX() >= getWidth() - AXIS_WIDTH) {
-                    owner.navigateToRecord(pointToRecord(event.getPoint().y));
+                    controller.navigateToRecord(pointToRecord(event.getPoint().y));
                 }
             }
         };
@@ -92,10 +92,10 @@ public class LDPlot extends JPanel {
 
     public void calculateLD() {
         if (ldData == null) {
-            List<VariantRecord> data = owner.getData();
+            List<VariantRecord> data = controller.getData();
             if (data != null && data.size() > 0) {
-                int participantCount = owner.getParticipantCount();
-                boolean dPrimeSelected = owner.isDPrimeSelected();
+                int participantCount = controller.getParticipantCount();
+                boolean dPrimeSelected = controller.isDPrimeSelected();
                 ldData = new float[data.size()][data.size()];
                 for (int i = 0; i < data.size(); i++) {
                     VariantRecord recI = (VariantRecord)data.get(i);
@@ -207,7 +207,7 @@ public class LDPlot extends JPanel {
 
     private void drawAxis(Graphics2D g2) {
 
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
         if (data != null) {
             ColourScheme cs = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
             ColourAccumulator accumulator = new ColourAccumulator(cs);
@@ -312,7 +312,7 @@ public class LDPlot extends JPanel {
      */
     private VariantRecord pointToRecord(double y) {
         int logicalY = (int)((y - y0) / unitHeight);
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
         if (data != null && logicalY >= 0 && logicalY < data.size()) {
             return (VariantRecord)data.get(logicalY);
         }

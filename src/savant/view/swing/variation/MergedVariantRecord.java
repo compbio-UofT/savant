@@ -24,10 +24,8 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
-import savant.util.MiscUtils;
 
 /**
  * VariantRecord which the VariationSheet uses to aggregate information about a particular variant which
@@ -82,9 +80,6 @@ class MergedVariantRecord implements VariantRecord {
             if (index < 0) {
                 index = alleles1.size();
                 alleles1.add(alleles2[i]);
-            }
-            if (i + 1 != index + 1) {
-                VariationSheet.LOG.info("At " + rec1.getPosition() + " " + (i + 1) + " will be renumbered to " + (index + 1));
             }
             renumberedAlleles[i + 1] = (byte)(index + 1);
         }

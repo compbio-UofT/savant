@@ -18,14 +18,20 @@ package savant.view.swing.variation;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
+import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
+import savant.api.event.PopupEvent;
+import savant.api.util.Listener;
+import savant.data.types.ParticipantRecord;
+import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
@@ -38,13 +44,16 @@ import savant.util.Pileup;
  *
  * @author tarkvara
  */
-public class AlleleFrequencyPlot extends JPanel {
-    VariationSheet owner;
+public class AlleleFrequencyPlot extends JPanel implements VariationPanel {
+    VariationController controller;
     double unitHeight;
     double unitWidth;
 
-    AlleleFrequencyPlot(VariationSheet v) {
-        owner = v;
+    AlleleFrequencyPlot(VariationController vc) {
+        controller = vc;
+        VariantPopper popper = new VariantPopper(this);
+        addMouseListener(popper);
+        addMouseMotionListener(popper);
     }
 
     @Override
@@ -60,9 +69,9 @@ public class AlleleFrequencyPlot extends JPanel {
         g2.setPaint(gp0);
         g2.fillRect(0, 0, w, h);
 
-        List<VariantRecord> data = owner.getData();
+        List<VariantRecord> data = controller.getData();
         if (data != null && !data.isEmpty()) {
-            int participantCount = owner.getParticipantCount();
+            int participantCount = controller.getParticipantCount();
             unitHeight = (double)h / data.size();
             unitWidth = (double)w / (participantCount * 2.0);
             
@@ -102,5 +111,23 @@ public class AlleleFrequencyPlot extends JPanel {
 
             accumulator.fill(g2);
         }
+    }
+
+    /**
+     * Allele plot has only variant record, and not participants.
+     */
+    @Override
+    public Record pointToRecord(Point pt) {
+        return pointToVariantRecord(pt);
+    }
+
+    @Override
+    public VariantRecord pointToVariantRecord(Point pt) {
+        int logicalY = (int)(pt.y / unitHeight);
+        List<VariantRecord> data = controller.getData();
+        if (data != null && logicalY >= 0 && logicalY < data.size()) {
+            return data.get(logicalY);
+        }
+        return null;
     }
 }
