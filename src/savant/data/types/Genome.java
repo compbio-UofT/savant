@@ -167,12 +167,15 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     @Override
-    public int getLength(String reference) {
+    public int getLength(String ref) {
         // HACK: Project files stored by Savant 1.4.4 (and prior) using Java serialization stored references lengths as longs rather than ints.
-        Object value = getReferenceMap().get(reference);
+        Object value = getReferenceMap().get(ref);
+        if (value == null) {
+            throw new IllegalArgumentException(String.format("\"%s\" is not a known reference", ref));
+        }
         if (value instanceof Long) {
             return (int)(long)(Long)value;
-            }
+        }
         return (Integer)value;
     }
 
