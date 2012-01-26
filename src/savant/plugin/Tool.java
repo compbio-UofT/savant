@@ -477,7 +477,7 @@ public class Tool extends SavantPanelPlugin {
             // FASTA file, but on the sequence dictionary from the header of the BAM file.
             if (fastaExp != null && bamArg != null) {
                 SAMSequenceDictionary samDict = ((BAMDataSourceAdapter)TrackUtils.getTrackDataSource(bamArg.value)).getHeader().getSequenceDictionary();
-                fastaExp.createFakeIndex(samDict);
+                fastaExp.createFakeIndex(samDict, workingRef == null);
                 fastaExp.createFakeSequenceDictionary(samDict);
             }
         }

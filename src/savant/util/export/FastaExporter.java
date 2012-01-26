@@ -109,7 +109,7 @@ public class FastaExporter extends TrackExporter {
         fireEvent(new DownloadEvent(-1.0));
         byte[] seq = ((SequenceTrack)track).getSequence(ref, r);
         if (seq == null) {
-            // No data for this chromosome (often a problem if chrM is missing from the Fasta file).
+            // No data for this contig (often a problem if chrM is missing from the Fasta file).
             seq = new byte[r.getLength()];
             for (int i = 0; i < seq.length; i++) {
                 seq[i] = 'N';
@@ -140,12 +140,48 @@ public class FastaExporter extends TrackExporter {
     }
 
     /**
+     * First we may have to a block of Ns at the end of the fasta file to serve as fodder for
+     * contigs which exist in the SAMSequenceDictionary but not in the fasta file.
+     */
+    public long appendFiller(SAMSequenceDictionary samDict) throws IOException {
+        long fillerLength = 0;
+        for (SAMSequenceRecord samRec: samDict.getSequences()) {
+            if (!refOffsets.containsKey(samRec.getSequenceName())) {
+                fillerLength = Math.max(fillerLength, samRec.getSequenceLength());
+            }
+        }
+        if (fillerLength > 0) {
+            OutputStream fillerOutput = new BufferedOutputStream(new FileOutputStream(destFile, true));
+            int j = 0;
+            while (j < fillerLength) {
+                for (int k = 0; k < LINE_SIZE; k++) {
+                    fillerOutput.write('N');
+                }
+                fillerOutput.write('\n');
+                j += LINE_SIZE;
+            }
+            fillerOutput.close();
+        }
+        return fastaOutput.numWritten;
+    }
+
+    /**
      * Create the .fai (fasta index) file which describes the contents of a fasta file we've just exported.
      * We actually lie and give lengths for all contigs (not just the chromosomes in this file).  This is necessary
      * because some tools (I'm looking at you, SRMA) make a braindead check that the bam file's sequence
      * dictionary be <b>exactly</b> the same as the fasta file's dictionary.
+     * 
+     * @param samDict sequence dictionary from the SAM file
+     * @param fillerNeeded if true, we're running the tool over the full genome, we need to make sure all contigs in the SAM sequence dictionary have non-zero offsets in the FASTA index
      */
-    public void createFakeIndex(SAMSequenceDictionary samDict) throws IOException {
+    public void createFakeIndex(SAMSequenceDictionary samDict, boolean fillerNeeded) throws IOException {
+        // If necessary append a block of filler to the end of the fasta file to accommodate contigs
+        // which exist in the SAM dictionary but not in the fasta file.
+        long fillerStart = 0;
+        if (fillerNeeded) {
+            fillerStart = appendFiller(samDict);
+        }
+
         OutputStream faiOutput = null;
         try {
             // Index file is expected to be .fa.fai.
@@ -154,7 +190,7 @@ public class FastaExporter extends TrackExporter {
             // We need to write entries for every contig, even though they may not actually exist in the Fasta file.
             for (SAMSequenceRecord samRec: samDict.getSequences()) {
                 String samRef = samRec.getSequenceName();
-                long offset = 0;
+                long offset = fillerStart;       // If not found, by default points to the block of Ns.
                 if (refOffsets.containsKey(samRef)) {
                     offset = refOffsets.get(samRef);
                 }
