@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2012 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.view.swing.variation;
 
@@ -109,6 +120,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         }
         return instance;
     }
+
     /**
      * Sets the data to null so we know that there's nothing to render.
      *
@@ -202,6 +214,11 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     public void setControls(Collection<String> value) {
         controls.clear();
         controls.addAll(value);
+        for (VariantTrack t: tracks) {
+            if (controls.contains(t.getName())) {
+                controls.addAll(Arrays.asList(t.getParticipantNames()));
+            }
+        }
     }
 
     int getParticipantCount() {
@@ -222,7 +239,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
             adjustingRange = true;
             visibleRange = r;
             sheet.visibleRangeChanged(visibleRef, r);
-            if (r.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold()) {
+            if (r.getLength() <= TrackResolutionSettings.getVariantLowToHighThreshold()) {
                 for (VariantTrack t: tracks) {
                     t.requestData(visibleRef, visibleRange);
                 }

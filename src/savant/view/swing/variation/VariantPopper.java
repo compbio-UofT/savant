@@ -101,7 +101,7 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
      */
     @Override
     public void recordSelected(Record rec) {
-        rec = ((ParticipantRecord)rec).getVariantRecord();
+        VariantRecord varRec = rec instanceof ParticipantRecord ? ((ParticipantRecord)rec).getVariantRecord() : (VariantRecord)rec;
         for (Track t: VariationController.getInstance().tracks) {
             boolean sel = false;
             if (rec instanceof MergedVariantRecord) {

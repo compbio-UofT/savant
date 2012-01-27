@@ -26,6 +26,7 @@ import javax.swing.table.AbstractTableModel;
 import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
+import org.apache.commons.lang3.StringUtils;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.data.*;
@@ -138,9 +139,9 @@ public class DataTableModel extends AbstractTableModel {
                         case 0:
                             return datum.getReference();
                         case 1:
-                            return ((PointRecord)datum).getPoint();
+                            return ((PointRecord)datum).getPosition();
                         case 2:
-                            return ((PointRecord)datum).getDescription();
+                            return ((PointRecord)datum).getName();
                     }
                 case CONTINUOUS:
                     switch (column) {
@@ -199,11 +200,11 @@ public class DataTableModel extends AbstractTableModel {
                         case 1:
                             return varRec.getVariantType().getDescription();
                         case 2:
-                            return varRec.getInterval().getStart();
+                            return varRec.getPosition();
                         case 3:
                             return varRec.getRefBases();
                         case 4:
-                            return varRec.getAltBases();
+                            return StringUtils.join(varRec.getAltAlleles(), ',');
                     }
                 case RICH_INTERVAL:
                     switch (column) {
@@ -332,7 +333,7 @@ public class DataTableModel extends AbstractTableModel {
                 exportWriter.println(new String(((SequenceRecord)datum).getSequence()));
                 break;
             case POINT:
-                exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((PointRecord)datum).getPoint(), ((PointRecord)datum).getDescription()).println();
+                exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((PointRecord)datum).getPosition(), ((PointRecord)datum).getName()).println();
                 break;
             case CONTINUOUS:
                 exportWriter.printf("%s\t%d\t%f", datum.getReference(), ((ContinuousRecord)datum).getPosition(), ((ContinuousRecord)datum).getValue()).println();
@@ -346,7 +347,7 @@ public class DataTableModel extends AbstractTableModel {
                 break;
             case VARIANT:
                 VariantRecord varRec = (VariantRecord)datum;
-                exportWriter.printf("%s\t%d\t%s\t%s\t%s", datum.getReference(), varRec.getInterval().getStart(), varRec.getInterval().getEnd(), varRec.getVariantType(), varRec.getRefBases(), varRec.getAltBases()).println();
+                exportWriter.printf("%s\t%d\t%s\t%s\t%s", datum.getReference(), varRec.getPosition(), varRec.getVariantType(), varRec.getRefBases(), StringUtils.join(varRec.getAltAlleles(), ',')).println();
                 break;
             case RICH_INTERVAL:
                 String[] values = ((TabixIntervalRecord)datum).getValues();
