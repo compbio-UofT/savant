@@ -26,7 +26,7 @@ import savant.api.data.VariantType;
  * @author tarkvara
  */
 class PaddedVariantRecord implements VariantRecord {
-    private final VariantRecord original;
+    final VariantRecord original;
     private final int padding;
 
     PaddedVariantRecord(VariantRecord rec, int pad) {

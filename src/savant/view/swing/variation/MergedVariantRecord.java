@@ -15,9 +15,7 @@
  */
 package savant.view.swing.variation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -34,7 +32,7 @@ import savant.api.data.VariantType;
  * @author tarkvara
  */
 class MergedVariantRecord implements VariantRecord {
-    private final VariantRecord original1, original2;
+    final VariantRecord original1, original2;
     
     /** Number of participants after the end of original1 and before the first participant from original2. */
     private final int padding;
@@ -182,24 +180,5 @@ class MergedVariantRecord implements VariantRecord {
                                      append(getPosition()).
                                      append(getRefBases()).
                                      append(getAltAlleles()).toHashCode();
-    }
-
-    /**
-     * When choosing Select/Deselect from the popup menu, we need to know which actual
-     * VariantRecords were used to create this one.
-     */
-    public Collection<VariantRecord> getConstituents() {
-        List<VariantRecord> result = new ArrayList<VariantRecord>();
-        if (original1 instanceof MergedVariantRecord) {
-            result.addAll(((MergedVariantRecord)original1).getConstituents());
-        } else {
-            result.add(original1);
-        }
-        if (original2 instanceof MergedVariantRecord) {
-            result.addAll(((MergedVariantRecord)original2).getConstituents());
-        } else {
-            result.add(original2);
-        }
-        return result;
     }
 }

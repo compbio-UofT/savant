@@ -19,6 +19,8 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.SwingUtilities;
 
 import savant.api.adapter.PopupHostingAdapter;
@@ -102,20 +104,29 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
     @Override
     public void recordSelected(Record rec) {
         VariantRecord varRec = rec instanceof ParticipantRecord ? ((ParticipantRecord)rec).getVariantRecord() : (VariantRecord)rec;
+        List<VariantRecord> constituents = getConstituents(varRec);
         for (Track t: VariationController.getInstance().tracks) {
-            boolean sel = false;
-            if (rec instanceof MergedVariantRecord) {
-                for (VariantRecord rec2: ((MergedVariantRecord)rec).getConstituents()) {
-                    t.getRenderer().addToSelected(rec2);
-                    sel = true;
-                }
-            } else {
-                t.getRenderer().addToSelected(rec);
-                sel = true;
+            for (VariantRecord rec2: constituents) {
+                t.getRenderer().addToSelected(rec2);
             }
-            if (sel) {
-                t.repaintSelection();
-            }
+            t.repaintSelection();
         }
+    }
+    
+    /**
+     * When choosing Select/Deselect from the popup menu, we need to know which actual
+     * VariantRecords were used to create this one.
+     */
+    private List<VariantRecord> getConstituents(VariantRecord rec) {
+        List<VariantRecord> result = new ArrayList<VariantRecord>();
+        if (rec instanceof MergedVariantRecord) {
+            result.addAll(getConstituents(((MergedVariantRecord)rec).original1));
+            result.addAll(getConstituents(((MergedVariantRecord)rec).original2));
+        } else if (rec instanceof PaddedVariantRecord) {
+            result.addAll(getConstituents(((PaddedVariantRecord)rec).original));
+        } else {
+            result.add(rec);
+        }
+        return result;
     }
 }

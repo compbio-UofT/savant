@@ -166,6 +166,7 @@ public abstract class PopupPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 host.recordSelected(record);
+                hidePopup();
             }
         });
         add(select);
