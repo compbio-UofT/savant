@@ -21,7 +21,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JPanel;
 
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
@@ -39,17 +38,11 @@ import savant.util.Pileup;
  *
  * @author tarkvara
  */
-public class AlleleFrequencyPlot extends JPanel implements VariationPanel {
+public class AlleleFrequencyPlot extends VariationPlot {
     private static final int NUM_AXIS_STEPS = 10;
 
-    VariationController controller;
-    double unitHeight;
-
     AlleleFrequencyPlot(VariationController vc) {
-        controller = vc;
-        VariantPopper popper = new VariantPopper(this);
-        addMouseListener(popper);
-        addMouseMotionListener(popper);
+        super(vc);
     }
 
     @Override
@@ -105,59 +98,67 @@ public class AlleleFrequencyPlot extends JPanel implements VariationPanel {
             }
             
             // This call sets the clip so that axes and data don't overwrite our numbers.
-            drawAxes(g2, numControls > 0);
+            labelHorizontalAxis(g2, numControls > 0);
 
             ColourScheme scheme = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
             ColourAccumulator accumulator = new ColourAccumulator(scheme);
 
+            double x0 = numControls > 0 ? getWidth() * 0.5 : 0.0;
             double y = 0.0;
-            double x = 0.0;
-            
-            if (numControls > 0) {
-                x = getWidth() * 0.5;
-                for (Pileup p : controlPileups) {
-                    VariantType snpNuc;
-                    double unitWidth = w * 0.5 / numControls;
+            double topGap = 0.0;
+
+            for (int i = 0; i < casePileups.size(); i++) {
+                Pileup p = casePileups.get(i);
+
+                VariantType snpNuc;
+                unitWidth = (double)w / numCases;
+                if (numControls > 0) {
+                    unitWidth *= 0.5;
+                }
+                double x = x0;
+
+                while ((snpNuc = p.getLargestVariantType(VariantType.NONE)) != null) {
+                    double barWidth = p.getCoverage(snpNuc, null) * unitWidth;
+                    Rectangle2D rect = new Rectangle2D.Double(x, y, barWidth, unitHeight);
+                    accumulator.addShape(scheme.getVariantColor(snpNuc), rect);
+                    p.clearVariantType(snpNuc);
+                    x += barWidth;
+                }
+
+                if (numControls > 0) {
+                    p = controlPileups.get(i);
+                    unitWidth = w * 0.5 / numControls;
+                    x = x0;
                     while ((snpNuc = p.getLargestVariantType(VariantType.NONE)) != null) {
                         double barWidth = p.getCoverage(snpNuc, null) * unitWidth;
                         Rectangle2D rect = new Rectangle2D.Double(x - barWidth, y, barWidth, unitHeight);
                         accumulator.addShape(scheme.getVariantColor(snpNuc), rect);
                         p.clearVariantType(snpNuc);
+                        x += barWidth;
                     }
-                    y += unitHeight;
-                }
-                y = 0.0;
-            }
-
-            for (Pileup p : casePileups) {
-                VariantType snpNuc;
-                double unitWidth = (double)w / numCases;
-                if (numControls > 0) {
-                    unitWidth *= 0.5;
-                }
-                while ((snpNuc = p.getLargestVariantType(VariantType.NONE)) != null) {
-                    Rectangle2D rect = new Rectangle2D.Double(x, y, p.getCoverage(snpNuc, null) * unitWidth, unitHeight);
-                    accumulator.addShape(scheme.getVariantColor(snpNuc), rect);
-                    p.clearVariantType(snpNuc);
+                    
                 }
                 y += unitHeight;
             }
 
             accumulator.fill(g2);
-            g2.setClip(null);
             
+            // Allele plot never draws gaps, so just label the axes.
+            labelVerticalAxis(g2);
+
             if (numControls > 0) {
                 g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
                 g2.draw(new Line2D.Double(w * 0.5, 0.0, w * 0.5, h));
             }
+            g2.setClip(null);
         }
     }
 
-    private void drawAxes(Graphics2D g2, boolean hasControls) {
+    private void labelHorizontalAxis(Graphics2D g2, boolean hasControls) {
         // We don't want the axes stomping on our labels, so make sure the clip excludes them.
         int h = getHeight();
         int w = getWidth();
-        Area clipArea = new Area(new Rectangle(0, 0, w, h));
+        Area clipArea = new Area(g2.getClip());
         g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 9));
         FontMetrics fm = g2.getFontMetrics();
@@ -197,15 +198,5 @@ public class AlleleFrequencyPlot extends JPanel implements VariationPanel {
     @Override
     public Record pointToRecord(Point pt) {
         return pointToVariantRecord(pt);
-    }
-
-    @Override
-    public VariantRecord pointToVariantRecord(Point pt) {
-        int logicalY = (int)(pt.y / unitHeight);
-        List<VariantRecord> data = controller.getData();
-        if (data != null && logicalY >= 0 && logicalY < data.size()) {
-            return data.get(logicalY);
-        }
-        return null;
     }
 }

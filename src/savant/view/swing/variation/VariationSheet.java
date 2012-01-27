@@ -51,12 +51,23 @@ public class VariationSheet extends JPanel {
 
     private JTable table;
     private VariantMap map;
-    private LDPlot ldPlot;
     private AlleleFrequencyPlot frequencyPlot;
+    private LDPlot ldPlot;
     
     private JTextField rangeField;
     private JScrollBar mapScroller;
+    private JScrollBar frequencyScroller;
     private ButtonGroup methodGroup;
+
+    /** Listener shared by mapScroller and frequencyScroller. */
+    private AdjustmentListener scrollerListener = new AdjustmentListener() {
+        @Override
+        public void adjustmentValueChanged(AdjustmentEvent ae) {
+            if (!ae.getValueIsAdjusting()) {
+                controller.adjustRange(ae.getValue());
+            }
+        }
+    };
 
     public VariationSheet(VariationController vc) {
         super(new GridBagLayout());
@@ -121,12 +132,7 @@ public class VariationSheet extends JPanel {
         mapPanel.setLayout(new GridBagLayout());
         
         mapScroller = new JScrollBar();
-        mapScroller.addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent ae) {
-                controller.adjustRange(ae.getValue());
-            }
-        });
+        mapScroller.addAdjustmentListener(scrollerListener);
 
         map = new VariantMap(controller);
 
@@ -141,8 +147,20 @@ public class VariationSheet extends JPanel {
         mapPanel.add(mapScroller, gbc);
         tabs.addTab("Map", mapPanel);
 
+        JPanel frequencyPanel = new JPanel();
+        frequencyPanel.setLayout(new GridBagLayout());
+        
+        frequencyScroller = new JScrollBar();
+        frequencyScroller.addAdjustmentListener(scrollerListener);
+
         frequencyPlot = new AlleleFrequencyPlot(controller);
-        tabs.addTab("Allele Frequency", frequencyPlot);
+        gbc.gridwidth = 1;
+        gbc.weightx = 1.0;
+        frequencyPanel.add(frequencyPlot, gbc);
+        gbc.weightx = 0.0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        frequencyPanel.add(frequencyScroller, gbc);
+        tabs.addTab("Allele Frequency", frequencyPanel);
         
         JPanel ldPanel = new JPanel();
         ldPanel.setLayout(new GridBagLayout());
@@ -251,6 +269,11 @@ public class VariationSheet extends JPanel {
             mapScroller.setVisibleAmount(r.getLength());
             mapScroller.setBlockIncrement(r.getLength());
             mapScroller.repaint();
+            frequencyScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+            frequencyScroller.setValue(r.getFrom());
+            frequencyScroller.setVisibleAmount(r.getLength());
+            frequencyScroller.setBlockIncrement(r.getLength());
+            frequencyScroller.repaint();
         }
         rangeField.setText(String.format("%s:%d-%d", ref, r.getFrom(), r.getTo()));
     }

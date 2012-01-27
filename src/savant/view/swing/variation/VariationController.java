@@ -69,7 +69,6 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     private int participantCount;
     private String visibleRef;
     private Range visibleRange;
-    private boolean adjustingRange = false;
     
     private VariationSheet sheet;
 
@@ -236,7 +235,6 @@ public class VariationController implements Listener<DataRetrievalEvent> {
 
     void setVisibleRange(Range r) {
         if (!r.equals(visibleRange)) {
-            adjustingRange = true;
             visibleRange = r;
             sheet.visibleRangeChanged(visibleRef, r);
             if (r.getLength() <= TrackResolutionSettings.getVariantLowToHighThreshold()) {
@@ -244,7 +242,6 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                     t.requestData(visibleRef, visibleRange);
                 }
             }
-            adjustingRange = false;
         }
     }
 
@@ -328,10 +325,8 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     }
 
     void adjustRange(int start) {
-        if (!adjustingRange) {
-            if (start != visibleRange.getFrom()) {
-                setVisibleRange(new Range(start, Math.min(start + visibleRange.getLength(), LocationController.getInstance().getMaxRangeEnd())));
-            }
+        if (start != visibleRange.getFrom()) {
+            setVisibleRange(new Range(start, Math.min(start + visibleRange.getLength(), LocationController.getInstance().getMaxRangeEnd())));
         }
     }
     

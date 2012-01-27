@@ -15,7 +15,6 @@
  */
 package savant.view.swing.variation;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -40,9 +39,9 @@ import savant.view.tracks.Track;
  * @author tarkvara
  */
 public class VariantPopper extends Hoverer implements PopupHostingAdapter {
-    VariationPanel panel;
+    VariationPlot panel;
 
-    VariantPopper(VariationPanel vp) {
+    VariantPopper(VariationPlot vp) {
         panel = vp;
     }
 
@@ -51,7 +50,7 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
         Record rec = panel.pointToRecord(hoverPos);
         if (rec != null) {
             PopupPanel.hidePopup();
-            Point globalPt = SwingUtilities.convertPoint((Component)panel, hoverPos, null);
+            Point globalPt = SwingUtilities.convertPoint(panel, hoverPos, null);
             if (rec instanceof ParticipantRecord) {
                 VariantType[] partVars = ((ParticipantRecord)rec).getVariants();
 
