@@ -147,8 +147,14 @@ public class AlleleFrequencyPlot extends VariationPlot {
             labelVerticalAxis(g2);
 
             if (numControls > 0) {
-                g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
+                Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
+                g2.setColor(gridColor);
                 g2.draw(new Line2D.Double(w * 0.5, 0.0, w * 0.5, h));
+                
+                g2.setColor(new Color(gridColor.getRed(), gridColor.getGreen(), gridColor.getBlue(), 128));
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24));
+                MiscUtils.drawMessage(g2, "Control", new Rectangle(0, 0, w / 2, h));
+                MiscUtils.drawMessage(g2, "Case", new Rectangle(w / 2, 0, w / 2, h));
             }
             g2.setClip(null);
         }
