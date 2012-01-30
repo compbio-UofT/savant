@@ -16,13 +16,15 @@
 
 package savant.selection;
 
+import java.util.List;
 import javax.swing.JLabel;
 
 import javax.swing.JSeparator;
 import org.apache.commons.lang3.StringUtils;
 
 import savant.api.data.VariantRecord;
-import savant.data.types.ParticipantRecord;
+import savant.view.variation.LDRecord;
+import savant.view.variation.ParticipantRecord;
 
 
 /**
@@ -37,21 +39,36 @@ public class VariantPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        VariantRecord varRec;
-        ParticipantRecord partRec = null;
-        if (record instanceof VariantRecord) {
-            varRec = (VariantRecord)record;
+        if (record instanceof LDRecord) {
+            LDRecord ldRec = (LDRecord)record;
+            List<VariantRecord> varRecs = ldRec.getConstituents();
+            add(new JLabel(String.format("D′: %.2f", ldRec.getDPrime())));
+            add(new JLabel(String.format("r²: %.2f", ldRec.getRSquared())));
+            add(new JSeparator());
+            initVariantRecord(varRecs.get(0), null);
+            add(new JSeparator());
+            initVariantRecord(varRecs.get(1), null);
         } else {
-            partRec = (ParticipantRecord)record;
-            varRec = partRec.getVariantRecord();
+            VariantRecord varRec;
+            ParticipantRecord partRec = null;
+            if (record instanceof VariantRecord) {
+                varRec = (VariantRecord)record;
+            } else {
+                partRec = (ParticipantRecord)record;
+                varRec = partRec.getVariantRecord();
+            }
+            name = varRec.getName();
+            start = end = varRec.getPosition();
+            initVariantRecord(varRec, partRec);
         }
-        name = varRec.getName();
-        start = end = varRec.getPosition();
-        if (name != null) {
-            add(new JLabel("Variant Name: " + name));
+    }
+    
+    private void initVariantRecord(VariantRecord varRec, ParticipantRecord partRec) {
+        if (varRec.getName() != null) {
+            add(new JLabel("Variant Name: " + varRec.getName()));
         }
         add(new JLabel("Type: " + varRec.getVariantType().getDescription()));
-        add(new JLabel("Position: " + start));
+        add(new JLabel("Position: " + varRec.getPosition()));
         add(new JLabel("Reference: " + varRec.getRefBases()));
         if (partRec == null) {
             add(new JLabel("Alt: " + StringUtils.join(varRec.getAltAlleles(), ',')));

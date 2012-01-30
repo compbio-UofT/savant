@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.data.types;
+package savant.view.variation;
 
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;

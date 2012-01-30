@@ -42,7 +42,7 @@ import savant.util.DrawingMode;
 import savant.util.NetworkUtils;
 import savant.util.Range;
 import savant.view.swing.Frame;
-import savant.view.swing.variation.VariationController;
+import savant.view.variation.VariationController;
 import savant.view.tracks.VariantTrack;
 
 
