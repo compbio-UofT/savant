@@ -65,6 +65,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private byte[] refSeq = null;
     private DrawingMode lastMode;
     private Resolution lastResolution;
+    private double arrowWidth;          // Width (in pixels) of pointy bit
 
     public BAMTrackRenderer() {
     }
@@ -174,7 +175,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         Range range = axisRange.getXRange();
 
         //calculate breathing room parameter
-        double arrowWidth = gp.getUnitHeight() * 0.25;
+        if (!gp.isScaledToFit()) {
+            arrowWidth = gp.getUnitHeight() * 0.25;
+        }
         double pixelsPerBase = Math.max(0.01, (double)gp.getWidth() / (double)range.getLength());
         int breathingRoom = (int)Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
 
@@ -270,7 +273,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // Draw outline, if there's room
-        if (pointyBar.getBounds().getHeight() > 4) {
+        if (pointyBar.getBounds().getHeight() >= 4.0) {
             g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
             g2.draw(pointyBar);
         }
@@ -280,7 +283,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private Shape getPointyBar(boolean reverseStrand, double x, double y, double w, double h) {
         double arrowHeight = h * 0.5;
-        double arrowWidth = h * 0.25;
         if (w > arrowWidth) {
             if (reverseStrand) {
                 return MiscUtils.createPolygon(x, y, x + w, y, x + w, y + h, x, y + h, x - arrowWidth, y + arrowHeight);

@@ -105,5 +105,7 @@ public interface GraphPaneAdapter extends PopupHostingAdapter {
 
     public FrameAdapter getParentFrame();
 
+    public boolean isScaledToFit();
+
     public void setScaledToFit(boolean b);
 }
