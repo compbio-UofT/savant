@@ -131,6 +131,7 @@ public class ColourSchemeSettingsSection extends Section {
         addProperty(ColourKey.DISCORDANT_LENGTH, "Interval");
         addProperty(ColourKey.ONE_READ_INVERTED, "Interval");
         addProperty(ColourKey.EVERTED_PAIR, "Interval");
+        addProperty(ColourKey.UNPAIRED, "Interval");
 
         //continuous
         addProperty(ColourKey.CONTINUOUS_FILL, "Continuous");
