@@ -58,7 +58,7 @@ public class BrowserSettings {
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
     public static final String VERSION = "2.0.0";
-    public static String BUILD = "alpha";
+    public static String BUILD = "beta";
 
     /**
      * Is this version a beta release?
