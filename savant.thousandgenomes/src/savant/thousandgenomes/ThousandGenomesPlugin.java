@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
+import savant.api.util.SettingsUtils;
 import savant.plugin.SavantPanelPlugin;
 
 
@@ -36,7 +36,11 @@ public class ThousandGenomesPlugin extends SavantPanelPlugin {
     @Override
     public void init(JPanel parent) {
         try {
-            browser = new FTPBrowser(new URL("ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/data"));
+            String root = SettingsUtils.getString(this, "Root");
+            if (root == null) {
+                root = "ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/data";
+            }
+            browser = new FTPBrowser(new URL(root));
             parent.add(browser);
         } catch (IOException x) {
             parent.add(new JLabel("Unable to load 1000 genomes plugin: " + x.getMessage()));
@@ -46,6 +50,8 @@ public class ThousandGenomesPlugin extends SavantPanelPlugin {
     @Override
     public void shutDown() throws Exception {
         if (browser != null) {
+            SettingsUtils.setString(this, "Root", browser.getRoot());
+            SettingsUtils.store();
             browser.closeConnection();
         }
     }

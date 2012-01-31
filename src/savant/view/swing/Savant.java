@@ -1507,6 +1507,7 @@ public class Savant extends JFrame {
     private void askToDispose() {
         try {
             if (ProjectController.getInstance().promptToSaveChanges(true)) {
+                PluginController.getInstance().shutDown();
                 System.exit(0);
             }
         } catch (Exception x) {

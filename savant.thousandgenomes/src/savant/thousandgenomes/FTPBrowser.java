@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ package savant.thousandgenomes;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -58,7 +62,7 @@ import savant.api.util.TrackUtils;
 public class FTPBrowser extends JPanel {
     private static final Log LOG = LogFactory.getLog(FTPBrowser.class);
 
-    private JLabel addressLabel;
+    private JTextField addressField;
     private JTable table;
     private FTPClient ftp;
 
@@ -73,16 +77,24 @@ public class FTPBrowser extends JPanel {
     TableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
 
     public FTPBrowser(URL rootURL) throws IOException {
-        host = rootURL.getHost();
-        int p = rootURL.getPort();
-        port = p != -1 ? p : rootURL.getDefaultPort();
-        rootDir = new File(rootURL.getPath());
-        curDir = rootDir;
+        setRoot(rootURL);
 
         setLayout(new BorderLayout());
 
-        addressLabel = new JLabel();
-        add(addressLabel, BorderLayout.NORTH);
+        addressField = new JTextField();
+        addressField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    setRoot(new URL(addressField.getText()));
+                    updateDirectory();
+                } catch (Exception x) {
+                    DialogUtils.displayException("1000 Genomes Plugin", "Unable to change root directory", x);
+                }
+            }
+            
+        });
+        add(addressField, BorderLayout.NORTH);
 
         table = new JTable();
         updateDirectory();
@@ -119,9 +131,21 @@ public class FTPBrowser extends JPanel {
         this.setPreferredSize(new Dimension(800, 500));
     }
 
+    public String getRoot() throws MalformedURLException {
+        return new URL("ftp", host, port, rootDir.getPath()).toString();
+    }
+
+    private void setRoot(URL rootURL) {
+        host = rootURL.getHost();
+        int p = rootURL.getPort();
+        port = p != -1 ? p : rootURL.getDefaultPort();
+        rootDir = new File(rootURL.getPath());
+        curDir = rootDir;
+    }
+
     private void updateDirectory() throws IOException {
         FTPFile[] files = getFTPClient().listFiles(curDir.getPath().replace("\\", "/"));
-        addressLabel.setText("ftp://" + host + curDir.getPath().replace("\\", "/"));
+        addressField.setText("ftp://" + host + curDir.getPath().replace("\\", "/"));
         table.setModel(new FTPTableModel(files, !curDir.equals(rootDir)));
 
         TableColumnModel columns = table.getColumnModel();
@@ -174,6 +198,7 @@ class IconRenderer extends DefaultTableCellRenderer.UIResource {
         super();
         setHorizontalAlignment(JLabel.CENTER);
     }
+    @Override
     public void setValue(Object value) { setIcon((value instanceof Icon) ? (Icon)value : null); }
 }
 

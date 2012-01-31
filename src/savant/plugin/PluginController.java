@@ -376,6 +376,16 @@ public class PluginController extends Controller {
         }
         return false;
     }
+    
+    public void shutDown() {
+        for (SavantPlugin p: loadedPlugins.values()) {
+            try {
+                p.shutDown();
+            } catch (Throwable x) {
+                LOG.warn("Error shutting down " + p.getTitle(), x);
+            }
+        }
+    }
 
     class LoaderThread extends Thread {
         PluginDescriptor desc;

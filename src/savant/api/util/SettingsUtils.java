@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class SettingsUtils {
     private static final Log LOG = LogFactory.getLog(SettingsUtils.class);
 
     private static String makePluginKey(SavantPlugin p, String key) {
-        return p.getClass().getName() + "." + key;
+        return p.getDescriptor().getID() + "." + key;
     }
 
     /**
@@ -117,9 +117,10 @@ public class SettingsUtils {
      * @param p the plugin making the call
      * @param key a string identifying the setting
      * @return the setting's value (or null if not found)
+     * @since 2.0.0
      */
-    public static String getFile(SavantPlugin p, String key) {
-        return PersistentSettings.getInstance().getString(makePluginKey(p, key));
+    public static File getFile(SavantPlugin p, String key) {
+        return PersistentSettings.getInstance().getFile(makePluginKey(p, key));
     }
 
     /**
