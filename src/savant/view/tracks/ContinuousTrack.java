@@ -40,15 +40,15 @@ import savant.util.*;
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public void prepareForRendering(String ref, Range r) {
 
-        Resolution r = getResolution(range);
+        Resolution res = getResolution(r);
         renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
-        requestData(reference, new Range(range.getFrom(), range.getTo()+2));
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        requestData(ref, r);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
 

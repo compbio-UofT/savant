@@ -469,13 +469,13 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      * Retrieve data from the underlying data source.  The default behaviour is just
      * to call getRecords on the track's data source.
      *
-     * @param range The range within which to retrieve objects
-     * @param resolution The resolution at which to get data
+     * @param r The range within which to retrieve objects
+     * @param res The resolution at which to get data
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution, RecordFilterAdapter filter) throws Exception {
-        return getDataSource().getRecords(reference, range, resolution, filter);
+    protected synchronized List<Record> retrieveData(String ref, Range r, Resolution res, RecordFilterAdapter filter) throws Exception {
+        return getDataSource().getRecords(ref, r, res, filter);
     }
 
     private class DataRetriever extends Thread {

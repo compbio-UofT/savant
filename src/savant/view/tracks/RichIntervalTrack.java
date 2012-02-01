@@ -44,20 +44,20 @@ public class RichIntervalTrack extends Track {
 
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
-        Resolution r = getResolution(range);
-        if (r == Resolution.HIGH){
+    public void prepareForRendering(String ref, Range r) {
+        Resolution res = getResolution(r);
+        if (res == Resolution.HIGH){
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
-            requestData(reference, range);
+            requestData(ref, r);
         } else {
             renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
         }
         
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.ITEMRGB, itemRGBEnabled);

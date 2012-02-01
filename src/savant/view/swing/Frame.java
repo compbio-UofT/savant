@@ -467,6 +467,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
                     graphPane.repaint();
                     break;
             }
+        } else {
+            LOG.debug("Rejecting DataRetrievalEvent." + evt.getType() + " for " + evt.getRange() + " because real range=" + LocationController.getInstance().getRange());
         }
     }
 

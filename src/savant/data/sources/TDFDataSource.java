@@ -76,14 +76,14 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException, InterruptedException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter r, Resolution res, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
-        TDFDataset ds = getTDFDataset(ref, (Range)range);
+        TDFDataset ds = getTDFDataset(ref, (Range)r);
         if (ds != null) {
-            int nextPos = range.getFrom();
-            int rangeEnd = range.getTo();
-            int usefulStep = Math.max(1,range.getLength() / NOTIONAL_SCREEN_WIDTH);     // No need for more points than we have pixels.
-            List<TDFTile> tiles = ds.getTiles(range.getFrom(), range.getTo());
+            int nextPos = r.getFrom();
+            int rangeEnd = r.getTo() + 1;
+            int usefulStep = Math.max(1, r.getLength() / NOTIONAL_SCREEN_WIDTH);     // No need for more points than we have pixels.
+            List<TDFTile> tiles = ds.getTiles(r.getFrom(), rangeEnd);
             for (TDFTile t : tiles) {
                 for (int i = 0; i < t.getSize() && nextPos <= rangeEnd; i++) {
                     int datumEnd = t.getEndPosition(i);
@@ -127,14 +127,11 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
 
     /**
      * Given a range, determine the TDF zoom-factor which would be appropriate for that range.
-     *
-     * @param range
-     * @return
      */
-    private TDFDataset getTDFDataset(String ref, Range range) {
+    private TDFDataset getTDFDataset(String ref, Range r) {
         int refLen = LocationController.getInstance().getReferenceLength(ref);
         ref = MiscUtils.homogenizeSequence(ref);
-        int rangeLen = range.getLength();
+        int rangeLen = r.getLength();
 
         // Only do this calculation the first time through.
         if (maxZoom < 0) {

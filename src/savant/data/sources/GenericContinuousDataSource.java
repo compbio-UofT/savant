@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -104,12 +104,13 @@ public class GenericContinuousDataSource extends DataSource<GenericContinuousRec
 
         Level lev = getBestLevel(refnameToLevelsIndex.get(ref), (Range)r);
         LOG.debug("Chose " + lev.resolution + " as the best for range (" + r.getFrom() + "-" + r.getTo() + ")");
+        int rangeEnd = r.getTo() + 1;
 
         long seekPos = lev.offset + (r.getFrom() - 1) / lev.resolution * recordSize;
 
         if (savantFile.seek(ref, seekPos) >= 0) {
             LOG.debug("Sought to " + seekPos + " to find data for " + r.getFrom());
-            for (int pos = r.getFrom(); pos < r.getTo(); pos += lev.resolution) {
+            for (int pos = r.getFrom(); pos <= rangeEnd; pos += lev.resolution) {
 
                 data.add(GenericContinuousRecord.valueOf(ref, pos, savantFile.readFloat()));
 
@@ -130,12 +131,6 @@ public class GenericContinuousDataSource extends DataSource<GenericContinuousRec
         try {
             if (savantFile != null) savantFile.close();
         } catch (IOException ignore) { }
-    }
-
-    private int getNumRecords(String reference) {
-        if (!this.savantFile.containsDataForReference(reference)) { return -1; }
-        return (int) (this.savantFile.getReferenceLength(reference) / getRecordSize());
-        //return this.numRecords;
     }
 
     public int getRecordSize() {

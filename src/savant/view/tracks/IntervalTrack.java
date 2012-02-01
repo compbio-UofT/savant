@@ -91,27 +91,27 @@ public class IntervalTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public void prepareForRendering(String ref, Range r) {
 
-        Resolution r = getResolution(range);
+        Resolution res = getResolution(r);
 
-        switch (r) {
+        switch (res) {
             case HIGH:
                 renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
-                requestData(reference, range);
+                requestData(ref, r);
                 break;
             default:
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
                 break;
         }
 
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
         if (getDrawingMode() != DrawingMode.ARC) {
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
         }
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
