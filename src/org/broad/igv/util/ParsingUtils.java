@@ -1,51 +1,50 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 package org.broad.igv.util;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.apache.log4j.Logger;
+import org.broad.igv.track.TrackProperties;
+import org.broad.igv.track.WindowFunction;
+
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.broad.igv.track.TrackProperties;
-import org.broad.igv.track.WindowFunction;
+import org.broad.tribble.readers.AsciiLineReader;
 
 /**
  * @author jrobinso
  */
 public class ParsingUtils {
 
-    private static Log log = LogFactory.getLog(ParsingUtils.class);
+    private static Logger log = Logger.getLogger(ParsingUtils.class);
 
-    public static BufferedReader openBufferedReader(String pathOrUrl)
-            throws FileNotFoundException, IOException {
-        BufferedReader reader = null;
 
-        if (pathOrUrl.startsWith("http:") || pathOrUrl.startsWith("https:") ||
-                pathOrUrl.startsWith("file:")) {
+    public static BufferedReader openBufferedReader(String pathOrUrl) throws IOException {
+
+        BufferedReader reader;
+
+        if (HttpUtils.isURL(pathOrUrl)) {
             URL url = new URL(pathOrUrl);
-            reader = new BufferedReader(new InputStreamReader(IGVHttpUtils.openConnectionStream(url)));
+            reader = new BufferedReader(new InputStreamReader(HttpUtils.getInstance().openConnectionStream(url)));
         } else {
             File file = new File(pathOrUrl);
 
@@ -62,21 +61,55 @@ public class ParsingUtils {
     }
 
 
-    public static int estimateLineCount(String filename) {
+    public static int estimateLineCount(File file) {
+        if (file.isDirectory()) {
+            int lineCount = 0;
+            for (File f : file.listFiles()) {
+                // Don't recurse
+                if (!f.isDirectory()) {
+                    lineCount += estimateLineCount(f.getAbsolutePath());
+                }
+            }
+            return lineCount;
+
+        } else {
+            return estimateLineCount(file.getAbsolutePath());
+        }
+
+    }
+
+    public static long getContentLength(String path) {
+        try {
+            long contentLength = -1;
+            if (path.startsWith("http:") || path.startsWith("https:")) {
+                URL url = new URL(path);
+                contentLength = HttpUtils.getInstance().getContentLength(url);
+
+            } else if (path.startsWith("ftp:")) {
+                // Use JDK url
+                URL url = new URL(path);
+                contentLength = url.openConnection().getContentLength();
+            } else {
+                contentLength = (new File(path)).length();
+            }
+            return contentLength;
+        } catch (IOException e) {
+            log.error("Error getting content length for: " + path, e);
+            return -1;
+        }
+    }
+ 
+    public static int estimateLineCount(String path) {
 
         AsciiLineReader reader = null;
         try {
-            long fileLength = 0;
-            //TODO -- ftp
-            if (filename.startsWith("http:") || filename.startsWith("https:")) {
-                URL url = new URL(filename);
-                fileLength = Long.parseLong(IGVHttpUtils.getHeaderField(url, "Content-length"));
-            } else {
-                fileLength = (new File(filename)).length();
+            final int defaultLength = 100000;
+            long fileLength = getContentLength(path);
+            if (fileLength <= 0) {
+                return defaultLength;
             }
 
-
-            reader = openAsciiReader(new ResourceLocator(filename));
+            reader = openAsciiReader(new ResourceLocator(path));
             String nextLine;
             int lines = 0;
             // Skip the first 10 lines (headers, etc)
@@ -90,7 +123,7 @@ public class ParsingUtils {
             }
 
             if (lines == 0) {
-                return 1000;
+                return defaultLength;
             }
 
             double bytesPerLine = (double) ((reader.getPosition() - startPos) / lines);
@@ -101,69 +134,41 @@ public class ParsingUtils {
             log.error("Error estimating line count", e);
             return 1000;
         } finally {
-            reader.close();
+            try {
+		reader.close();
+            } catch (Exception e) {
+                // Ignore errors closing reader
+            }
         }
 
     }
 
-    /**
-     * Method description
-     *
-     * @param locator
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public static AsciiLineReader openAsciiReader(ResourceLocator locator)
-            throws IOException {
+    public static AsciiLineReader openAsciiReader(ResourceLocator locator) throws IOException {
         InputStream stream = openInputStream(locator);
         return new AsciiLineReader(stream);
 
     }
 
-    /**
-     * Method description
-     *
-     * @param locator
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public static InputStream openInputStream(ResourceLocator locator)
-            throws IOException {
 
-        if (locator.getServerURL() != null) {
-            URL url = new URL(locator.getServerURL() + "?method=getContents&file=" + locator.getPath());
-            InputStream is = IGVHttpUtils.openConnectionStream(url);
+    public static InputStream openInputStream(ResourceLocator locator) throws IOException {
 
-            // Note -- assumption that url stream is compressed!
-            try {
-                return new GZIPInputStream(is);
-            } catch (Exception ex) {
-                log.error("Error with gzip stream", ex);
-                throw new RuntimeException(
-                        "There was a server error loading file: " + locator.getTrackName() +
-                                ". Please report to igv-help@broadinstitute.org");
-
-            }
-
+        InputStream inputStream = null;
+        if (HttpUtils.getInstance().isURL(locator.getPath())) {
+            URL url = new URL(locator.getPath());
+            inputStream = HttpUtils.getInstance().openConnectionStream(url);
         } else {
-
-            InputStream inputStream = null;
-            if (locator.getPath().startsWith("http:") || locator.getPath().startsWith("https:") ||
-                    locator.getPath().startsWith("ftp:") || locator.getPath().startsWith("file:")) {
-                URL url = new URL(locator.getPath());
-                inputStream = IGVHttpUtils.openConnectionStream(url);
-            } else {
-                File file = new File(locator.getPath());
-                inputStream = new FileInputStream(file);
+            String path = locator.getPath();
+            if (path.startsWith("file://")) {
+                path = path.substring(7);
             }
+            File file = new File(path);
+            inputStream = new FileInputStream(file);
+        }
 
-            if (locator.getPath().endsWith("gz")) {
-                return new GZIPInputStream(inputStream);
-            } else {
-                return inputStream;
-            }
+        if (locator.getPath().endsWith("gz")) {
+            return new GZIPInputStream(inputStream);
+        } else {
+            return inputStream;
         }
     }
 
@@ -183,6 +188,14 @@ public class ParsingUtils {
         int nTokens = 0;
         int start = 0;
         int end = aString.indexOf(delim);
+        if (end == 0) {
+            if (aString.length() > 1) {
+                start = 1;
+                end = aString.indexOf(delim, start);
+            } else {
+                return 0;
+            }
+        }
         if (end < 0) {
             tokens[nTokens++] = aString;
             return nTokens;
@@ -202,6 +215,48 @@ public class ParsingUtils {
         }
         return nTokens;
     }
+
+    /**
+     * Split the string into tokens separated by one or more space.  This method
+     * was added so support PLINK files.
+     *
+     * @param aString the string to split
+     * @param tokens  an array to hold the parsed tokens
+     * @return the number of tokens parsed
+     */
+    public static int splitSpaces(String aString, String[] tokens) {
+
+        aString = aString.trim();
+        int maxTokens = tokens.length;
+        int nTokens = 0;
+        int start = 0;
+        int end = aString.indexOf(' ');
+        if (end < 0) {
+            tokens[nTokens++] = aString;
+            return nTokens;
+        }
+        while ((end > 0) && (nTokens < maxTokens)) {
+
+            String t = aString.substring(start, end);
+            if (t.length() > 0) {
+                tokens[nTokens++] = t;
+            }
+            start = end + 1;
+
+            end = aString.indexOf(' ', start);
+
+        }
+
+        // Add the trailing string,  if there is room and if it is not empty.
+        if (nTokens < maxTokens) {
+            String trailingString = aString.substring(start);
+            if (trailingString.length() > 0) {
+                tokens[nTokens++] = trailingString;
+            }
+        }
+        return nTokens;
+    }
+
 
     /**
      * Split the string into tokesn separated by tab or space(s).  This method
@@ -332,6 +387,7 @@ public class ParsingUtils {
         }
     }
 
+
     /**
      * graphType         bar|points           # default is bar
      * yLineMark         real-value           # default is 0.0
@@ -343,10 +399,10 @@ public class ParsingUtils {
      * @param trackProperties
      * @throws NumberFormatException
      */
-    public static boolean parseTrackLine(String nextLine, TrackProperties trackProperties)
-            throws NumberFormatException {
+    public static boolean parseTrackLine(String nextLine, TrackProperties trackProperties) throws NumberFormatException {
 
         boolean foundProperties = false;
+
         // track type=wiggle_0 name="CSF +" description="CSF +" visibility=full autoScale=off viewLimits=-50:50
         List<String> tokens = StringUtils.breakQuotedString(nextLine, ' ');
         for (String pair : tokens) {
@@ -369,18 +425,22 @@ public class ParsingUtils {
                 } else if (key.equals("description")) {
                     trackProperties.setDescription(value);
                 } else if (key.equals("itemrgb")) {
-                    trackProperties.setItemRGB(value.toLowerCase().equals("on"));
+                    trackProperties.setItemRGB(value.toLowerCase().equals("on") || value.equals("1"));
                 } else if (key.equals("usescore")) {
                     trackProperties.setUseScore(value.equals("1"));
                 } else if (key.equals("autoscale")) {
                     boolean autoscale = value.equals("on");
                     trackProperties.setAutoScale(autoscale);
                 } else if (key.equals("maxheightpixels")) {
-
-                    // Ignore the min and max
+                    // There should be 3 values per UCSC spec,  max:default:min.  In the past we have accepted
+                    // 2 values,  def:min,  so keep this for backwards compatibility.   IGV currently doesn't
+                    // have a "max height"
                     String[] maxDefMin = value.split(":");
-                    trackProperties.setHeight(Integer.parseInt(maxDefMin[0].trim()));
-                    trackProperties.setMinHeight(Integer.parseInt(maxDefMin[1].trim()));
+                    if (maxDefMin.length >= 2) {
+                        int defIDX = (maxDefMin.length == 2 ? 0 : 1);
+                        trackProperties.setHeight(Integer.parseInt(maxDefMin[defIDX].trim()));
+                        trackProperties.setMinHeight(Integer.parseInt(maxDefMin[defIDX + 1].trim()));
+                    }
 
                 } else if (key.equals("url")) {
                     trackProperties.setUrl(value);
@@ -410,13 +470,13 @@ public class ParsingUtils {
                     }
                 } else if (key.equals("ylinemark")) {
                     try {
-                        float midValue = Float.parseFloat(value);
-                        trackProperties.setMidValue(midValue);
+                        float yLine = Float.parseFloat(value);
+                        trackProperties.setyLine(yLine);
                     } catch (NumberFormatException e) {
                         log.error("Number format exception in track line (ylinemark): " + nextLine);
                     }
                 } else if (key.equals("ylineonoff")) {
-                    trackProperties.setDrawMidValue(value.equals("on"));
+                    trackProperties.setDrawYLine(value.equals("on"));
                 } else if (key.equals("windowingfunction")) {
                     if (value.equals("maximum")) {
                         trackProperties.setWindowingFunction(WindowFunction.max);
@@ -434,47 +494,73 @@ public class ParsingUtils {
 
                     } else if (value.equals("percentile90")) {
                         trackProperties.setWindowingFunction(WindowFunction.percentile90);
-
+                    } else if (value.equals("none")) {
+                        trackProperties.setWindowingFunction(WindowFunction.none);
                     }
-                } else if(key.equals("maxfeaturewindow") || key.equals("featurevisibilitywindow")) {
-                    // These options are deprecated.  Use visibilityWindow
+                } else if (key.equals("maxfeaturewindow") || key.equals("featurevisibilitywindow") ||
+                           key.equals("visibilitywindow")) {
                     try {
                         int windowSize = Integer.parseInt(value);
                         trackProperties.setFeatureVisibilityWindow(windowSize);
                     } catch (NumberFormatException e) {
-                        log.error("featureVisibilityWindow must be numeric: " + nextLine);
+                        log.error(key + " must be numeric: " + nextLine);
+
                     }
 
-                } else if(key.equals("visibilitywindow")) {
-                    try {
-                        int windowSize = Integer.parseInt(value) * 1000;
-                        trackProperties.setFeatureVisibilityWindow(windowSize);
-                    } catch (NumberFormatException e) {
-                        log.error("featureVisibilityWindow must be an integer: " + nextLine);
-                    }
-
-                }
-                else if(key.equals("scaletype")) {
+                } else if (key.equals("scaletype")) {
                     if(value.equals("log")) {
                         trackProperties.setLogScale(true);
                     }
+                } else if (key.equals("gfftags")) {
+                    // Any value other than 0 or off => on
+                    boolean gffTags = !(value.equals("0") || (value.toLowerCase().equals("off")));
+                    trackProperties.setGffTags(gffTags);
+                } else if (key.equals("sortable")) {
+                    // Any value other than 0 or off => on
+                    boolean sortable = (value.equals("1") || (value.toLowerCase().equals("true")));
+                    trackProperties.setSortable(sortable);
+                } else if (key.equals("alternateexoncolor")) {
+                    trackProperties.setAlternateExonColor(value.toLowerCase().equals("on") || value.equals("1"));
                 }
-
             }
         }
-
         return foundProperties;
 
     }
 
-    public static  boolean pathExists(String covPath)  {
+
+/*    public static  boolean pathExists(String covPath)  {
         try {
             return (new File(covPath)).exists() ||
-                    ((covPath.startsWith("http:") || covPath.startsWith("https:")) &&
-                            IGVHttpUtils.resourceAvailable(new URL(covPath)));
+		(HttpUtils.getInstance().isURL(covPath) && HttpUtils.getInstance().resourceAvailable(new URL(covPath)));
         } catch (MalformedURLException e) {
             // todo -- log
             return false;
         }
-    }
+    }*/
+
+    /**
+     * Return the contents of the resource at path as a byte array
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
+/*    public static byte[] readAll(String path) throws IOException {
+        InputStream is = null;
+        try {
+            byte [] buffer = new byte[100000];
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000000);
+            is = openInputStream(new ResourceLocator(path));
+            int nRead;
+            while((nRead = is.read(buffer)) >= 0) {
+                bos.write(buffer, 0, nRead);
+            }
+            return bos.toByteArray();
+        } finally {
+            is.close();
+        }
+
+
+    }*/
 }

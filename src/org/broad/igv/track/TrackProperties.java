@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 
 
@@ -30,12 +30,13 @@ import java.awt.*;
  * @author jrobinso
  */
 public class TrackProperties {
-    public boolean isLogScale() {
-        return logScale;
+
+    public boolean isAlternateExonColor() {
+        return alternateExonColor;
     }
 
-    public void setLogScale(boolean logScale) {
-        this.logScale = logScale;
+    public void setAlternateExonColor(boolean alternateExonColor) {
+        this.alternateExonColor = alternateExonColor;
     }
 
     public enum BaseCoord {
@@ -71,6 +72,8 @@ public class TrackProperties {
 
     private int minHeight;
 
+    private boolean gffTags = false;
+
     /**
      * The default color for the track.  This can be overridden by individual feature lines in
      * certain formats, notably BED.
@@ -101,7 +104,7 @@ public class TrackProperties {
 
     private float neutralToValue = Float.NaN;
 
-    private boolean drawMidValue = true;
+    private boolean drawYLine = false;
 
     private Class rendererClass;
 
@@ -117,6 +120,31 @@ public class TrackProperties {
 
     private boolean logScale;
 
+    private float yLine;
+
+    private boolean sortable = true;
+
+    private boolean alternateExonColor = false;
+
+    public TrackProperties() {
+
+    }
+
+    public boolean isSortable() {
+        return sortable;
+    }
+
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+    }
+
+    public boolean isLogScale() {
+        return logScale;
+    }
+
+    public void setLogScale(boolean logScale) {
+        this.logScale = logScale;
+    }
 
     public int getFeatureVisibilityWindow() {
         return featureVisibilityWindow;
@@ -277,9 +305,7 @@ public class TrackProperties {
         this.rendererClass = rendererClass;
     }
 
-    public void setAutoScale(
-
-            boolean autoScale) {
+    public void setAutoScale(boolean autoScale) {
         this.autoScaleFlag = autoScale;
     }
 
@@ -299,38 +325,26 @@ public class TrackProperties {
         this.midColor = midColor;
     }
 
-    public boolean isDrawMidValue() {
-        return drawMidValue;
+    public boolean isDrawYLine() {
+        return drawYLine;
     }
 
-    public void setDrawMidValue(boolean drawMidValue) {
-        this.drawMidValue = drawMidValue;
+    public void setDrawYLine(boolean drawYLine) {
+        this.drawYLine = drawYLine;
     }
 
-    /**
-     * @return the minHeight
-     */
     public int getMinHeight() {
         return minHeight;
     }
 
-    /**
-     * @param minHeight the minHeight to set
-     */
     public void setMinHeight(int minHeight) {
         this.minHeight = minHeight;
     }
 
-    /**
-     * @return the baseCoord
-     */
     public BaseCoord getBaseCoord() {
         return baseCoord;
     }
 
-    /**
-     * @param baseCoord the baseCoord to set
-     */
     public void setBaseCoord(BaseCoord baseCoord) {
         this.baseCoord = baseCoord;
     }
@@ -349,6 +363,22 @@ public class TrackProperties {
 
     public void setNeutralToValue(float neutralToValue) {
         this.neutralToValue = neutralToValue;
+    }
+
+    public float getyLine() {
+        return yLine;
+    }
+
+    public void setyLine(float yLine) {
+        this.yLine = yLine;
+    }
+
+    public void setGffTags(boolean gffTags) {
+        this.gffTags = gffTags;
+    }
+
+    public boolean isGffTags() {
+        return gffTags;
     }
 
 

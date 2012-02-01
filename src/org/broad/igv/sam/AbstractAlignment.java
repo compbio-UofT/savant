@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 
 /*
@@ -24,8 +24,6 @@ package org.broad.igv.sam;
 
 import org.broad.igv.feature.Strand;
 import org.broad.igv.track.WindowFunction;
-
-import java.awt.*;
 
 /**
  * @author jrobinso
@@ -133,7 +131,7 @@ public abstract class AbstractAlignment implements Alignment {
         for (AlignmentBlock block : this.alignmentBlocks) {
             if (block.contains(basePosition)) {
                 int offset = basePosition - block.getStart();
-                byte qual = block.getQuality(offset);
+                byte qual = block.qualities[offset];
                 return qual;
             }
         }
@@ -143,12 +141,14 @@ public abstract class AbstractAlignment implements Alignment {
     public String getValueString(double position, WindowFunction windowFunction) {
 
         // First check insertions.  Position is zero based, block coords 1 based
+        if (this.insertions != null) {
         for (AlignmentBlock block : this.insertions) {
             double insertionLeft = block.getStart() + .75;
             double insertionRight = block.getStart() + 1.25;
             if (position > insertionLeft && position < insertionRight) {
                 return "Insertion: " + new String(block.getBases());
             }
+        }
         }
 
         StringBuffer buf = new StringBuffer();
@@ -186,7 +186,7 @@ public abstract class AbstractAlignment implements Alignment {
             buf.append("Pair start = " + getMate().positionString() + "<br>");
             buf.append("Pair is mapped = " + (getMate().isMapped() ? "yes" : "no") + "<br>");
             //buf.append("Pair is proper = " + (getProperPairFlag() ? "yes" : "no") + "<br>");
-            if (getChr().equals(getMate().getMateChr())) {
+            if (getChr().equals(getMate().getChr())) {
                 buf.append("Insert size = " + getInferredInsertSize() + "<br>");
             }
             if (getPairOrientation().length() > 0) {
@@ -208,14 +208,6 @@ public abstract class AbstractAlignment implements Alignment {
     public boolean isSmallInsert() {
         int absISize = Math.abs(getInferredInsertSize());
         return absISize > 0 && absISize <= getReadSequence().length();
-    }
-
-    public float getConfidence() {
-        return ((float) getMappingQuality()) / 255;
-    }
-
-    public void setConfidence(float c) {
-        // required by LocusScore interface, ignored
     }
 
     public float getScore() {
@@ -245,6 +237,14 @@ public abstract class AbstractAlignment implements Alignment {
 
     public String getReadGroup() {
         return null;
+    }
+
+    public String getLibrary() {
+        return null;
+    }
+
+    public String getClipboardString(double location) {
+        return getValueString(location, null);
     }
 
     public char[] getGapTypes() {

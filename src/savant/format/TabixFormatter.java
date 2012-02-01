@@ -26,13 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.samtools.util.AsciiLineReader;
 import net.sf.samtools.util.BlockCompressedOutputStream;
 import org.broad.igv.tools.sort.Parser;
 import org.broad.igv.tools.sort.Sorter;
 import org.broad.tabix.TabixWriter;
 import org.broad.tabix.TabixWriter.Conf;
 
+import org.broad.tribble.readers.AsciiLineReader;
 import savant.file.FileType;
 import savant.util.ColumnMapping;
 
@@ -128,13 +128,14 @@ public class TabixFormatter extends SavantFileFormatter {
             setSubtaskStatus("Sorting input file...");
             File sortedFile = File.createTempFile("savant", ".sorted");
             new Sorter(inFile, sortedFile) {
+
                 @Override
-                public Parser getParser() {
+                public Parser getParser() throws IOException {
                     return new Parser(mapping.chrom, mapping.start);
                 }
 
                 @Override
-                public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+                public String writeHeader(AsciiLineReader reader, PrintWriter writer) throws IOException {
                     String nextLine = reader.readLine();
                     while (nextLine.startsWith("#")) {
                         writer.println(nextLine);

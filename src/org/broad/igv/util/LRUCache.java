@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2007-2011 by The Broad Institute, Inc. and the Massachusetts Institute of
- * Technology.  All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
  * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
  * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
@@ -18,17 +17,19 @@
  */
 package org.broad.igv.util;
 
+import org.apache.log4j.Logger;
+
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author jrobinso
  */
 public class LRUCache<K, V> {
 
-    Log log = LogFactory.getLog(LRUCache.class);
+    Logger log = Logger.getLogger(LRUCache.class);
+
 
 
     private static Map<Object, LRUCache> instances = Collections.synchronizedMap(new WeakHashMap<Object, LRUCache>());
@@ -40,6 +41,7 @@ public class LRUCache<K, V> {
             }
         }
     }
+
 
 
     private final int maxEntries;

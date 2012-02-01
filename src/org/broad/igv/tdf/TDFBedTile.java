@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 
 /*
@@ -33,10 +33,10 @@ import java.nio.ByteBuffer;
 public class TDFBedTile implements TDFTile {
 
     int tileStart;
-    int[] start;
-    int[] end;
-    float[][] data;
-    String[] name;
+    private int[] start;
+    private int[] end;
+    private float[][] data;
+    private String[] names;
 
     public TDFBedTile(ByteBuffer byteBuffer, int nSamples, TDFTile.Type type) throws IOException {
         this.fill(byteBuffer, nSamples, type);
@@ -51,7 +51,7 @@ public class TDFBedTile implements TDFTile {
 
     public TDFBedTile(int tileStart, int[] start, int[] end, float[][] data, String[] name) {
         this(tileStart, start, end, data);
-        this.name = name;
+        this.names = name;
     }
 
     public int getSize() {
@@ -75,7 +75,7 @@ public class TDFBedTile implements TDFTile {
     }
 
     public String getName(int idx) {
-        return name == null ? null : name[idx];
+        return names == null ? null : names[idx];
     }
 
     public float getValue(int row, int idx) {
@@ -85,7 +85,7 @@ public class TDFBedTile implements TDFTile {
     public void writeTo(BufferedByteWriter fos) throws IOException {
 
         // File type
-        TDFTile.Type type = name == null ? TDFTile.Type.bed : TDFTile.Type.bedWithName;
+        TDFTile.Type type = names == null ? TDFTile.Type.bed : TDFTile.Type.bedWithName;
         fos.putNullTerminatedString(type.toString());
 
         int nPositions = start.length;
@@ -111,7 +111,7 @@ public class TDFBedTile implements TDFTile {
         // Optionally record feature names
         if (type == TDFTile.Type.bedWithName) {
             for (int i = 0; i < nPositions; i++) {
-                fos.putNullTerminatedString(name[i]);
+                fos.putNullTerminatedString(names[i]);
             }
         }
 
@@ -145,12 +145,28 @@ public class TDFBedTile implements TDFTile {
 
         // Optionally read feature names
         if (type == TDFTile.Type.bedWithName) {
-            name = new String[nPositions];
+            names = new String[nPositions];
             for (int i = 0; i < nPositions; i++) {
-                name[i] = StringUtils.readString(byteBuffer);
+                names[i] = StringUtils.readString(byteBuffer);
             }
 
         }
 
+    }
+
+    public int[] getStart() {
+        return start;
+    }
+
+    public int[] getEnd() {
+        return end;
+    }
+
+    public float[] getData(int trackNumber) {
+        return data[trackNumber];
+    }
+
+    public String[] getNames() {
+        return names;
     }
 }

@@ -21,13 +21,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
-
-import org.broad.igv.feature.Genome;
+import org.broad.igv.feature.genome.Genome;
+import org.broad.igv.tools.PreprocessingException;
 import org.broad.igv.tools.Preprocessor;
+
 import savant.util.MiscUtils;
 
 
@@ -51,8 +53,12 @@ public class BAMToCoverage extends TDFFormatter {
         Genome genome = getTDFGenome();
         setSubtaskStatus("Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, 1000000, new TDFProgressMonitor());
-        pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, DEFAULT_STRAND_OPTION);
-        pp.finish();
+        try {
+            pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, "", null);
+            pp.finish();
+        } catch (PreprocessingException x) {
+            throw new IOException(x);
+        }
     }
 
     @Override

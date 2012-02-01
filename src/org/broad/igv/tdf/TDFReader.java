@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 
 /*
@@ -22,19 +22,18 @@
  */
 package org.broad.igv.tdf;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.*;
-
-import net.sf.samtools.util.SeekableStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.apache.log4j.Logger;
 import org.broad.igv.track.TrackType;
 import org.broad.igv.track.WindowFunction;
 import org.broad.igv.util.*;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.*;
+import net.sf.samtools.util.SeekableStream;
 import savant.util.NetworkUtils;
 
 /**
@@ -42,12 +41,8 @@ import savant.util.NetworkUtils;
  */
 public class TDFReader {
 
-    static final Log log = LogFactory.getLog(TDFReader.class);
+    static final Logger log = Logger.getLogger(TDFReader.class);
     public static final int GZIP_FLAG = 0x1;
-
-    // Cache to insure there is only 1 reader per file
-    static Map<URI, TDFReader> readerCache = new HashMap();
-
 
     private SeekableStream seekableStream = null;
     private int version;
@@ -56,8 +51,8 @@ public class TDFReader {
     private TrackType trackType;
     private String trackLine;
     private String[] trackNames;
-    LRUCache<String, TDFGroup> groupCache = new LRUCache(this, 10);
-    LRUCache<String, TDFDataset> datasetCache = new LRUCache(this, 10);
+    LRUCache<String, TDFGroup> groupCache = new LRUCache(this, 20);
+    LRUCache<String, TDFDataset> datasetCache = new LRUCache(this, 20);
 
     Map<WindowFunction, Double> valueCache = new HashMap();
     private List<WindowFunction> windowFunctions;
@@ -65,13 +60,10 @@ public class TDFReader {
 
     boolean compressed = false;
 
+    Set<String> chrNames;
+
     public static TDFReader getReader(URI uri) throws IOException {
-        TDFReader reader = readerCache.get(uri);
-        if (reader == null) {
-            reader = new TDFReader(uri);
-            readerCache.put(uri, reader);
-        }
-        return reader;
+        return new TDFReader(uri);
     }
 
     private TDFReader(URI locator) throws IOException {
@@ -162,6 +154,8 @@ public class TDFReader {
             String genomeId = StringUtils.readString(byteBuffer);
             int flags = byteBuffer.getInt();
             compressed = (flags & GZIP_FLAG) != 0;
+        } else {
+            compressed = false;
         }
 
 
@@ -172,6 +166,7 @@ public class TDFReader {
 
     private void readMasterIndex(long idxPosition, int nBytes) throws IOException {
 
+        try {
         //fis.seek(idxPosition);
         //byte[] bytes = new byte[nBytes];
         //readFully(bytes);
@@ -196,6 +191,11 @@ public class TDFReader {
             long fPosition = byteBuffer.getLong();
             int n = byteBuffer.getInt();
             groupIndex.put(name, new IndexEntry(fPosition, n));
+        }
+        } catch (BufferUnderflowException e) {
+            // We intermittently see this exception in this method.  Log as much info as possible
+            log.error("BufferUnderflowException.  path=" + getPath() + "  idxPosition=" + idxPosition + "  nBytes=" + nBytes);
+            throw e;
         }
     }
 
@@ -283,7 +283,7 @@ public class TDFReader {
 
     // TODO -- move to dataset class
 
-    public synchronized TDFTile readTile(TDFDataset ds, int tileNumber) {
+    public  TDFTile readTile(TDFDataset ds, int tileNumber) {
 
         try {
             if (tileNumber >= ds.tilePositions.length) {
@@ -392,16 +392,36 @@ public class TDFReader {
     public byte[] readBytes(long position, int nBytes) throws IOException {
         seekableStream.seek(position);
         byte[] buffer = new byte[nBytes];
-        seekableStream.read(buffer);
+        seekableStream.read(buffer, 0, nBytes);
         return buffer;
     }
-
 
     /**
      * @return the windowFunctions
      */
     public List<WindowFunction> getWindowFunctions() {
         return windowFunctions;
+    }
+
+    /**
+     * Return a list of all chromosome names represented in this dataset
+     * TODO -- record this explicitly in the TDF file
+     * @return
+     */
+
+    public Set<String> getChromosomeNames() {
+        if(chrNames == null) {
+            ///DatasetIndex chr1/z0/mean=org.broad.igv.tdf.TDFReader$IndexEntry@6a493b65
+            chrNames = new HashSet();
+            String [] tokens = new String[2];
+            for(String key : datasetIndex.keySet()) {
+                int nTokens = ParsingUtils.split(key, tokens, '/');
+                if(nTokens > 0) {
+                    chrNames.add(tokens[0]);
+                }
+            }
+        }
+        return chrNames;
     }
 
     class IndexEntry {

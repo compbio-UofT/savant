@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007-2010 by The Broad Institute, Inc. and the Massachusetts Institute of Technology.
- * All Rights Reserved.
+ * Copyright (c) 2007-2011 by The Broad Institute of MIT and Harvard.  All Rights Reserved.
  *
- * This software is licensed under the terms of the GNU Lesser General Public License (LGPL), Version 2.1 which
- * is available at http://www.opensource.org/licenses/lgpl-2.1.php.
+ * This software is licensed under the terms of the GNU Lesser General Public License (LGPL),
+ * Version 2.1 which is available at http://www.opensource.org/licenses/lgpl-2.1.php.
  *
- * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR WARRANTIES OF
- * ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT
- * OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR
- * RESPECTIVE TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES OF
- * ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES, ECONOMIC
- * DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER THE BROAD OR MIT SHALL
- * BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE
- * FOREGOING.
+ * THE SOFTWARE IS PROVIDED "AS IS." THE BROAD AND MIT MAKE NO REPRESENTATIONS OR
+ * WARRANTES OF ANY KIND CONCERNING THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING,
+ * WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER
+ * OR NOT DISCOVERABLE.  IN NO EVENT SHALL THE BROAD OR MIT, OR THEIR RESPECTIVE
+ * TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES, AND AFFILIATES BE LIABLE FOR ANY DAMAGES
+ * OF ANY KIND, INCLUDING, WITHOUT LIMITATION, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+ * ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER
+ * THE BROAD OR MIT SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT
+ * SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
  */
 package org.broad.igv.sam;
 
@@ -22,24 +22,19 @@ package org.broad.igv.sam;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMReadGroupRecord;
 import net.sf.samtools.SAMRecord;
-import org.broad.igv.feature.Genome;
+import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.feature.LocusScore;
 import org.broad.igv.feature.Strand;
 import org.broad.igv.track.WindowFunction;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author jrobinso
  */
 public class SamAlignment extends AbstractAlignment implements Alignment {
-
-    private static final Log log = LogFactory.getLog(SamAlignment.class);
 
     public static final char DELETE_CHAR = '-';
     public static final char SKIP_CHAR = '=';
@@ -74,6 +69,9 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
     boolean secondRead = false;
     private String mateSequence = null;
     private String pairOrientation = "";
+    private String readGroup;
+    private String library;
+    private String sample;
 
     /**
      * Constructs ...
@@ -83,7 +81,12 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
     public SamAlignment(SAMRecord record) {
 
         this.record = record;
-        this.chr = record.getReferenceName();
+
+
+        String refName = record.getReferenceName();
+
+        this.chr = refName;
+
 
         // SAMRecord is 1 based inclusive.  IGV is 0 based exclusive.
         this.alignmentStart = record.getAlignmentStart() - 1;
@@ -105,6 +108,20 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
         setPairOrientation(record);
         setFirstReadStrand(record);
         createAlignmentBlocks(record.getCigarString(), record.getReadBases(), record.getBaseQualities());
+
+        SAMFileHeader header = record.getHeader();
+        if (header != null) {
+            readGroup = (String) record.getAttribute("RG");
+            if (readGroup != null) {
+                SAMReadGroupRecord rgRec = header.getReadGroup(readGroup);
+                if (rgRec != null) {
+                    String platform = rgRec.getPlatform();
+                    sample = rgRec.getSample();
+                    library = rgRec.getLibrary();
+
+                }
+            }
+        }
     }
 
     private void setFirstReadStrand(SAMRecord record) {
@@ -231,6 +248,8 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
             return;
         }
 
+
+        // Create list of cigar operators
         boolean firstOperator = true;
         int softClippedBaseCount = 0;
         int nGaps = 0;
@@ -240,12 +259,13 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
             if (Character.isDigit(next)) {
                 buffer.append(next);
             } else {
-                int nBases = Integer.parseInt(buffer.toString());
                 char op = next;
                 if (op == HARD_CLIP) {
                     buffer = new StringBuffer(4);
                     continue;  // Just skip hardclips
-                } else if (operatorIsMatch(showSoftClipped, op)) {
+                }
+                int nBases = Integer.parseInt(buffer.toString());
+                if (operatorIsMatch(showSoftClipped, op)) {
                     if (operatorIsMatch(showSoftClipped, prevOp)) {
                         nGaps++;   // Consecutive Ms
                     }
@@ -272,39 +292,51 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
 
         alignmentBlocks = new AlignmentBlock[nBlocks];
         insertions = new AlignmentBlock[nInsertions];
-        if (nGaps > 0)
-
-        {
+        if (nGaps > 0) {
             gapTypes = new char[nGaps];
         }
 
-        // Adjust start and fill new arrays
+        // Adjust start to include soft clipped bases a
         if (showSoftClipped) {
             start -= softClippedBaseCount;
         }
         int fromIdx = showSoftClipped ? 0 : softClippedBaseCount;
         int blockStart = start;
 
+        // Create blocks
         int blockIdx = 0;
         int insertionIdx = 0;
         int gapIdx = 0;
         prevOp = 0;
         for (CigarOperator op : operators) {
+            try {
+
+                if (op.operator == HARD_CLIP) {
+                    continue;
+                }
             if (operatorIsMatch(showSoftClipped, op.operator)) {
 
                 byte[] blockBases = new byte[op.nBases];
                 byte[] blockQualities = new byte[op.nBases];
+
+
                 //Default value
                 Arrays.fill(blockQualities, (byte) 126);
 
-                // TODO -- represent missing sequence ("*") explicitly rather.
+                    int nBasesAvailable = readBases.length - fromIdx;
+
+                    // TODO -- represent missing sequence ("*") explicitly for efficiency.
                 if (readBases == null || readBases.length == 0) {
                     Arrays.fill(blockBases, (byte) '=');
+                    } else if (nBasesAvailable < op.nBases) {
+                        Arrays.fill(blockBases, (byte) '?');
                 } else {
                     System.arraycopy(readBases, fromIdx, blockBases, 0, op.nBases);
+
                 }
 
-                if (readBaseQualities == null || readBaseQualities.length == 0) {
+                    nBasesAvailable = readBaseQualities.length - fromIdx;
+                    if (readBaseQualities == null || readBaseQualities.length == 0 || nBasesAvailable < op.nBases) {
                     Arrays.fill(blockQualities, (byte) 126);
                 } else {
                     System.arraycopy(readBaseQualities, fromIdx, blockQualities, 0, op.nBases);
@@ -349,8 +381,12 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
 
                 insertions[insertionIdx++] = new AlignmentBlock(blockStart, blockBases, blockQualities);
 
+
                 fromIdx += op.nBases;
 
+            }
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
             prevOp = op.operator;
         }
@@ -469,28 +505,15 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
     }
 
     public String getSample() {
-
-        SAMFileHeader header = record.getHeader();
-        if (header != null) {
-            String rg = (String) record.getAttribute("RG");
-            if (rg != null) {
-                SAMReadGroupRecord rgRec = header.getReadGroup(rg);
-                if (rgRec != null) {
-                    return rgRec.getSample();
-                }
-            }
-        }
-        return null;
+        return sample;
     }
 
     public String getReadGroup() {
+        return readGroup;
+    }
 
-        SAMFileHeader header = record.getHeader();
-        if (header != null) {
-            String readGroup = (String) record.getAttribute("RG");
-            return (String) record.getAttribute("RG");
-        }
-        return null;
+    public String getLibrary() {
+        return library;
     }
 
     @Override
@@ -511,6 +534,11 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
         return record.getAttribute(key);
     }
 
+
+    public String getClipboardString(double location) {
+        return getValueStringImpl(location, false);
+    }
+
     /**
      * Return info string for popup text and to copy to clipboard
      *
@@ -519,7 +547,12 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
      * @return
      */
     public String getValueString(double position, WindowFunction windowFunction) {
-        StringBuffer buf = new StringBuffer(super.getValueString(position, windowFunction));
+        return getValueStringImpl(position, true);
+    }
+
+    String getValueStringImpl(double position, boolean truncate) {
+
+        StringBuffer buf = new StringBuffer(super.getValueString(position, null));
 
         if (isPaired()) {
             if (record.getFirstOfPairFlag()) {
@@ -541,7 +574,12 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
         if (attributes != null && !attributes.isEmpty()) {
 
             for (SAMRecord.SAMTagAndValue tag : attributes) {
-                buf.append("<br>" + tag.tag + " = " + tag.value);
+                String tagValue = tag.value.toString();
+                if(tagValue.length() > 50 && truncate) {
+                   tagValue = tagValue.substring(0, 50) + "...";
+                }
+
+                buf.append("<br>" + tag.tag + " = " + tagValue);
             }
             buf.append("<br>-------------------");
         }
@@ -551,7 +589,6 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
             buf.append("<br>-------------------");
         }
         return buf.toString();
-
     }
 
     public boolean isFirstInPair() {

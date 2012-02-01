@@ -24,7 +24,8 @@ import java.util.List;
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.feature.Cytoband;
 
-import org.broad.igv.feature.Genome;
+import org.broad.igv.feature.genome.Genome;
+import org.broad.igv.tools.PreprocessingException;
 import org.broad.igv.tools.Preprocessor;
 import org.broad.igv.tools.StatusMonitor;
 import org.broad.igv.track.WindowFunction;
@@ -60,8 +61,12 @@ public class TDFFormatter extends SavantFileFormatter {
         Genome genome = getTDFGenome();
         setSubtaskStatus("Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, lineCount, new TDFProgressMonitor());
-        pp.preprocess(inFile, null, DEFAULT_ZOOMS);
-        pp.finish();
+        try {
+            pp.preprocess(inFile, DEFAULT_ZOOMS);
+            pp.finish();
+        } catch (PreprocessingException x) {
+            throw new InterruptedException(x.getMessage());
+        }
     }
 
     /**
