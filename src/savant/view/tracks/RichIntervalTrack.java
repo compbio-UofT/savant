@@ -51,6 +51,7 @@ public class RichIntervalTrack extends Track {
             requestData(ref, r);
         } else {
             renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
+            saveNullData(r);
         }
         
         renderer.addInstruction(DrawingInstruction.RANGE, r);
