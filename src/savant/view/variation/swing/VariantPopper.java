@@ -52,16 +52,17 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
         Record rec = panel.pointToRecord(hoverPos);
         if (rec != null) {
             PopupPanel.hidePopup();
-            Point globalPt = SwingUtilities.convertPoint(panel, hoverPos, null);
+            Point globalPos = new Point(hoverPos.x, hoverPos.y);
+            SwingUtilities.convertPointToScreen(globalPos, panel);
             if (rec instanceof ParticipantRecord) {
                 VariantType[] partVars = ((ParticipantRecord)rec).getVariants();
 
                 // Only display a popup if this participant actually has variation here.
                 if (partVars[0] != VariantType.NONE || (partVars.length > 1 && partVars[1] != VariantType.NONE)) {
-                    PopupPanel.showPopup(this, globalPt, VariationController.getInstance().getTracks()[0], rec);
+                    PopupPanel.showPopup(this, globalPos, VariationController.getInstance().getTracks()[0], rec);
                 }
             } else {
-                PopupPanel.showPopup(this, globalPt, VariationController.getInstance().getTracks()[0], rec);
+                PopupPanel.showPopup(this, globalPos, VariationController.getInstance().getTracks()[0], rec);
             }
         }
         hoverPos = null;
