@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.filechooser.FileFilter;
 
@@ -38,6 +39,8 @@ import savant.file.Project;
 import savant.settings.DirectorySettings;
 import savant.util.Controller;
 import savant.util.FileExtensionFilter;
+import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 
 /**
@@ -54,6 +57,7 @@ public class ProjectController extends Controller {
 
     private boolean projectSaved = true;
     private File currentProjectFile = null;
+    private List<String> pendingTracks = null;
 
     public static ProjectController getInstance() {
         if (instance == null) {
@@ -80,7 +84,18 @@ public class ProjectController extends Controller {
             @Override
             public void handleEvent(TrackEvent event) {
                 if (event.getType() == TrackEvent.Type.ADDED || event.getType() == TrackEvent.Type.REMOVED) {
-                    setProjectSaved(false);
+                    if (pendingTracks != null) {
+                        // Track added as part of loading a project.
+                        pendingTracks.remove(NetworkUtils.getNeatPathFromURI(event.getTrack().getDataSource().getURI()));
+                        if (pendingTracks.isEmpty()) {
+                            pendingTracks = null;
+                            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, currentProjectFile));
+                            setProjectSaved(true);
+                        }
+                    } else {
+                        // A real addition/removal, initiated by the user.
+                        setProjectSaved(false);
+                    }
                 }
             }
         });
@@ -182,9 +197,8 @@ public class ProjectController extends Controller {
         currentProjectFile = f;
         clearExistingProject();
         Project proj = new Project(f);
+        pendingTracks = proj.getInitialTracks();
         proj.load();
-        fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, f));
-        setProjectSaved(true);
     }
 
     public void loadProjectFromURL(String urlString) throws Exception {
@@ -220,8 +234,8 @@ public class ProjectController extends Controller {
 
             clearExistingProject();
             Project proj = new Project(genome, trackURIs);
+            pendingTracks = proj.getInitialTracks();
             proj.load();
-            setProjectSaved(true);
         }
     }
 }

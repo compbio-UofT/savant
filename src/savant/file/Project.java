@@ -20,7 +20,6 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.*;
@@ -41,9 +40,7 @@ import savant.util.Bookmark;
 import savant.util.DrawingMode;
 import savant.util.NetworkUtils;
 import savant.util.Range;
-import savant.view.swing.Frame;
 import savant.view.variation.VariationController;
-import savant.view.tracks.VariantTrack;
 
 
 /**
@@ -302,6 +299,17 @@ public class Project {
 
     private static void writeAttribute(XMLAttribute attr, String value) throws XMLStreamException {
         writer.writeAttribute(attr.toString(), value);
+    }
+
+    /**
+     * Initial tracks which are loaded when the file is opened.  The ProjectController needs to know
+     * this so that it can determine which Track.ADDED events are part of the loading process, and so
+     * that it knows when the project has actually finished loading.
+     */
+    public List<String> getInitialTracks() {
+        List<String> result = new ArrayList<String>();
+        result.addAll(trackPaths);
+        return result;
     }
 
     /**

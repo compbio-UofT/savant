@@ -81,10 +81,10 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
         }
     }
 
-    public void setLocation(Range range) {
-        if (!range.equals(currentViewableRange)) {
+    public void setLocation(Range r) {
+        if (!r.equals(currentViewableRange)) {
             updateHistory();
-            setRange(range);
+            setRange(r);
             fireEvent(new LocationChangedEvent(false, currentReference, currentViewableRange));
         }
     }
@@ -99,15 +99,17 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      */
     public void setLocation(String ref, Range range) {
         if (GenomeController.getInstance().isGenomeLoaded()) {
-            updateHistory();
-            boolean newRef = false;
-            if (isValidAndNewReference(ref)) {
-                setReference(ref);
-                newRef = true;
-            }
-            if (newRef || !range.equals(currentViewableRange)) {
-                setRange(range);
-                fireEvent(new LocationChangedEvent(newRef, currentReference, currentViewableRange));
+            boolean refChanging = isValidAndNewReference(ref);
+            boolean rangeChanging = !range.equals(currentViewableRange);
+            if (refChanging || rangeChanging) {
+                updateHistory();
+                if (refChanging) {
+                    setReference(ref);
+                }
+                if (rangeChanging) {
+                    setRange(range);
+                }
+                fireEvent(new LocationChangedEvent(refChanging, currentReference, currentViewableRange));
             }
             pendingReference = null;
             pendingRange = null;
