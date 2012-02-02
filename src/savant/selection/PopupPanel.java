@@ -256,6 +256,7 @@ public abstract class PopupPanel extends JPanel {
         Buttonoid(String text) {
             super(text);
             setForeground(Color.BLUE);
+            setBackground(Color.WHITE);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
             setOpaque(true);
             
