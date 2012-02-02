@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.api.adapter.GraphPaneAdapter;
 import savant.controller.event.GraphPaneEvent;
 import savant.util.Controller;
@@ -33,14 +30,13 @@ import savant.util.Range;
  * @author mfiume
  */
 public class GraphPaneController extends Controller {
-    private static final Log LOG = LogFactory.getLog(GraphPaneController.class);
 
-    private boolean isSpotlight;
-    private boolean isPlumbing;
-    private boolean isZooming;
-    private boolean isAiming;
-    private boolean isPanning;
-    private boolean isSelecting;
+    private boolean spotlit;
+    private boolean plumbing;
+    private boolean zooming;
+    private boolean aiming;
+    private boolean panning;
+    private boolean selecting;
 
     private int mouseClickPosition;
     private int mouseReleasePosition;
@@ -51,7 +47,6 @@ public class GraphPaneController extends Controller {
     private List<GraphPaneAdapter> graphpanesQueuedForRendering;
 
     private int spotlightSize;
-    private double spotlightproportion = 0.25;
 
     private static GraphPaneController instance;
 
@@ -101,7 +96,7 @@ public class GraphPaneController extends Controller {
     }
 
     public void askForRefresh() {
-        if (isPanning() || isZooming() || isPlumbing() || isSpotlight() || isAiming()) {
+        if (isPanning() || isZooming() || isPlumbing() || isSpotlight() || isAiming() || isSelecting()) {
             fireEvent(new GraphPaneEvent());
         }
     }
@@ -111,82 +106,82 @@ public class GraphPaneController extends Controller {
     }
 
     public boolean isSelecting() {
-        return this.isSelecting;
+        return selecting;
     }
 
-    public void setSelecting(boolean selected) {
-        this.isSelecting = selected;
+    public void setSelecting(boolean value) {
+        selecting = value;
     }
 
     public boolean isPlumbing() {
-        return this.isPlumbing;
+        return plumbing;
     }
 
-    public void setPlumbing(boolean isPlumbing) {
-        if (this.isPlumbing != isPlumbing) {
-            this.isPlumbing = isPlumbing;
-            if (isPlumbing) {
-                this.isSpotlight = false;
-                this.isAiming = false;
+    public void setPlumbing(boolean value) {
+        if (plumbing != value) {
+            plumbing = value;
+            if (value) {
+                spotlit = false;
+                aiming = false;
             }
             forceRefresh();
         }
     }
 
     public boolean isSpotlight() {
-        return this.isSpotlight;
+        return spotlit;
     }
 
-    public void setSpotlight(boolean isSpotlight) {
-        if (this.isSpotlight != isSpotlight) {
-            this.isSpotlight = isSpotlight;
-            if (isSpotlight) {
-                this.isPlumbing = false;
-                this.isAiming = false;
+    public void setSpotlight(boolean value) {
+        if (spotlit != value) {
+            spotlit = value;
+            if (value) {
+                plumbing = false;
+                aiming = false;
             }
             forceRefresh();
         }
     }
 
     public boolean isZooming() {
-        return this.isZooming;
+        return zooming;
     }
 
-    public void setZooming(boolean isZooming) {
-        if (this.isZooming != isZooming) {
-            this.isZooming = isZooming;
+    public void setZooming(boolean value) {
+        if (zooming != value) {
+            zooming = value;
             forceRefresh();
         }
     }
 
     public boolean isAiming() {
-        return this.isAiming;
+        return aiming;
     }
 
-    public void setAiming(boolean isAiming) {
-        if (this.isAiming != isAiming) {
-            this.isAiming = isAiming;
-            if (isAiming) {
-                this.isPlumbing = false;
-                this.isSpotlight = false;
+    public void setAiming(boolean value) {
+        if (aiming != value) {
+            aiming = value;
+            if (value) {
+                plumbing = false;
+                spotlit = false;
             }
             forceRefresh();
         }
     }
 
     public boolean isPanning() {
-        return this.isPanning;
+        return panning;
     }
 
-    public void setPanning(boolean isPanning) {
-        if (this.isPanning != isPanning) {
-            this.isPanning = isPanning;
+    public void setPanning(boolean value) {
+        if (panning != value) {
+            panning = value;
             forceRefresh();
         }
     }
 
     public Range getMouseDragRange() {
-        return new Range(this.mouseClickPosition,this.mouseReleasePosition);
+        return new Range(mouseClickPosition, mouseReleasePosition);
     }
 
     public void setMouseDragRange(Range r) {
@@ -194,18 +189,18 @@ public class GraphPaneController extends Controller {
     }
 
     public void setMouseDragRange(int fromPosition, int toPosition) {
-        this.mouseClickPosition = fromPosition;
-        this.mouseReleasePosition = toPosition;
+        mouseClickPosition = fromPosition;
+        mouseReleasePosition = toPosition;
         askForRefresh();
     }
 
     public void setMouseClickPosition(int position) {
-        this.mouseClickPosition = position;
+        mouseClickPosition = position;
         askForRefresh();
     }
 
     public void setMouseReleasePosition(int position) {
-        this.mouseReleasePosition = position;
+        mouseReleasePosition = position;
         askForRefresh();
     }
     
@@ -231,7 +226,6 @@ public class GraphPaneController extends Controller {
     }
     
     public void setSpotlightSize(int size) {
-//        this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
         spotlightSize = 1;
     }
 

@@ -517,6 +517,7 @@ public class SamAlignment extends AbstractAlignment implements Alignment {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public String toString() {
         return record.format();
     }
