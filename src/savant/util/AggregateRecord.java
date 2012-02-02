@@ -25,6 +25,6 @@ import savant.api.data.Record;
  *
  * @author tarkvara
  */
-public interface AggregateRecord<T extends Record> {
+public interface AggregateRecord<T extends Record> extends Record {
     List<T> getConstituents();
 }

@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.data.DataFormat;
+import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.event.DataRetrievalEvent;
 import savant.api.event.LocationChangedEvent;
@@ -310,7 +311,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     /**
      * One of our panels has clicked or double-clicked.  Navigate to the record in the main window.
      */
-    public void navigateToRecord(VariantRecord rec) {
+    public void navigateToRecord(Record rec) {
         if (rec != null) {
             Range r;
             if (rec instanceof LDRecord) {
@@ -324,7 +325,8 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                     r = new Range(pos1, pos0);
                 }
             } else {
-                r = new Range(rec.getPosition(), rec.getPosition());
+                int pos = ((VariantRecord)rec).getPosition();
+                r = new Range(pos, pos);
             }
             LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(r));
         }

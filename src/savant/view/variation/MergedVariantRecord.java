@@ -136,6 +136,8 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
             int[] alleles2 = original2.getAllelesForParticipant(index - count1 - padding);
             if (alleles2.length == 1) {
                 return new int[] { renumberedAlleles[alleles2[0]] };
+            } else {
+                return new int[] { renumberedAlleles[alleles2[0]], renumberedAlleles[alleles2[1]] };
             }
         }
         // Participants which fall into the padding implicitly have allele 0 (i.e. ref) at this location.

@@ -293,6 +293,18 @@ public class LDPlot extends VariationPlot {
         return new Color((int)(HEATMAP_COLORS[i0].getRed() * w0 + HEATMAP_COLORS[i1].getRed() * w1), (int)(HEATMAP_COLORS[i0].getGreen() * w0 + HEATMAP_COLORS[i1].getGreen() * w1), (int)(HEATMAP_COLORS[i0].getBlue() * w0 + HEATMAP_COLORS[i1].getBlue() * w1));
     }
 
+    @Override
+    public VariantRecord pointToVariantRecord(Point pt) {
+        if (pt.x >= getWidth() - AXIS_WIDTH) {
+            int logicalY = (int)((pt.y - y0) / unitHeight);
+            List<VariantRecord> data = controller.getData();
+            if (data != null && logicalY >= 0 && logicalY < data.size()) {
+                return data.get(logicalY);
+            }
+        }
+        return null;
+    }
+
     /**
      * Given a point on this panel, figure out which record it corresponds to.  We only
      * get a non-null VariantRecord when we're in the axis at right.  Otherwise we have
@@ -302,15 +314,10 @@ public class LDPlot extends VariationPlot {
      * @return 
      */
     @Override
-    public VariantRecord pointToVariantRecord(Point pt) {
-        if (pt.x >= getWidth() - AXIS_WIDTH) {
-            int logicalY = (int)((pt.y - y0) / unitHeight);
-            List<VariantRecord> data = controller.getData();
-            if (data != null && logicalY >= 0 && logicalY < data.size()) {
-                return data.get(logicalY);
-            }
-        } else {
-            // We're somewhere in the diamonds.  Figure out which one.
+    public Record pointToRecord(Point pt) {
+        Record result = pointToVariantRecord(pt);
+        if (result == null) {
+            // We may be somewhere in the diamonds.  Figure out which one.
             int i = -1;
             for (int j = 0; j < zones.length; j++) {
                 if (zones[j].contains(pt)) {
@@ -318,11 +325,12 @@ public class LDPlot extends VariationPlot {
                         i = j;
                     } else {
                         List<VariantRecord> data = controller.getData();
-                        return new LDRecord(data.get(i), data.get(j), dPrimes[i][j], rSquareds[i][j]);
+                        result = new LDRecord(data.get(i), data.get(j), dPrimes[i][j], rSquareds[i][j]);
+                        break;
                     }
                 }
             }
         }
-        return null;
+        return result;
     }
 }

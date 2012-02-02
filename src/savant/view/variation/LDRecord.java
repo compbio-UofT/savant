@@ -16,7 +16,10 @@
 
 package savant.view.variation;
 
+import java.util.Arrays;
+import java.util.List;
 import savant.api.data.VariantRecord;
+import savant.util.AggregateRecord;
 
 
 /**
@@ -25,11 +28,13 @@ import savant.api.data.VariantRecord;
  *
  * @author tarkvara
  */
-public class LDRecord extends MergedVariantRecord {
+public class LDRecord implements AggregateRecord<VariantRecord> {
+    private final VariantRecord original1, original2;
     private final float dPrime, rSquared;
 
     public LDRecord(VariantRecord varRec1, VariantRecord varRec2, float d, float r) {
-        super(varRec1, varRec2, 0);
+        original1 = varRec1;
+        original2 = varRec2;
         dPrime = d;
         rSquared = r;
     }
@@ -40,5 +45,24 @@ public class LDRecord extends MergedVariantRecord {
     
     public float getRSquared() {
         return rSquared;
+    }
+
+    @Override
+    public List<VariantRecord> getConstituents() {
+        return Arrays.asList(original1, original2);
+    }
+
+    @Override
+    public String getReference() {
+        return original1.getReference();
+    }
+
+    @Override
+    public int compareTo(Object t) {
+        int result = original1.compareTo(t);
+        if (result == 0) {
+            result = original2.compareTo(t);
+        }
+        return result;
     }
 }
