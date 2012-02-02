@@ -19,6 +19,7 @@ package savant.selection;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -193,7 +194,6 @@ public abstract class PopupPanel extends JPanel {
         }
     }
 
-
     protected void initSpecificButtons() {};
 
     protected abstract void initInfo();
@@ -273,6 +273,23 @@ public abstract class PopupPanel extends JPanel {
                     setForeground(Color.BLUE);
                 }
             });
+        }
+    }
+    
+    /**
+     * Label on popup which is constrains its width to 600 pixels.  Currently used
+     * to ensure that long ALT and REF strings on VariantPopups don't make the popup
+     * too wide to see.
+     */
+    class PopupLabel extends JLabel {
+        PopupLabel(String text) {
+            super(text);
+        }
+        
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension result = super.getPreferredSize();
+            return new Dimension(Math.min(600, result.width), result.height);
         }
     }
 }

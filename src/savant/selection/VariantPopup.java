@@ -18,8 +18,8 @@ package savant.selection;
 
 import java.util.List;
 import javax.swing.JLabel;
-
 import javax.swing.JSeparator;
+
 import org.apache.commons.lang3.StringUtils;
 
 import savant.api.data.VariantRecord;
@@ -69,13 +69,13 @@ public class VariantPopup extends PopupPanel {
         }
         add(new JLabel("Type: " + varRec.getVariantType().getDescription()));
         add(new JLabel("Position: " + varRec.getPosition()));
-        add(new JLabel("Reference: " + varRec.getRefBases()));
+        add(new PopupLabel("Reference: " + varRec.getRefBases()));
         if (partRec == null) {
-            add(new JLabel("Alt: " + StringUtils.join(varRec.getAltAlleles(), ',')));
+            add(new PopupLabel("Alt: " + StringUtils.join(varRec.getAltAlleles(), ',')));
         } else {
             add(new JSeparator());
             add(new JLabel("Participant: " + partRec.getName()));
-            add(new JLabel("Alleles: " + StringUtils.join(partRec.getAlleles(), ',')));
+            add(new PopupLabel("Alleles: " + StringUtils.join(partRec.getAlleles(), ',')));
         }
     }
 }

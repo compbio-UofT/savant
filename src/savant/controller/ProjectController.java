@@ -77,7 +77,9 @@ public class ProjectController extends Controller {
         LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
             @Override
             public void handleEvent(LocationChangedEvent event) {
-                setProjectSaved(false);
+                if (pendingTracks == null) {
+                    setProjectSaved(false);
+                }
             }
         });
         TrackController.getInstance().addListener(new Listener<TrackEvent>() {
