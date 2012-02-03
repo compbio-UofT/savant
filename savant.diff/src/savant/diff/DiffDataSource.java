@@ -100,7 +100,7 @@ public class DiffDataSource implements DataSourceAdapter<ContinuousRecord> {
      * to simplify our task.
      */
     @Override
-    public List<ContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filter) throws IOException {
+    public List<ContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filter) throws InterruptedException, IOException {
         List<ContinuousRecord> result = null;
         if (inputsAttached()) {
             List<? extends ContinuousRecord> aRecords = inputA.getRecords(ref, range, res, filter);

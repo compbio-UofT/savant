@@ -1,15 +1,2 @@
 <?xml version="1.0" ?>
-<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="savant.amino" version="1.0.2" class="savant.amino.AminoPlugin">
-    <attributes><attribute id="sdk-version" value="2.0.0"/></attributes>
-    <requires>
-        <import plugin-id="savant.core"/>
-    </requires>
-	<runtime>
-            <library id="library" path="/" type="code"></library>
-	</runtime>
-    <extension plugin-id="savant.core" point-id="AuxData" id="extension">
-        <parameter id="class" value="savant.amino.AminoPlugin"/>
-        <parameter id="name" value="Amino Acid Plugin"/>
-    </extension>
-</plugin>
+<plugin id="savant.amino" version="1.0.2" class="savant.amino.AminoPlugin" sdk-version="2.0.0" name="Amino Acid Plugin"/>
