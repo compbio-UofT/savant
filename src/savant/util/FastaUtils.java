@@ -57,13 +57,13 @@ public class FastaUtils {
             String ref = null;
             long refStart = -1;
             int numBases = -1;
-            Map<String, IndexEntry> map = new LinkedHashMap<String, IndexEntry>();
+            List<IndexEntry> entries = new ArrayList<IndexEntry>();
 
             while ((s = IOUtils.readLine(input)) != null) {
                 if (s.charAt(0) == '>') {
                     if (ref != null) {
                         faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", ref, numBases, refStart, lineLen, lineLen + 1).getBytes());
-                        map.put(ref, new IndexEntry(ref, numBases, refStart, lineLen));
+                        entries.add(new IndexEntry(ref, numBases, refStart, lineLen));
                     }
                     ref = s.substring(1);
                     refStart = readPos + ref.length() + 2;
@@ -79,9 +79,9 @@ public class FastaUtils {
             // Write the entry for the last chromosome.
             if (ref != null) {
                 faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", ref, numBases, refStart, lineLen, lineLen + 1).getBytes());
-                map.put(ref, new IndexEntry(ref, numBases, refStart, lineLen));
+                entries.add(new IndexEntry(ref, numBases, refStart, lineLen));
             }
-            return map;
+            return sortEntries(entries);
         } finally {
             if (input != null) {
                 input.close();
@@ -102,22 +102,7 @@ public class FastaUtils {
                 String[] fields = StringUtils.split(line, '\t');
                 unsortedEntries.add(new IndexEntry(fields[0], Integer.valueOf(fields[1]), Long.valueOf(fields[2]), Integer.valueOf(fields[3])));
             }
-
-            // Make sure the references are sorted in a human-friendly order.
-            Collections.sort(unsortedEntries, new Comparator<IndexEntry>() {
-                private ReferenceComparator comparator = new ReferenceComparator();
-
-                @Override
-                public int compare(IndexEntry t1, IndexEntry t2) {
-                    return comparator.compare(t1.reference, t2.reference);
-                }
-            });
-
-            Map<String, IndexEntry> referenceMap = new LinkedHashMap<String, IndexEntry>();
-            for (IndexEntry entry: unsortedEntries) {
-                referenceMap.put(entry.reference, entry);
-            }
-            return referenceMap;
+            return sortEntries(unsortedEntries);
         } finally {
             if (faiReader != null) {
                 faiReader.close();
@@ -125,6 +110,24 @@ public class FastaUtils {
         }
     }
     
+    private static Map<String, IndexEntry> sortEntries(List<IndexEntry> unsortedEntries) {
+        // Make sure the references are sorted in a human-friendly order.
+        Collections.sort(unsortedEntries, new Comparator<IndexEntry>() {
+            private ReferenceComparator comparator = new ReferenceComparator();
+
+            @Override
+            public int compare(IndexEntry t1, IndexEntry t2) {
+                return comparator.compare(t1.reference, t2.reference);
+            }
+        });
+
+        Map<String, IndexEntry> referenceMap = new LinkedHashMap<String, IndexEntry>();
+        for (IndexEntry entry: unsortedEntries) {
+            referenceMap.put(entry.reference, entry);
+        }
+        return referenceMap;
+    }
+
     public static class IndexEntry {
         public final String reference;
         public final int length;

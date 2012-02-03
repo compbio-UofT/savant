@@ -108,7 +108,7 @@ public class SAFEBrowser extends JDialog {
             return null;
         } else {
             try {
-                DataSourceAdapter d = TrackFactory.createDataSource(trackPath.toURI());
+                DataSourceAdapter d = TrackFactory.createDataSource(trackPath.toURI(), null);
                 return d;
             } catch (Exception ex) {
                 LOG.error(String.format("Unable to create data source for %s: %s.", trackPath, ex));

@@ -117,14 +117,14 @@ public class TrackFactory {
     /**
      * Create a DataSource, guessing the file-type from the file's extension.
      */
-    public static DataSourceAdapter createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
-        return createDataSource(trackURI, SavantFileFormatterUtils.guessFileTypeFromPath(trackURI.toString()));
+    public static DataSourceAdapter createDataSource(URI trackURI, TrackCreationListener l) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+        return createDataSource(trackURI, SavantFileFormatterUtils.guessFileTypeFromPath(trackURI.toString()), l);
     }
 
     /**
      * Create a DataSource for the given URI.
      */
-    public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+    public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType, TrackCreationListener l) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
         if (fileType == null) {
             try {
                 // Read file header to determine file type.
@@ -165,7 +165,7 @@ public class TrackFactory {
             switch (fileType) {
                 case SEQUENCE_FASTA:
                     LOG.info("Opening Fasta file " + trackURI);
-                    return new FastaDataSource(trackURI);
+                    return new FastaDataSource(trackURI, l);
                 case TABIX:
                     LOG.info("Opening Tabix file " + trackURI);
                     return new TabixDataSource(trackURI);
@@ -211,7 +211,7 @@ public class TrackFactory {
             FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
             try {
-                DataSourceAdapter ds = createDataSource(trackURI, fileType);
+                DataSourceAdapter ds = createDataSource(trackURI, fileType, listener);
 
                 List<Track> tracks = new ArrayList<Track>(2);
                 tracks.add(createTrack(ds));

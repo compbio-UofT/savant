@@ -204,14 +204,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         // Deal with the progress-bar.
         if (tracks == null) {
-            showProgress("Creating track...");
+            parentFrame.updateProgress();
             return;
         } else {
             for (Track t: tracks) {
                 if (t.getRenderer().isWaitingForData()) {
                     String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
                     setPreferredSize(new Dimension(getWidth(), 0));
-                    showProgress(progressMsg);
+                    showProgress(progressMsg, -1.0);
                     return;
                 }
             }
@@ -1206,12 +1206,13 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      *
      * @param msg progress message to be displayed
      */
-    private void showProgress(String msg) {
+    void showProgress(String msg, double fraction) {
         if (progressPanel == null) {
             progressPanel = new ProgressPanel(new TrackCancellationListener(parentFrame));
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
+        progressPanel.setFraction(fraction);
         validate();
     }
     

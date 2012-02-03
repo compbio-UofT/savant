@@ -36,9 +36,10 @@ import savant.api.data.SequenceRecord;
 import savant.api.util.Resolution;
 import savant.util.FastaUtils;
 import savant.util.FastaUtils.IndexEntry;
-import savant.util.IOUtils;
 import savant.util.IndexCache;
 import savant.util.NetworkUtils;
+import savant.view.tracks.TrackCreationEvent;
+import savant.view.tracks.TrackFactory.TrackCreationListener;
 
 /**
  * New-style Fasta data-source which reads directly from a .fa file.
@@ -50,12 +51,15 @@ public class FastaDataSource extends DataSource<SequenceRecord> implements Seque
     private SeekableStream stream;
     private Map<String, FastaUtils.IndexEntry> index;
 
-    public FastaDataSource(URI uri) throws IOException {
+    public FastaDataSource(URI uri, TrackCreationListener l) throws IOException {
         fastaURI = uri;
         try {
             File faiFile = IndexCache.getIndexFile(uri, "fai", "fa");
             index = FastaUtils.readIndex(faiFile);            
         } catch (FileNotFoundException x) {
+            if (l != null) {
+                l.handleEvent(new TrackCreationEvent("Generating index...", -1.0));
+            }
             index = FastaUtils.createIndex(uri, new File(x.getMessage()));
         }
         stream = new SeekableBufferedStream(NetworkUtils.getSeekableStreamForURI(uri));

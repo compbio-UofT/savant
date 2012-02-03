@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+
 import savant.view.icon.SavantIconFactory;
 
 
@@ -37,6 +38,7 @@ import savant.view.icon.SavantIconFactory;
 public class ProgressPanel extends JPanel {
     private JButton cancelButton;
     private JLabel message;
+    private JProgressBar bar;
 
     /**
      * Create a new ProgressPanel.  The bar is indeterminate because we have no idea
@@ -52,7 +54,7 @@ public class ProgressPanel extends JPanel {
         gbc.weightx = 1.0;
         gbc.gridwidth = 1;
 
-        JProgressBar bar = new JProgressBar();
+        bar = new JProgressBar();
         bar.setIndeterminate(true);
         Dimension prefSize = bar.getPreferredSize();
         prefSize.width = 240;
@@ -80,5 +82,14 @@ public class ProgressPanel extends JPanel {
 
     public void setMessage(String msg) {
         message.setText(msg);
+    }
+    
+    public void setFraction(double fract) {
+        if (fract < 0.0) {
+            bar.setIndeterminate(true);
+        } else {
+            bar.setIndeterminate(false);
+            bar.setValue((int)(fract * 100.0));
+        }
     }
 }

@@ -76,6 +76,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     private JPanel sidePanel;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
+    
+    private String progressMessage = null;
+    private double progressFraction = -1.0;
 
     /**
      * Construct a new Frame for holding a track.
@@ -475,6 +478,11 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     @Override
     public void handleEvent(TrackCreationEvent evt) {
         switch (evt.getType()) {
+            case PROGRESS:
+                progressMessage = evt.getProgressMessage();
+                progressFraction = evt.getProgressFraction();
+                updateProgress();
+                break;
             case COMPLETED:
                 if (!aborted) {
                     setTracks(evt.getTracks());
@@ -497,5 +505,16 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         int h = commandBar.getIntervalHeight();
         graphPane.setUnitHeight(h);
         graphPane.setScaledToFit(false);
+    }
+    
+    /**
+     * GraphPane wants to know what progress message to display.
+     */
+    public void updateProgress() {
+        if (progressMessage == null) {
+            graphPane.showProgress("Creating track...", -1.0);
+        } else {
+            graphPane.showProgress(progressMessage, progressFraction);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,12 +26,15 @@ public class TrackCreationEvent {
     public enum Type {
         STARTED,
         COMPLETED,
-        FAILED
+        FAILED,
+        PROGRESS
     };
     Type type;
     Track[] tracks;
     String name;
     Throwable error;
+    String progressMessage;
+    double progressFraction;
 
     /**
      * Constructor for event which is fired as track-creation begins.
@@ -62,6 +65,12 @@ public class TrackCreationEvent {
         this.error = error;
     }
 
+    public TrackCreationEvent(String msg, double amount) {
+        this.type = Type.PROGRESS;
+        progressMessage = msg;
+        progressFraction = amount;
+    }
+
     public Type getType() {
         return type;
     }
@@ -76,5 +85,13 @@ public class TrackCreationEvent {
 
     public Throwable getError() {
         return error;
+    }
+    
+    public String getProgressMessage() {
+        return progressMessage;
+    }
+    
+    public double getProgressFraction() {
+        return progressFraction;
     }
 }
