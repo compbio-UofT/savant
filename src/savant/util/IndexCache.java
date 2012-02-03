@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class IndexCache {
      * @param extension index extension ("bai" or "tbi")
      * @param alternate alternate index extension ("bam" or "gz")
      */
-    public File getIndex(URI uri, String extension, String alternate) throws IOException {
+    private File getIndex(URI uri, String extension, String alternate) throws IOException {
 
         String indexURLString = uri.toString() + "." + extension;
         URL indexURL = new URL(indexURLString);
@@ -194,6 +194,27 @@ public class IndexCache {
             LOG.error("Unable to save Cache properties file",e);
         } finally {
             if (os != null) try { os.close(); } catch (IOException ignore) {}
+        }
+    }
+
+    public static File getIndexFile(URI uri, String extension, String alternate) throws IOException {
+        String proto = uri.getScheme();
+        if ("http".equals(proto) || "https".equals(proto) || "ftp".equals(proto)) {
+            return getInstance().getIndex(uri, extension, alternate);
+        } else {
+            // infer index file name from track filename
+            String path = new File(uri).getAbsolutePath();
+            File indexFile = new File(path + "." + extension);
+            if (indexFile.exists()) {
+                return indexFile;
+            } else {
+                // try alternate index file name
+                File indexFile2 = new File(path.replace("." + alternate, "." + extension));
+                if (indexFile2.exists()) {
+                    return indexFile2;
+                }
+            }
+            throw new FileNotFoundException(indexFile.getPath());
         }
     }
 }

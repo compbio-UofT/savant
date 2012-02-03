@@ -58,24 +58,11 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
     public BAMDataSource(URI uri) throws IOException {
         this.uri = uri.normalize();
 
-        File indexFile = null;
-        String proto = uri.getScheme();
-        if ("http".equals(proto) || "https".equals(proto) || "ftp".equals(proto)) {
-            indexFile = getIndexFileCached(uri);
-        } else {
-            // infer index file name from track filename
-            indexFile = getIndexFileLocal(new File(uri));
-        }
-
-        if (indexFile.exists()) {
-            SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri);
-            samFileReader = new SAMFileReader(stream, indexFile, false);
-            samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
-            samFileHeader = samFileReader.getFileHeader();
-        } else {
-            // Unable to find index file anywhere.
-            throw new FileNotFoundException(indexFile.toString());
-        }
+        File indexFile = IndexCache.getIndexFile(uri, "bai", "bam");
+        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri);
+        samFileReader = new SAMFileReader(stream, indexFile, false);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
+        samFileHeader = samFileReader.getFileHeader();
     }
 
     @Override
@@ -180,21 +167,6 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
             }
         }
         return referenceNames;
-    }
-
-    private static File getIndexFileLocal(File bamFile) {
-        String bamPath = bamFile.getAbsolutePath();
-        File indexFile = new File(bamPath + ".bai");
-        if (indexFile.exists()) {
-            return indexFile;
-        } else {
-            // try alternate index file name
-            return new File(bamPath.replace(".bam", ".bai"));
-        }
-    }
-
-    private static File getIndexFileCached(URI bamURI) throws IOException {
-        return IndexCache.getInstance().getIndex(bamURI,"bai","bam");
     }
 
     @Override

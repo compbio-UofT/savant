@@ -125,20 +125,7 @@ public class TrackFactory {
      * Create a DataSource for the given URI.
      */
     public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
-        // A switch statement might be nice here, except for the possibility that fileType == null.
-        if (fileType == FileType.TABIX) {
-            LOG.info("Opening Tabix file " + trackURI);
-            return new TabixDataSource(trackURI);
-        } else if (fileType == FileType.INTERVAL_BAM) {
-            LOG.info("Opening BAM file " + trackURI);
-            return new BAMDataSource(trackURI);
-        } else if (fileType == FileType.CONTINUOUS_BIGWIG) {
-            LOG.info("Opening BigWig file " + trackURI);
-            return new BigWigDataSource(new File(trackURI));
-        } else if (fileType == FileType.CONTINUOUS_TDF) {
-            LOG.info("Opening TDF file " + trackURI);
-            return new TDFDataSource(trackURI);
-        } else {
+        if (fileType == null) {
             try {
                 // Read file header to determine file type.
                 SavantROFile trkFile = new SavantROFile(trackURI);
@@ -150,7 +137,7 @@ public class TrackFactory {
 
                 switch (trkFile.getFileType()) {
                     case SEQUENCE_FASTA:
-                        return new FASTADataSource(trackURI);
+                        return new OldFastaDataSource(trackURI);
                     case POINT_GENERIC:
                         return new GenericPointDataSource(trackURI);
                     case CONTINUOUS_GENERIC:
@@ -173,6 +160,27 @@ public class TrackFactory {
                     }
                 }
                 throw usx;
+            }
+        } else {
+            switch (fileType) {
+                case SEQUENCE_FASTA:
+                    LOG.info("Opening Fasta file " + trackURI);
+                    return new FastaDataSource(trackURI);
+                case TABIX:
+                    LOG.info("Opening Tabix file " + trackURI);
+                    return new TabixDataSource(trackURI);
+                case INTERVAL_BAM:
+                    LOG.info("Opening BAM file " + trackURI);
+                    return new BAMDataSource(trackURI);
+                case CONTINUOUS_BIGWIG:
+                    LOG.info("Opening BigWig file " + trackURI);
+                    return new BigWigDataSource(new File(trackURI));
+                case CONTINUOUS_TDF:
+                    LOG.info("Opening TDF file " + trackURI);
+                    return new TDFDataSource(trackURI);
+                default:
+                    // Some other format which we can't handle.
+                    throw new SavantFileNotFormattedException();
             }
         }
     }

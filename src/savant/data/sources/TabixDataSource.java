@@ -70,14 +70,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
 
     public TabixDataSource(URI uri) throws IOException {
 
-        File indexFile = null;
-        // if no exception is thrown, this is an absolute URL
-        String scheme = uri.getScheme();
-        if ("http".equals(scheme) || "https".equals(scheme) || "ftp".equals(scheme)) {
-            indexFile = getIndexFileCached(uri);
-        } else {
-            indexFile = getTabixIndexFileLocal(new File(uri));
-        }
+        File indexFile = IndexCache.getIndexFile(uri, "tbi", "gz");
         SeekableStream baseStream = NetworkUtils.getSeekableStreamForURI(uri);
         this.uri = uri.normalize();
         this.reader = new TabixReader(baseStream, indexFile);
@@ -223,25 +216,6 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     @Override
     public Set<String> getReferenceNames() {
         return reader.getReferenceNames();
-    }
-
-    private static File getTabixIndexFileLocal(File tabixFile) throws FileNotFoundException {
-        String tabixPath = tabixFile.getAbsolutePath();
-        File indexFile = new File(tabixPath + ".tbi");
-        if (indexFile.exists()) {
-            return indexFile;
-        } else {
-            // Try alternate index file name.
-            indexFile = new File(tabixPath.replace(".gz", ".tbi"));
-            if (indexFile.exists()) {
-                return indexFile;
-            }
-        }
-        throw new FileNotFoundException(indexFile.getAbsolutePath());
-    }
-
-    private static File getIndexFileCached(URI tabixURI) throws IOException {
-        return IndexCache.getInstance().getIndex(tabixURI, "tbi", "gz");
     }
 
     @Override

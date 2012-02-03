@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
 import savant.api.adapter.SequenceDataSourceAdapter;
@@ -38,20 +35,20 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 
 /**
+ * Fasta data source which uses our deprecated SavantROFile.
  *
  * @author mfiume
  */
-public class FASTADataSource extends DataSource<SequenceRecord> implements SequenceDataSourceAdapter {
-
-    private static Log LOG = LogFactory.getLog(FASTADataSource.class);
+public class OldFastaDataSource extends DataSource<SequenceRecord> implements SequenceDataSourceAdapter {
 
     private int length = -1;
     private SavantROFile dFile;
 
-    public FASTADataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public OldFastaDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.dFile = new SavantROFile(uri, FileType.SEQUENCE_FASTA);
     }
 
+    @Override
     public int getLength(String refname) {
         if (dFile == null) {
             this.length = -1;
@@ -105,7 +102,6 @@ public class FASTADataSource extends DataSource<SequenceRecord> implements Seque
 
     @Override
     public URI getURI() {
-        //System.out.println("Getting URI for FASTA file: " + dFile.getURI());
         return dFile.getURI();
     }
 

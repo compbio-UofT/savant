@@ -147,9 +147,10 @@ public class NetworkUtils {
      * Given a URI, return a SeekableStream of the appropriate type.
      *
      * @param uri an ftp:, http:, or file: URI
+     * @param allowCaching if true, remote streams will be wrapped in a CachedSeekableStream
      * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
      */
-    public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException {
+    public static SeekableStream getSeekableStreamForURI(URI uri, boolean allowCaching) throws IOException {
         String proto = uri.getScheme().toLowerCase();
         SeekableStream result;
         if (proto.equals("file")) {
@@ -162,12 +163,23 @@ public class NetworkUtils {
             } else {
                 throw new UnknownSchemeException(uri);
             }
-            if (BrowserSettings.getCachingEnabled()) {
+            if (allowCaching) {
                 //result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
                 result = new CachedSeekableStream(result, BrowserSettings.getRemoteBufferSize(), uri);
             }
         }
         return result;
+    }
+
+    /**
+     * Given a URI, return a SeekableStream of the appropriate type.  If caching is
+     * enabled in the preferences, it will be used as appropriate.
+     *
+     * @param uri an ftp:, http:, or file: URI
+     * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
+     */
+    public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException {
+        return getSeekableStreamForURI(uri, BrowserSettings.getCachingEnabled());
     }
 
     /**
