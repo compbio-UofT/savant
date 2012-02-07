@@ -60,14 +60,15 @@ public final class Pileup {
      * near the axis.
      */
     public VariantType getLargestVariantType(VariantType notThis) {
-        VariantType[] nucs = { VariantType.SNP_A, VariantType.SNP_C, VariantType.SNP_G, VariantType.SNP_T, VariantType.DELETION, VariantType.INSERTION };
+        VariantType[] values = { VariantType.SNP_A, VariantType.SNP_C, VariantType.SNP_G, VariantType.SNP_T, VariantType.DELETION, VariantType.INSERTION, VariantType.OTHER };
 
         VariantType snpNuc = null;
 
-        for (VariantType n : nucs) {
-            if (n == notThis) continue;
-            if (this.getCoverage(n, null) > 0 && (snpNuc == null || getCoverage(n, null) > getCoverage(snpNuc, null))){
-                snpNuc = n;
+        for (VariantType n : values) {
+            if (n != notThis) {
+                if (getCoverage(n, null) > 0 && (snpNuc == null || getCoverage(n, null) > getCoverage(snpNuc, null))){
+                    snpNuc = n;
+                }
             }
         }
 

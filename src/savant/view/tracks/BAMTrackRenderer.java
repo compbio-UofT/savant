@@ -310,6 +310,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                     return ColourKey.T;
                 case DELETION:
                     return ColourKey.DELETED_BASE;
+                case OTHER:
+                    return ColourKey.N;
                 default:
                     return null;
             }
@@ -704,7 +706,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalCoverage(Strand.FORWARD), unitWidth, h));
                 }
 
-                while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
+                while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(null)) != null)) {
 
                     int forwardCoverage = p.getCoverage(snpNuc, Strand.FORWARD);
                     int reverseCoverage = p.getCoverage(snpNuc, Strand.REVERSE);

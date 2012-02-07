@@ -289,7 +289,7 @@ public class NavigationBar extends JToolBar {
         shiftFarLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARLEFT));
         shiftFarLeft.putClientProperty("JButton.buttonType", buttonStyle);
         shiftFarLeft.putClientProperty("JButton.segmentPosition", "first");
-        shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
+        shiftFarLeft.setToolTipText("Move to the beginning of the genome (Shift+Home)");
         shiftFarLeft.setPreferredSize(ICON_SIZE);
         shiftFarLeft.setMinimumSize(ICON_SIZE);
         shiftFarLeft.setMaximumSize(ICON_SIZE);
@@ -334,7 +334,7 @@ public class NavigationBar extends JToolBar {
         shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
         shiftFarRight.putClientProperty("JButton.buttonType", buttonStyle);
         shiftFarRight.putClientProperty("JButton.segmentPosition", "last");
-        shiftFarRight.setToolTipText("Move to the end of the genome (End)");
+        shiftFarRight.setToolTipText("Move to the end of the genome (Shift+End)");
         shiftFarRight.setPreferredSize(ICON_SIZE);
         shiftFarRight.setMinimumSize(ICON_SIZE);
         shiftFarRight.setMaximumSize(ICON_SIZE);
