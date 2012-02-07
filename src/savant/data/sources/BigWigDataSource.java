@@ -101,7 +101,7 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
 
     @Override
     public URI getURI() {
-        return new File(bbReader.getBBFilePath()).toURI();
+        return NetworkUtils.getURIFromPath(bbReader.getBBFilePath());
     }
 
     @Override
