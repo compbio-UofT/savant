@@ -91,7 +91,7 @@ public class ProjectController extends Controller {
                         pendingTracks.remove(NetworkUtils.getNeatPathFromURI(event.getTrack().getDataSource().getURI()));
                         if (pendingTracks.isEmpty()) {
                             pendingTracks = null;
-                            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, currentProjectFile));
+                            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, getCurrentFile()));
                             setProjectSaved(true);
                         }
                     } else {

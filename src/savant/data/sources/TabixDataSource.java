@@ -238,7 +238,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     
     /**
      * For VCF files, the extra columns contain participant IDs.
-     * @return 
+     * @return extra columns after the columns which were mapped by the format
      */
     public String[] getExtraColumns() {
         return extraColumns;

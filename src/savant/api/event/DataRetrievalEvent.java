@@ -66,7 +66,9 @@ public class DataRetrievalEvent {
     /**
      * Constructor when retrieval has failed.
      *
-     * @param error
+     * @param t track for which the retrieval failed
+     * @param x error which caused the failure
+     * @param r range which was requested at the time of failure
      */
     public DataRetrievalEvent(TrackAdapter t, Throwable x, RangeAdapter r) {
         type = Type.FAILED;

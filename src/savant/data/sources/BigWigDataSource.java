@@ -24,11 +24,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bbfile.BigWigIterator;
-import org.broad.igv.bbfile.RPChromosomeRegion;
 import org.broad.igv.bbfile.WigItem;
 
 import savant.api.adapter.RangeAdapter;
@@ -36,6 +36,7 @@ import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
+import savant.util.NetworkUtils;
 
 
 /**
@@ -50,8 +51,8 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
 
     private BBFileReader bbReader;
 
-    public BigWigDataSource(File file) throws IOException {
-        bbReader = new BBFileReader(file.getAbsolutePath());
+    public BigWigDataSource(URI uri) throws IOException {
+        bbReader = new BBFileReader(NetworkUtils.getNeatPathFromURI(uri), new TribbleStream(uri));
         if (!bbReader.isBigWigFile()) {
             throw new IOException("Input is not a BigWig file.");
         }
@@ -115,5 +116,49 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
     @Override
     public final String[] getColumnNames() {
         return GenericContinuousRecord.COLUMN_NAMES;
+    }
+    
+    private static class TribbleStream extends org.broad.tribble.util.SeekableStream {
+
+        SeekableStream samStream;
+        long pos;
+        
+        TribbleStream(URI uri) throws IOException {
+            samStream = NetworkUtils.getSeekableStreamForURI(uri, true);
+            pos = 0;
+        }
+
+        @Override
+        public void seek(long position) throws IOException {
+            samStream.seek(position);
+            pos = position;
+        }
+
+        @Override
+        public long position() throws IOException {
+            return pos;
+        }
+
+        @Override
+        public boolean eof() throws IOException {
+            return samStream.eof();
+        }
+
+
+        @Override
+        public long length() {
+            return samStream.length();
+        }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException("TribbleStream.read() not implemented.");
+        }
+        
+        @Override
+        public void readFully(byte[] buf) throws IOException {
+            int numRead = samStream.read(buf, 0, buf.length);
+            pos += numRead;
+        }
     }
 }

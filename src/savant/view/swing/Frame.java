@@ -83,7 +83,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     /**
      * Construct a new Frame for holding a track.
      *
-     * @param seq if true, the Frame will be holding a sequence track
+     * @param df the DataFormat, so the frame can do any format-specific initialisation (e.g. smaller height for sequence tracks)
      */
     public Frame(DataFormat df) {
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));

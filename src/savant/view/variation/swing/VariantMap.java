@@ -111,7 +111,7 @@ public class VariantMap extends VariationPlot {
     /**
      * Given a point on this panel, figure out which participant it corresponds to.
      * @param pt the point we're interested in
-     * @return 
+     * @return ParticipantRecord corresponding to the mouse location
      */
     @Override
     public Record pointToRecord(Point pt) {

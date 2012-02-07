@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package savant.util;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URI;
@@ -172,9 +171,15 @@ public class CachedSeekableStream extends SeekableStream {
         return positionInFile >= wrappedStream.length();
     }
 
+    /**
+     * Savant never directly calls this method.  Implemented only because the interface requires this.
+     * @deprecated Do not use; only <code>read(byte[] buffer, int offset, int length)</code> works correctly.
+     */
     @Override
     public int read() throws IOException {
-        return wrappedStream.read();
+        byte[] sillyBuf = new byte[1];
+        read(sillyBuf, 0, 1);
+        return sillyBuf[0];
     }
 
     private void openCache() throws IOException {

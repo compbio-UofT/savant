@@ -59,10 +59,9 @@ public class VariantTrack extends Track {
     }
 
     /**
-     * Unlike other tracks, variant tracks have their own internal notion of the current range
-     * separate from whatever the LocationController provides.
-     * @param ignored1
-     * @param ignored2
+     * Set up the renderer and request data
+     * @param ref the reference being rendered
+     * @param r the range being rendered
      */
     @Override
     public void prepareForRendering(String ref, Range r) {

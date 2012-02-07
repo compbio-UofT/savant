@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.event.DockableFrameAdapter;
-import com.jidesoft.docking.event.DockableFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,7 +47,7 @@ public class DockableFrameFactory {
      * @param name the frame's title
      * @param mode STATE_HIDDEN, STATE_FLOATING, STATE_AUTOHIDE, or STATE_FRAMEDOCKED
      * @param side DOCK_SIDE_EAST, DOCK_SIDE_WEST, DOCK_SIDE_SOUTH, DOCK_SIDE_NORTH, or DOCK_SIDE_CENTER
-     * @return 
+     * @return a newly-created frame with behaviour like our Bookmarks panel
      */
     public static DockableFrame createFrame(String name, int mode, int side) {
         DockableFrame frame = new DockableFrame(name, null);

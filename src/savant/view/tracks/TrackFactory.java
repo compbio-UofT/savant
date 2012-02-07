@@ -174,7 +174,7 @@ public class TrackFactory {
                     return new BAMDataSource(trackURI);
                 case CONTINUOUS_BIGWIG:
                     LOG.info("Opening BigWig file " + trackURI);
-                    return new BigWigDataSource(new File(trackURI));
+                    return new BigWigDataSource(trackURI);
                 case CONTINUOUS_TDF:
                     LOG.info("Opening TDF file " + trackURI);
                     return new TDFDataSource(trackURI);

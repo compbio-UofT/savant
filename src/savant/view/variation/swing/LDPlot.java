@@ -310,8 +310,8 @@ public class LDPlot extends VariationPlot {
      * get a non-null VariantRecord when we're in the axis at right.  Otherwise we have
      * to depend on pointToRecord to give us an LDRecord.
      *
-     * @param y y-coordinate of the point we're interested in
-     * @return 
+     * @param pt the point in which we're interested, in panel coordinates
+     * @return a VariantRecord or an LDRecord, depending on where the mouse is
      */
     @Override
     public Record pointToRecord(Point pt) {

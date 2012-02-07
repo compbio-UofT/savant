@@ -8,11 +8,11 @@
 \setlength{\parindent}{0pt} 
 \setlength{\parskip}{2ex}
 
-Author: Marc Fiume \\
+Authors: Marc Fiume & Eric Smith\\
 Contact: savant@cs.toronto.edu \\
-Website: http://compbio.cs.toronto.edu/savant/ \\
+Website: http://savantbrowser.com \\
 \\
-This document applies to Savant version 1.02\\
+This document applies to Savant version 2.0.0\\
 
 \newpage
 
@@ -24,7 +24,7 @@ This document applies to Savant version 1.02\\
 
 \section{What is Savant?}
 
-Savant stands for "Sequence Annotation Visualization and Analysis Tool". In other words, Savant is a program for visualizing and analyzing genomics data. It was designed to run quickly and efficiently on conventional desktop or laptop computers.
+Savant stands for ``Sequence Annotation Visualization and Analysis Tool''. In other words, Savant is a program for visualizing and analyzing genomics data. It was designed to run quickly and efficiently on conventional desktop or laptop computers.
 
 \section{Who should use Savant?}
 
@@ -36,15 +36,15 @@ Savant supports a number file formats. These files are specially formatted befor
 
 \section{Supported File Formats}
 
-\subsection{Standard File Formats}
+\subsection{Native File Formats}
 
-Savant supports the following standard file formats:
+Savant supports the following standard file formats.  These are formats which Savant can read directly with no extra processing.  In most cases, these files consist of a main file which contains the actual data and an index file which is must be present in the same location as the data file in order to provide fast random access to that data.
 
 \begin{table}[ht] 
 \caption{Supported File Formats}  
-\begin{tabular*}{6in}{ l l }  
+\begin{tabular*}{6in}{ l l l l }  
 \hline                      
-Format & Description \\
+Format & Description & Data File & Index File\\
 \hline                    
 FASTA & for representing nucleotide sequences.  \\
 BED & an alternative to GFF format. \\
