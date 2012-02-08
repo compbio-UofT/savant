@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@ import savant.api.data.IntervalRecord;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericIntervalRecord;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
@@ -54,7 +51,7 @@ public class GenericIntervalDataSource extends DataSource<GenericIntervalRecord>
 
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public GenericIntervalDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericIntervalDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
         this.dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
 

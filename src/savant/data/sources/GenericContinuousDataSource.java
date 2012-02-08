@@ -28,10 +28,7 @@ import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
@@ -55,7 +52,7 @@ public class GenericContinuousDataSource extends DataSource<GenericContinuousRec
 
     private Map<String,List<Level>> refnameToLevelsIndex;
 
-    public GenericContinuousDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericContinuousDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
 
         this.savantFile = new SavantROFile(uri, FileType.CONTINUOUS_GENERIC);
         this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeaders(savantFile);

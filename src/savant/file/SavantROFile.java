@@ -57,7 +57,7 @@ public class SavantROFile implements ROFile {
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
-    public SavantROFile(File file) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public SavantROFile(File file) throws IOException, SavantFileNotFormattedException {
 
         this.uri = file.toURI();
         LOG.debug("Adding RO File: " + file);
@@ -75,7 +75,7 @@ public class SavantROFile implements ROFile {
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
-    public SavantROFile(File file, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public SavantROFile(File file, FileType ft) throws IOException, SavantFileNotFormattedException {
         this(file);
         if (!fileTypeHeader.fileType.equals(ft)) {
             if (fileTypeHeader.fileType == FileType.INTERVAL_GFF && ft == FileType.INTERVAL_GENERIC) {}
@@ -91,7 +91,7 @@ public class SavantROFile implements ROFile {
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
-    public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException {
         this.uri = uri.normalize();
         seekStream = NetworkUtils.getSeekableStreamForURI(uri);
         init();
@@ -106,14 +106,16 @@ public class SavantROFile implements ROFile {
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
-    public SavantROFile(URI uri, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public SavantROFile(URI uri, FileType ft) throws IOException, SavantFileNotFormattedException {
         this(uri);
         if (!fileTypeHeader.fileType.equals(ft)) {
             if (fileTypeHeader.fileType == FileType.INTERVAL_GFF && ft == FileType.INTERVAL_GENERIC) { return; }
             throw new IOException("Wrong file type");
         }
     }
-    private void init() throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+
+    @SuppressWarnings("deprecation")
+    private void init() throws IOException, SavantFileNotFormattedException {
 
         LOG.debug("Reading file type");
         this.fileTypeHeader = SavantFileUtils.readFileTypeHeader(this);

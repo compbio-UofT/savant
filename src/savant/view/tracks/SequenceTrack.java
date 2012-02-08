@@ -24,7 +24,6 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.data.SequenceRecord;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.SavantROFile;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 
@@ -34,8 +33,6 @@ import savant.util.*;
  * @author mfiume
  */
 public class SequenceTrack extends Track {
-
-    SavantROFile dFile;
 
     public SequenceTrack(DataSourceAdapter dataTrack) throws SavantTrackCreationCancelledException {
         super(dataTrack, new SequenceTrackRenderer());

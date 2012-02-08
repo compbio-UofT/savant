@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  *    limitations under the License.
  */
 
-/*
- * SavantFileNotFormattedException.java
- * Created on Sep 8, 2010
- */
-
 package savant.file;
 
-public class SavantUnsupportedFileTypeException extends Exception {
+import java.io.IOException;
+
+
+/**
+ * Exception thrown when old 1.x files have an unrecognised file-type in their header.
+ * 
+ * @deprecated No longer relevant as of Savant 2.
+ */
+public class SavantUnsupportedFileTypeException extends IOException {
 
     public SavantUnsupportedFileTypeException() {
         super();

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,10 +28,7 @@ import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericPointRecord;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.util.SavantFileUtils;
 
 /**
@@ -45,7 +42,7 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
 
     private int recordSize;
 
-    public GenericPointDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericPointDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
         this.savantFile = new SavantROFile(uri, FileType.POINT_GENERIC);
         this.recordSize = SavantFileUtils.getRecordSize(savantFile);
     }

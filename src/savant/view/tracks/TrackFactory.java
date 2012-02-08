@@ -16,7 +16,6 @@
 
 package savant.view.tracks;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -33,11 +32,7 @@ import savant.controller.DataSourcePluginController;
 import savant.data.sources.*;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.exception.UnknownSchemeException;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedFileTypeException;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.format.SavantFileFormatterUtils;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
@@ -117,14 +112,15 @@ public class TrackFactory {
     /**
      * Create a DataSource, guessing the file-type from the file's extension.
      */
-    public static DataSourceAdapter createDataSource(URI trackURI, TrackCreationListener l) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+    public static DataSourceAdapter createDataSource(URI trackURI, TrackCreationListener l) throws IOException, SavantFileNotFormattedException {
         return createDataSource(trackURI, SavantFileFormatterUtils.guessFileTypeFromPath(trackURI.toString()), l);
     }
 
     /**
      * Create a DataSource for the given URI.
      */
-    public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType, TrackCreationListener l) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+    @SuppressWarnings("deprecation")
+    public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType, TrackCreationListener l) throws IOException, SavantFileNotFormattedException {
         if (fileType == null) {
             try {
                 // Read file header to determine file type.
@@ -291,6 +287,7 @@ public class TrackFactory {
          *
          * @param x
          */
+        @SuppressWarnings("deprecation")
         private void fireTrackCreationFailed(final Throwable x) {
             MiscUtils.invokeLaterIfNecessary(new Runnable() {
                 @Override

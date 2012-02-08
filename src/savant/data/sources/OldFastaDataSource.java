@@ -28,10 +28,7 @@ import savant.api.adapter.SequenceDataSourceAdapter;
 import savant.api.data.SequenceRecord;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.format.SavantFileFormatterUtils;
 
 /**
@@ -44,7 +41,7 @@ public class OldFastaDataSource extends DataSource<SequenceRecord> implements Se
     private int length = -1;
     private SavantROFile dFile;
 
-    public OldFastaDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public OldFastaDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
         this.dFile = new SavantROFile(uri, FileType.SEQUENCE_FASTA);
     }
 

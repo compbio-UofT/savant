@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-/*
- * SavantUnsupportedVersionException.java
- * Created on Aug 19, 2010
- */
-
 package savant.file;
 
-public final class SavantUnsupportedVersionException extends Exception {
+import java.io.IOException;
+
+
+/**
+ * Exception thrown when old 1.x files have a different version than expected.
+ * 
+ * @deprecated No longer relevant as of Savant 2.
+ */
+public final class SavantUnsupportedVersionException extends IOException {
 
     private final int givenVersion;
     private final String supportedVersions;

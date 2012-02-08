@@ -32,10 +32,7 @@ import savant.api.data.DataFormat;
 import savant.api.data.IntervalRecord;
 import savant.api.util.Resolution;
 import savant.data.types.BEDIntervalRecord;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
+import savant.file.*;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
@@ -54,7 +51,7 @@ public class BEDDataSource extends DataSource<BEDIntervalRecord> {
 
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public BEDDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public BEDDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
         this.dFile = new SavantROFile(uri, FileType.INTERVAL_BED);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }
