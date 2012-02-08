@@ -469,7 +469,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color invertedReadColor = cs.getColor(ColourKey.ONE_READ_INVERTED);
         Color evertedPairColor = cs.getColor(ColourKey.EVERTED_PAIR);
         Color discordantLengthColor = cs.getColor(ColourKey.DISCORDANT_LENGTH);
-        Color unpairedColor = cs.getColor(ColourKey.UNPAIRED);
+        Color unmappedMateColor = cs.getColor(ColourKey.UNMAPPED_MATE);
 
         // set graph pane's range parameters
         gp.setXRange(axisRange.getXRange());
@@ -483,89 +483,91 @@ public class BAMTrackRenderer extends TrackRenderer {
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
             SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
 
-            // skip reads with no mapped mate
-            if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag() && type != null) {
-
-                int arcLength = Math.abs(samRecord.getInferredInsertSize());
-
-                // skip reads with a zero insert length--probably mapping errors
-                if (arcLength == 0) continue;
-
-                int alignmentStart;
-                int mateAlignmentStart = samRecord.getMateAlignmentStart();
-                if (samRecord.getAlignmentStart() > mateAlignmentStart) {
-                    if (!(mateAlignmentStart < LocationController.getInstance().getRangeStart())) {
-                        // this is the second in the pair, and it doesn't span the beginning of the range, so don't draw anything
-                        continue;
-                    } else {
-                        // switch the mate start/end for the read start/end to deal with reversed position
-                        alignmentStart = mateAlignmentStart;
-                    }
+            if (samRecord.getReadPairedFlag() && type != null) {
+                if (samRecord.getMateUnmappedFlag()) {
+                    // Read with unmapped mate.
+                    int alignmentStart = samRecord.getAlignmentStart();
+                    double x = gp.transformXPos(alignmentStart);
+                    double radius = 4.0;
+                    double top = gp.transformYPos(axisRange.getYRange().getTo()) + radius;
+                    g2.setColor(unmappedMateColor);
+                    g2.setStroke(ONE_STROKE);
+                    Path2D flower = new Path2D.Double();
+                    flower.moveTo(x, gp.transformYPos(0.0));
+                    flower.lineTo(x, top + radius);
+                    flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
+                    g2.draw(flower);
+                    recordToShapeMap.put(record, flower);
                 } else {
-                    alignmentStart = samRecord.getAlignmentStart();
-                }
-                // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
+                    // Paired read with normal mate.
 
+                    int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
-                int intervalStart;
-                switch (type) {
-                    case INVERTED_READ:
-                    case INVERTED_MATE:
-                        intervalStart = alignmentStart;
-                        g2.setColor(invertedReadColor);
-                        g2.setStroke(TWO_STROKE);
-                        break;
-                    case EVERTED:
-                        intervalStart = alignmentStart;
-                        g2.setColor(evertedPairColor);
-                        g2.setStroke(TWO_STROKE);
-                        break;
-                    default:
-                        // make sure arclength is over our threshold
-                        /*if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
+                    // skip reads with a zero insert length--probably mapping errors
+                    if (arcLength == 0) continue;
+
+                    int alignmentStart;
+                    int mateAlignmentStart = samRecord.getMateAlignmentStart();
+                    if (samRecord.getAlignmentStart() > mateAlignmentStart) {
+                        if (!(mateAlignmentStart < LocationController.getInstance().getRangeStart())) {
+                            // this is the second in the pair, and it doesn't span the beginning of the range, so don't draw anything
                             continue;
+                        } else {
+                            // switch the mate start/end for the read start/end to deal with reversed position
+                            alignmentStart = mateAlignmentStart;
                         }
-                        else if (threshold > 1.0d && arcLength < threshold) {
-                            continue;
-                        }*/
+                    } else {
+                        alignmentStart = samRecord.getAlignmentStart();
+                    }
+                    // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
 
-                        intervalStart = alignmentStart;
 
-                        if (arcLength > discordantMax || arcLength < discordantMin) {
-                            g2.setColor(discordantLengthColor);
+                    int intervalStart;
+                    switch (type) {
+                        case INVERTED_READ:
+                        case INVERTED_MATE:
+                            intervalStart = alignmentStart;
+                            g2.setColor(invertedReadColor);
                             g2.setStroke(TWO_STROKE);
-                        }
-                        else {
-                            g2.setColor(normalArcColor);
-                            g2.setStroke(ONE_STROKE);
-                        }
-                        break;
+                            break;
+                        case EVERTED:
+                            intervalStart = alignmentStart;
+                            g2.setColor(evertedPairColor);
+                            g2.setStroke(TWO_STROKE);
+                            break;
+                        default:
+                            // make sure arclength is over our threshold
+                            /*if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
+                                continue;
+                            }
+                            else if (threshold > 1.0d && arcLength < threshold) {
+                                continue;
+                            }*/
+
+                            intervalStart = alignmentStart;
+
+                            if (arcLength > discordantMax || arcLength < discordantMin) {
+                                g2.setColor(discordantLengthColor);
+                                g2.setStroke(TWO_STROKE);
+                            }
+                            else {
+                                g2.setColor(normalArcColor);
+                                g2.setStroke(ONE_STROKE);
+                            }
+                            break;
+                    }
+                    int arcHeight = arcLength;
+
+                    double rectWidth = arcLength * gp.getUnitWidth();
+                    double rectHeight = arcHeight * 2 * gp.getUnitHeight();
+
+                    double xOrigin = gp.transformXPos(intervalStart);
+                    double yOrigin = gp.transformYPos(arcHeight);
+
+                    Arc2D arc = new Arc2D.Double(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180, Arc2D.OPEN);
+                    g2.draw(arc);
+                    recordToShapeMap.put(record, arc);
                 }
-                int arcHeight = arcLength;
-
-                double rectWidth = arcLength * gp.getUnitWidth();
-                double rectHeight = arcHeight * 2 * gp.getUnitHeight();
-
-                double xOrigin = gp.transformXPos(intervalStart);
-                double yOrigin = gp.transformYPos(arcHeight);
-
-                Arc2D arc = new Arc2D.Double(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180, Arc2D.OPEN);
-                g2.draw(arc);
-                recordToShapeMap.put(record, arc);
-            } else {
-                // Unpaired read.
-                int alignmentStart = samRecord.getAlignmentStart();
-                double x = gp.transformXPos(alignmentStart);
-                double radius = 4.0;
-                double top = gp.transformYPos(axisRange.getYRange().getTo()) + radius;
-                g2.setColor(unpairedColor);
-                g2.setStroke(ONE_STROKE);
-                Path2D flower = new Path2D.Double();
-                flower.moveTo(x, gp.transformYPos(0.0));
-                flower.lineTo(x, top + radius);
-                flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
-                g2.draw(flower);
-                recordToShapeMap.put(record, flower);
             }
         }
     }
@@ -952,7 +954,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Stroke drawingStroke = new BasicStroke(2);
         double yPos = gp.transformYPos(0) - (level + 1)*gp.getUnitHeight() + gp.getUnitHeight()/2.0 - gp.getOffset();
 
-        double arrowWidth = gp.getUnitHeight() * 0.25;
         Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()) + arrowWidth, yPos, gp.transformXPos(mateInterval.getEnd()) - arrowWidth, yPos);
         g2.setStroke(drawingStroke);
         g2.setColor(linecolor);
@@ -1067,7 +1068,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.SKIPPED);
                 break;
             case ARC_PAIRED:
-                drawSimpleLegend(g2, 30, 15, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR, ColourKey.UNPAIRED);
+                drawSimpleLegend(g2, 30, 15, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR, ColourKey.UNMAPPED_MATE);
                 break;
             case SNP:
                 drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);

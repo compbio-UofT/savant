@@ -47,7 +47,7 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.DISCORDANT_LENGTH, Color.BLUE);
         DEFAULT_SETTINGS.put(ColourKey.ONE_READ_INVERTED, Color.MAGENTA);
         DEFAULT_SETTINGS.put(ColourKey.EVERTED_PAIR, Color.GRAY);
-        DEFAULT_SETTINGS.put(ColourKey.UNPAIRED, Color.BLACK);
+        DEFAULT_SETTINGS.put(ColourKey.UNMAPPED_MATE, Color.BLACK);
 
         DEFAULT_SETTINGS.put(ColourKey.CONTINUOUS_FILL, new Color(0, 174, 255, 200));
         DEFAULT_SETTINGS.put(ColourKey.CONTINUOUS_LINE, new Color(0, 50, 50, 50));

@@ -36,6 +36,7 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
     private boolean includeVendorFailed = false;
     private boolean includePaired = true;
     private boolean includeUnpaired = true;
+    private boolean includeUnmappedMate = true;
     private int mappingQualityThreshold;
     private boolean arcMode;
 
@@ -86,6 +87,14 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
         includePaired = value;
     }
 
+    public boolean getIncludeUnmappedMate() {
+        return includeUnmappedMate;
+    }
+
+    public void setIncludeUnmappedMate(boolean value) {
+        includeUnmappedMate = value;
+    }
+
     public boolean getIncludeUnpairedReads() {
         return includeUnpaired;
     }
@@ -112,14 +121,19 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
             return false;
         }
 
-        if (!includePaired && samRecord.getReadPairedFlag()) {
-            return false;
+        if (samRecord.getReadPairedFlag()) {
+            if (!includePaired) {
+                return false;
+            }
+            if (!includeUnmappedMate && samRecord.getMateUnmappedFlag()) {
+                return false;
+            }
+        } else {
+            if (!includeUnpaired) {
+                return false;
+            }
         }
         
-        if (!includeUnpaired && !samRecord.getReadPairedFlag()) {
-            return false;
-        }
-
         if (samRecord.getMappingQuality() < mappingQualityThreshold) {
             return false;
         }

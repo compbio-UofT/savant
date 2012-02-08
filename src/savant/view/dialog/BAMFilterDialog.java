@@ -52,6 +52,8 @@ public class BAMFilterDialog extends javax.swing.JDialog {
         duplicateReadsCheck.setSelected(filter.getIncludeDuplicateReads());
         vendorFailedReadsCheck.setSelected(filter.getIncludeVendorFailedReads());
         pairedCheck.setSelected(filter.getIncludePairedReads());
+        unmappedMateCheck.setSelected(filter.getIncludeUnmappedMate());
+        unmappedMateCheck.setEnabled(filter.getIncludePairedReads());
         unpairedCheck.setSelected(filter.getIncludeUnpairedReads());
         mappingQualitySlider.setValue(filter.getMappingQualityThreshold());
 
@@ -83,6 +85,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         javax.swing.ButtonGroup strandGroup = new javax.swing.ButtonGroup();
         cancelButton = new javax.swing.JButton();
@@ -94,6 +97,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
         unpairedCheck = new javax.swing.JCheckBox();
         javax.swing.JLabel mappingQualityLabel = new javax.swing.JLabel();
         mappingQualitySlider = new javax.swing.JSlider();
+        unmappedMateCheck = new javax.swing.JCheckBox();
         javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
         javax.swing.JLabel arcYMaxThresholdLabel = new javax.swing.JLabel();
         javax.swing.JLabel oppositeIcon = new javax.swing.JLabel();
@@ -134,63 +138,84 @@ public class BAMFilterDialog extends javax.swing.JDialog {
         });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("General Filters"));
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         duplicateReadsCheck.setSelected(true);
         duplicateReadsCheck.setText("Include duplicate reads");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 5, 0);
+        jPanel1.add(duplicateReadsCheck, gridBagConstraints);
 
         vendorFailedReadsCheck.setSelected(true);
         vendorFailedReadsCheck.setText("Include vendor failed reads");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 0);
+        jPanel1.add(vendorFailedReadsCheck, gridBagConstraints);
 
         pairedCheck.setSelected(true);
         pairedCheck.setText("Include paired reads");
+        pairedCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pairedCheckActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 0);
+        jPanel1.add(pairedCheck, gridBagConstraints);
 
         unpairedCheck.setSelected(true);
         unpairedCheck.setText("Include unpaired reads");
+        unpairedCheck.setActionCommand("Include unpaired reads");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 0);
+        jPanel1.add(unpairedCheck, gridBagConstraints);
 
         mappingQualityLabel.setText("Mapping quality threshold");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 20, 10, 5);
+        jPanel1.add(mappingQualityLabel, gridBagConstraints);
 
         mappingQualitySlider.setMajorTickSpacing(50);
         mappingQualitySlider.setMaximum(255);
         mappingQualitySlider.setPaintLabels(true);
         mappingQualitySlider.setValue(0);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.ipadx = 322;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 10, 10);
+        jPanel1.add(mappingQualitySlider, gridBagConstraints);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(vendorFailedReadsCheck)
-                    .addComponent(duplicateReadsCheck)
-                    .addComponent(pairedCheck)
-                    .addComponent(unpairedCheck)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(mappingQualityLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(mappingQualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(9, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(duplicateReadsCheck)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(vendorFailedReadsCheck)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(pairedCheck)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(unpairedCheck)
-                        .addGap(18, 18, 18)
-                        .addComponent(mappingQualityLabel)
-                        .addContainerGap(40, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mappingQualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(24, 24, 24))))
-        );
+        unmappedMateCheck.setSelected(true);
+        unmappedMateCheck.setText("Include reads with unmapped mates");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 30, 5, 0);
+        jPanel1.add(unmappedMateCheck, gridBagConstraints);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Arc Mode Settings"));
 
@@ -257,7 +282,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                             .addComponent(jLabel2)
                             .addComponent(jLabel1)
                             .addComponent(jLabel4))))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -308,8 +333,8 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                         .addComponent(okButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -319,11 +344,11 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(cancelButton))
-                .addContainerGap())
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         pack();
@@ -347,6 +372,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
             filter.setIncludeDuplicateReads(duplicateReadsCheck.isSelected());
             filter.setIncludeVendorFailedReads(vendorFailedReadsCheck.isSelected());
             filter.setIncludePairedReads(pairedCheck.isSelected());
+            filter.setIncludeUnmappedMate(filter.getIncludePairedReads() && unmappedMateCheck.isSelected());
             filter.setIncludeUnpairedReads(unpairedCheck.isSelected());
             filter.setMappingQualityThreshold(mappingQualitySlider.getValue());
             track.setPairedProtocol(prot);
@@ -362,6 +388,10 @@ public class BAMFilterDialog extends javax.swing.JDialog {
             errField.grabFocus();
         }
     }//GEN-LAST:event_okButtonActionPerformed
+
+    private void pairedCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pairedCheckActionPerformed
+        unmappedMateCheck.setEnabled(pairedCheck.isSelected());
+    }//GEN-LAST:event_pairedCheckActionPerformed
 
     private SAMReadUtils.PairedSequencingProtocol parseProtocol() {
         return pairedEndRadio.isSelected() ? SAMReadUtils.PairedSequencingProtocol.PAIREDEND : SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
@@ -409,6 +439,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
     private javax.swing.JRadioButton oppositeRadio;
     private javax.swing.JCheckBox pairedCheck;
     private javax.swing.JRadioButton pairedEndRadio;
+    private javax.swing.JCheckBox unmappedMateCheck;
     private javax.swing.JCheckBox unpairedCheck;
     private javax.swing.JCheckBox vendorFailedReadsCheck;
     // End of variables declaration//GEN-END:variables

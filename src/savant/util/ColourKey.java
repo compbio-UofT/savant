@@ -37,7 +37,7 @@ public enum ColourKey {
     DISCORDANT_LENGTH,
     ONE_READ_INVERTED,
     EVERTED_PAIR,
-    UNPAIRED,
+    UNMAPPED_MATE,
 
     INTERVAL_LINE,          // Grey lines on for interval tracks.
     INTERVAL_TEXT,          // Dark grey text for interval tracks.
@@ -85,8 +85,8 @@ public enum ColourKey {
                 return "One Read Inverted";
             case EVERTED_PAIR:
                 return "Everted Pair";
-            case UNPAIRED:
-                return "Unpaired Read";
+            case UNMAPPED_MATE:
+                return "Unmapped Mate";
             case INTERVAL_LINE:
                 return "Interval Line";
             case INTERVAL_TEXT:
@@ -133,8 +133,8 @@ public enum ColourKey {
                 return "Colour of inverted reads";
             case EVERTED_PAIR:
                 return "Colour of everted pairs";
-            case UNPAIRED:
-                return "Colour of unpaired reads";
+            case UNMAPPED_MATE:
+                return "Colour of read whose mate is unmapped";
 
             case INTERVAL_LINE:
                 return "Line colour for interval tracks";
