@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
-import savant.api.data.SequenceRecord;
 import savant.api.util.DialogUtils;
 import savant.api.util.Resolution;
 import savant.controller.GenomeController;
@@ -364,7 +363,7 @@ public final class FrameCommandBar extends JMenuBar {
             menu.add(score);
 
             JCheckBoxMenuItem alternate = new JCheckBoxMenuItem("Display Alternate Name");
-            alternate.setState(false);
+            alternate.setState(((RichIntervalTrack)mainTrack).isUsingAlternateName());
             alternate.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

@@ -133,7 +133,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         }
 
         if (lastCommentLine != null) {
-            if (mapping == null ) {
+            if (mapping == null) {
                 columnNames = lastCommentLine.substring(1).split("\\t");
                 // If user has screwed up the comment line in a bed file, make sure it doesn't lead us astray.
                 columnNames[reader.getChromColumn()] = "chrom";
@@ -242,5 +242,12 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
      */
     public String[] getExtraColumns() {
         return extraColumns;
+    }
+    
+    /**
+     * Hack for Mike to make RefSeq files give preference to the alternate (gene) name.
+     */
+    public boolean prefersAlternateName() {
+        return mapping == ColumnMapping.REFSEQ;
     }
 }

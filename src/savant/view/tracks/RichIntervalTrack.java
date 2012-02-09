@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.Resolution;
+import savant.data.sources.TabixDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.*;
 
@@ -38,8 +39,12 @@ public class RichIntervalTrack extends Track {
     private boolean scoreEnabled = false;
     private boolean alternateName = false;
 
-    public RichIntervalTrack(DataSourceAdapter bedSource) throws SavantTrackCreationCancelledException {
-        super(bedSource, new RichIntervalTrackRenderer());
+    public RichIntervalTrack(DataSourceAdapter ds) throws SavantTrackCreationCancelledException {
+        super(ds, new RichIntervalTrackRenderer());
+        
+        if (ds instanceof TabixDataSource) {
+            alternateName = ((TabixDataSource)ds).prefersAlternateName();
+        }
     }
 
 
@@ -89,6 +94,10 @@ public class RichIntervalTrack extends Track {
     public void toggleAlternateName() {
         alternateName = !alternateName;
         renderer.addInstruction(DrawingInstruction.ALTERNATE_NAME, alternateName);
+    }
+
+    public boolean isUsingAlternateName() {
+        return alternateName;
     }
 
     @Override
