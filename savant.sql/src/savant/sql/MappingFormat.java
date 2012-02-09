@@ -24,9 +24,9 @@ package savant.sql;
  * @author tarkvara
  */
 public enum MappingFormat {
-    CONTINUOUS_VALUE_COLUMN,    // Data values stored in a database column.
-    CONTINUOUS_WIG,             // Data values stored in an external Wig (or Wib) file.
-    CONTINUOUS_BIGWIG,          // Data values stored in an external BigWig file.
+    CONTINUOUS_VALUE_COLUMN,   // Data values stored in a database column.
+    CONTINUOUS_WIG,            // Data values stored in an external Wig (or Wib) file.
     INTERVAL_GENERIC,
-    INTERVAL_RICH
+    INTERVAL_RICH,
+    EXTERNAL_FILE              // Table just contains path to BAM or BigWig file.
 }

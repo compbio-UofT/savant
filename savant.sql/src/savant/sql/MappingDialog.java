@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,9 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * Dialog which lets user specify the mapping between database columns and our record
@@ -38,8 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * @author tarkvara
  */
 public class MappingDialog extends javax.swing.JDialog {
-    private static final Log LOG = LogFactory.getLog(MappingDialog.class);
-    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", MappingFormat.INTERVAL_RICH), new FormatDef("Generic Interval", MappingFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", MappingFormat.CONTINUOUS_VALUE_COLUMN), new FormatDef("WIG", MappingFormat.CONTINUOUS_WIG) });
+    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", MappingFormat.INTERVAL_RICH), new FormatDef("Generic Interval", MappingFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", MappingFormat.CONTINUOUS_VALUE_COLUMN), new FormatDef("WIG", MappingFormat.CONTINUOUS_WIG), new FormatDef("External File", MappingFormat.EXTERNAL_FILE) });
     private SQLDataSourcePlugin plugin;
     private Table table;
     private MappingPanel mappingPanel;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -305,6 +305,9 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                 case CONTINUOUS_WIG:
                     formatCombo.setSelectedIndex(3);
                     break;
+                case EXTERNAL_FILE:
+                    formatCombo.setSelectedIndex(4);
+                    break;
             }
         }
     }//GEN-LAST:event_trackComboActionPerformed
@@ -375,14 +378,16 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private void populateTrackCombo() {
         GroupDef group = (GroupDef)groupCombo.getSelectedItem();
-        LOG.info("populating track combo based on " + group);
+        LOG.trace("populating track combo based on " + group);
         trackCombo.setModel(new DefaultComboBoxModel(group.tracks.toArray()));
+        int index = 0;
         if (table != null) {
-            LOG.debug("populateTrackCombo setting selected track to " + table.getName());
-            trackCombo.setSelectedItem(new TrackDef(table.getName(), null, null, null));
-        } else {
-            trackCombo.setSelectedIndex(0);
+            index = group.tracks.indexOf(new TrackDef(table.getName(), null, null, null));
+            if (index < 0) {
+                index = 0;
+            }
         }
+        trackCombo.setSelectedIndex(index);
     }
 
     public MappedTable getMapping() {

@@ -36,21 +36,23 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private JComboBox fileCombo;
     private JComboBox lowerLimitCombo;
     private JComboBox dataRangeCombo;
+    private JComboBox pathCombo;
 
     /** Creates new form MappingPanel */
     public MappingPanel() {
         initComponents();
 
         // In Designer, we lay out all the combo-boxes as for a BED file (because
-        // it has the most columns.
+        // it has the most columns.  However, to make the code in the file easier to
+        // read, we give the widgets aliases
         valueCombo = nameCombo;
-
         spanCombo = nameCombo;
         countCombo = scoreCombo;
         offsetCombo = strandCombo;
         fileCombo = thickStartCombo;
         lowerLimitCombo = thickEndCombo;
         dataRangeCombo = itemRGBCombo;
+        pathCombo = chromCombo;
     }
 
     /** This method is called from within the constructor to
@@ -63,11 +65,11 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        javax.swing.JLabel chromLabel = new javax.swing.JLabel();
+        chromLabel = new javax.swing.JLabel();
         chromCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel startLabel = new javax.swing.JLabel();
+        startLabel = new javax.swing.JLabel();
         startCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel endLabel = new javax.swing.JLabel();
+        endLabel = new javax.swing.JLabel();
         endCombo = new javax.swing.JComboBox();
         nameLabel = new javax.swing.JLabel();
         nameCombo = new javax.swing.JComboBox();
@@ -301,7 +303,9 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private javax.swing.JLabel blockStartsLabel;
     private javax.swing.JCheckBox byChromosomeCheck;
     private javax.swing.JComboBox chromCombo;
+    private javax.swing.JLabel chromLabel;
     private javax.swing.JComboBox endCombo;
+    private javax.swing.JLabel endLabel;
     private javax.swing.JComboBox itemRGBCombo;
     private javax.swing.JLabel itemRGBLabel;
     private javax.swing.JPanel jPanel1;
@@ -312,6 +316,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private javax.swing.JComboBox scoreCombo;
     private javax.swing.JLabel scoreLabel;
     private javax.swing.JComboBox startCombo;
+    private javax.swing.JLabel startLabel;
     private javax.swing.JComboBox strandCombo;
     private javax.swing.JLabel strandLabel;
     private javax.swing.JComboBox thickEndCombo;
@@ -326,7 +331,17 @@ public class MappingPanel extends JPanel implements SQLConstants {
         this.format = format;
         switch (format) {
             case INTERVAL_RICH:
+                chromLabel.setText("Chromosome:");
+                byChromosomeCheck.setVisible(true);
+                startLabel.setVisible(true);
+                startCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
                 nameLabel.setText("Name:");
+                nameLabel.setVisible(true);
+                nameCombo.setVisible(true);
                 scoreLabel.setText("Score:");
                 scoreLabel.setVisible(true);
                 scoreCombo.setVisible(true);
@@ -352,7 +367,17 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 name2Combo.setVisible(true);
                 break;
             case CONTINUOUS_WIG:
+                chromLabel.setText("Chromosome:");
+                byChromosomeCheck.setVisible(true);
+                startLabel.setVisible(true);
+                startCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
                 nameLabel.setText("Span:");
+                nameLabel.setVisible(true);
+                nameCombo.setVisible(true);
                 scoreLabel.setText("Count:");
                 scoreLabel.setVisible(true);
                 scoreCombo.setVisible(true);
@@ -377,8 +402,43 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 name2Label.setVisible(false);
                 name2Combo.setVisible(false);
                 break;
+            case EXTERNAL_FILE:
+                chromLabel.setText("Path to File:");
+                byChromosomeCheck.setVisible(false);
+                startLabel.setVisible(false);
+                startCombo.setVisible(false);
+                endLabel.setVisible(false);
+                endCombo.setVisible(false);
+                nameLabel.setVisible(false);
+                nameCombo.setVisible(false);
+                scoreLabel.setVisible(false);
+                scoreCombo.setVisible(false);
+                strandLabel.setVisible(false);
+                strandCombo.setVisible(false);
+                thickStartLabel.setVisible(false);
+                thickStartCombo.setVisible(false);
+                thickEndLabel.setVisible(false);
+                thickEndCombo.setVisible(false);
+                itemRGBLabel.setVisible(false);
+                itemRGBCombo.setVisible(false);
+                blockStartsLabel.setVisible(false);
+                blockStartsCombo.setVisible(false);
+                treatAsAbsoluteCheck.setVisible(false);
+                blockEndsLabel.setVisible(false);
+                blockEndsCombo.setVisible(false);
+                treatAsSizeCheck.setVisible(false);
+                name2Label.setVisible(false);
+                name2Combo.setVisible(false);
+                break;
             default:
                 nameLabel.setText(format == MappingFormat.CONTINUOUS_VALUE_COLUMN ? "Value:" : "Name:");
+                byChromosomeCheck.setVisible(true);
+                startLabel.setVisible(true);
+                startCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
+                endLabel.setVisible(true);
+                endCombo.setVisible(true);
                 scoreLabel.setVisible(false);
                 scoreCombo.setVisible(false);
                 strandLabel.setVisible(false);
@@ -446,6 +506,9 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 populateFieldCombo(fileCombo, columns, Types.CHAR, mapping.file);
                 populateFieldCombo(lowerLimitCombo, columns, Types.REAL, mapping.lowerLimit);
                 populateFieldCombo(dataRangeCombo, columns, Types.REAL, mapping.dataRange);
+                break;
+            case EXTERNAL_FILE:
+                populateFieldCombo(pathCombo, columns, Types.CHAR, mapping.file);
                 break;
         }
     }
@@ -562,6 +625,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
                                                    fileCombo.getSelectedItem().toString(),
                                                    lowerLimitCombo.getSelectedItem().toString(),
                                                    dataRangeCombo.getSelectedItem().toString());
+            case EXTERNAL_FILE:
+                return ColumnMapping.getExternalFileMapping(pathCombo.getSelectedItem().toString());
             default:
                 return null;
         }

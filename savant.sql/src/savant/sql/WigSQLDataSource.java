@@ -41,9 +41,11 @@ import savant.util.NetworkUtils;
  * @author tarkvara
  */
 public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
+    private final String ucscDownloadURL;
 
-    WigSQLDataSource(MappedTable table, List<String> references) throws SQLException {
+    WigSQLDataSource(MappedTable table, List<String> references, String ucsc) throws SQLException {
         super(table, references);
+        ucscDownloadURL = ucsc;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                 float dataRange = rs.getFloat(columns.dataRange);
 
                 // If the URI has changed, open a new stream.
-                URI newWibURI = URI.create("http://hgdownload.cse.ucsc.edu" + file);
+                URI newWibURI = URI.create(ucscDownloadURL + file);
                 if (!newWibURI.equals(wibURI)) {
                     if (wibStream != null) {
                         wibStream.close();

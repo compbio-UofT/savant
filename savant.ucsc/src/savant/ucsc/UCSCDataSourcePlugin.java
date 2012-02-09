@@ -87,18 +87,21 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         STANDARD_MAPPINGS.put("bed 6 .", bed6Mapping);
         STANDARD_MAPPINGS.put("broadPeak", bed6Mapping);
         STANDARD_MAPPINGS.put("narrowPeak", bed6Mapping);
+        STANDARD_MAPPINGS.put("peptideMapping", bed6Mapping);   
 
         // bed 8, like Bed, but with no ItemRgb or blocks.
         ColumnMapping bed8Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null, null, null);
         STANDARD_MAPPINGS.put("bed 8", bed8Mapping);
         STANDARD_MAPPINGS.put("bed 8 +", bed8Mapping);
         STANDARD_MAPPINGS.put("bed 8 .", bed8Mapping);
+        STANDARD_MAPPINGS.put("gvf", bed8Mapping);      // bed 8 with extra attribute columns, used for ISCA data
 
         // bed 9, like Bed, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
         ColumnMapping bed9Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null, null, null);
         STANDARD_MAPPINGS.put("bed 9", bed9Mapping);
         STANDARD_MAPPINGS.put("bed 9 +", bed9Mapping);
         STANDARD_MAPPINGS.put("bed 9 .", bed9Mapping);
+        STANDARD_MAPPINGS.put("bed 10", bed9Mapping);   // bed 9 with useless "blockCount" column
 
         ColumnMapping bed12Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, null, "blockSizes", null);
         STANDARD_MAPPINGS.put("bed 12", bed12Mapping);
@@ -140,6 +143,10 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
 
         ColumnMapping wigMapping = ColumnMapping.getWigMapping("chrom", "chromStart", "chromEnd", "span", "count", "offset", "file", "lowerLimit", "dataRange");
         STANDARD_MAPPINGS.put("wig", wigMapping);
+
+        ColumnMapping externalFileMapping = ColumnMapping.getExternalFileMapping("fileName");
+        STANDARD_MAPPINGS.put("bigWig", externalFileMapping);
+        STANDARD_MAPPINGS.put("bam", externalFileMapping);
     }
 
     @Override
@@ -245,7 +252,9 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
     static ColumnMapping getStandardMapping(String type) {
         ColumnMapping result = STANDARD_MAPPINGS.get(type);
         if (result == null) {
-            if (type.startsWith("chain")) {
+            if (type.startsWith("bigWig")) {
+                result = STANDARD_MAPPINGS.get("bigWig");
+            } else if (type.startsWith("chain")) {
                 result = STANDARD_MAPPINGS.get("chain");
             } else if (type.startsWith("genePred")) {
                 result = STANDARD_MAPPINGS.get("genePred");

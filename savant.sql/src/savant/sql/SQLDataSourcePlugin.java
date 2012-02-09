@@ -16,6 +16,7 @@
 
 package savant.sql;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -33,8 +34,11 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
+import savant.file.SavantFileNotFormattedException;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.util.NetworkUtils;
 import savant.util.ReferenceComparator;
+import savant.view.tracks.TrackFactory;
 
 
 /**
@@ -48,6 +52,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     protected static final String URI_SETTING = "URI";
     protected static final String USER_SETTING = "USER";
     protected static final String PASSWORD_SETTING = "PASSWORD";
+    protected static final String DOWNLOAD_URL_SETTING = "DOWNLOAD_URL";
 
     protected String driverName;
     protected URI uri;
@@ -250,25 +255,33 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * @return
      * @throws SQLException
      */
-    private DataSourceAdapter createCachedDataSource(MappedTable table) throws SQLException {
+    private DataSourceAdapter createCachedDataSource(MappedTable table) throws SQLException, IOException {
         DataSourceAdapter result = null;
-        List<String> references = getReferences(table);
         switch (table.mapping.format) {
             case CONTINUOUS_VALUE_COLUMN:
-                result = new ContinuousSQLDataSource(table, references);
+                result = new ContinuousSQLDataSource(table, getReferences(table));
                 break;
             case CONTINUOUS_WIG:
-                result = new WigSQLDataSource(table, references);
+                result = new WigSQLDataSource(table, getReferences(table), getUCSCDownloadURL());
                 break;
-            case CONTINUOUS_BIGWIG:
-                throw new UnsupportedOperationException("BigWig SQL access not yet implemented.");
-//                result = new BigWigSQLDataSource(table, references);
-//                break;
+            case EXTERNAL_FILE:
+                // BAM and BigWig are special because the table just contains a path to an external file.
+                ResultSet rs = table.database.executeQuery("SELECT %s FROM %s", table.mapping.file, table);
+                if (rs.next()) {
+                    // Return result immediately because we want to use the data-source directly instead
+                    // of wrapping it inside a RecordCachingDataSource.
+                    try {
+                        return TrackFactory.createDataSource(NetworkUtils.getURIFromPath(getUCSCDownloadURL() + rs.getString(1)), null);
+                    } catch (SavantFileNotFormattedException ignored) {
+                        // Should be BigWig or BAM, so we'll never see this problem.
+                    }
+                }
+                break;
             case INTERVAL_GENERIC:
-                result = new IntervalSQLDataSource(table, references);
+                result = new IntervalSQLDataSource(table, getReferences(table));
                 break;
             case INTERVAL_RICH:
-                result = new RichIntervalSQLDataSource(table, references);
+                result = new RichIntervalSQLDataSource(table, getReferences(table));
                 break;
         }
         if (result != null) {
@@ -349,5 +362,13 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     public MappedTable getTableByName(String tableName, String dbName, String trackName) throws SQLException {
         Table t = new Table(tableName, new Database(dbName, uri, userName, password));
         return new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns(), false), trackName);
+    }
+    
+    private String getUCSCDownloadURL() {
+        String result = SettingsUtils.getString(this, DOWNLOAD_URL_SETTING);
+        if (result == null) {
+            result = "http://hgdownload.cse.ucsc.edu";
+        }
+        return result;
     }
 }

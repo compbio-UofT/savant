@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class ColumnMapping implements SQLConstants {
     public final String span;
     public final String count;
     public final String offset;
-    public final String file;
+    public final String file;           // Also used by BigWig
     public final String lowerLimit;
     public final String dataRange;
 
@@ -100,6 +100,14 @@ public class ColumnMapping implements SQLConstants {
      */
     public static ColumnMapping getWigMapping(String chrom, String start, String end, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
         return new ColumnMapping(MappingFormat.CONTINUOUS_WIG, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, span, count, offset, file, lowerLimit, dataRange);
+    }
+
+    /**
+     * Constructor used to map data stored in an external file  Not really much of a mapping since the only
+     * column present is the file-name column.
+     */
+    public static ColumnMapping getExternalFileMapping(String file) {
+        return new ColumnMapping(MappingFormat.EXTERNAL_FILE, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, file, null, null);
     }
 
     private static String findColumn(SQLDataSourcePlugin plugin, String settingName, Column[] columns) {
