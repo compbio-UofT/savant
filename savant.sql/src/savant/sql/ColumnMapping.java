@@ -172,6 +172,12 @@ public class ColumnMapping implements SQLConstants {
                     }
                 }
             }
+        } else {
+            // Maybe it's one of our pseudo-tables which just contain a path to an external file.
+            String file = findColumn(plugin, FILE, columns);
+            if (file != null) {
+                return getExternalFileMapping(file);
+            }
         }
         return getIntervalMapping(chrom, start, end, null);
     }
