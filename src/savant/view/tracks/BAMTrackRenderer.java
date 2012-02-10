@@ -89,27 +89,31 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         DrawingMode oldMode = lastMode;
         lastMode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
+        Resolution res = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        if (r == Resolution.HIGH) {
-            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.STANDARD_PAIRED) {
+        if (res == Resolution.HIGH) {
+            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.STANDARD_PAIRED) {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if (genome.isSequenceSet()) {
                     AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-                    Range range = axisRange.getXRange();
+                    String ref = LocationController.getInstance().getReferenceName();
+                    Range r = axisRange.getXRange();
                     try {
-                        refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
+                        refSeq = genome.getSequence(ref, r);
                     } catch (Exception e) {
                         throw new RenderingException(e.getMessage(), RenderingException.ERROR_PRIORITY);
+                    }
+                    if (refSeq == null) {
+                        throw new RenderingException("No sequence data for " + ref + "\nSwitch to standard display mode", RenderingException.WARNING_PRIORITY);
                     }
                 }
             }
         }
         if (lastMode != DrawingMode.ARC_PAIRED && lastMode != DrawingMode.SNP && lastMode != DrawingMode.STRAND_SNP) {
             // For non-arc modes, we want to establish our interval height when we switch from coverage to non-coverage.
-            if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED || oldMode == DrawingMode.SNP || oldMode == DrawingMode.STRAND_SNP) {
-                if (r == Resolution.HIGH) {
+            if (lastResolution != res || oldMode == DrawingMode.ARC_PAIRED || oldMode == DrawingMode.SNP || oldMode == DrawingMode.STRAND_SNP) {
+                if (res == Resolution.HIGH) {
                     // We're switching from coverage (or arc mode) to high resolution.  The initial interval height
                     // will be taken from the slider.
                     gp.getParentFrame().setHeightFromSlider();
@@ -117,7 +121,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     // We're switching to coverage.  Initially scaled by default.
                     gp.setScaledToFit(true);
                 }
-                lastResolution = r;                
+                lastResolution = res;                
             }
         } else {
             // Arc mode and the SNP modes are always initially scaled to fit.
@@ -134,12 +138,12 @@ public class BAMTrackRenderer extends TrackRenderer {
             case STANDARD:
             case MISMATCH:
             case SEQUENCE:
-                if (r == Resolution.HIGH) {
-                    renderPackMode(g2, gp, r);
+                if (res == Resolution.HIGH) {
+                    renderPackMode(g2, gp, res);
                 }
                 break;
             case STANDARD_PAIRED:
-                if (r == Resolution.HIGH) {
+                if (res == Resolution.HIGH) {
                     renderStandardPairedMode(g2, gp);
                 }
                 break;
@@ -147,13 +151,13 @@ public class BAMTrackRenderer extends TrackRenderer {
                 renderArcPairedMode(g2, gp);
                 break;
             case SNP:
-                if (r == Resolution.HIGH) {
-                    renderSNPMode(g2, gp, r);
+                if (res == Resolution.HIGH) {
+                    renderSNPMode(g2, gp, res);
                 }
                 break;
             case STRAND_SNP:
-                if (r == Resolution.HIGH) {
-                    renderStrandSNPMode(g2, gp, r);
+                if (res == Resolution.HIGH) {
+                    renderStrandSNPMode(g2, gp, res);
                 }
                 break;
         }
@@ -268,7 +272,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // Render individual bases/mismatches as appropriate for the current mode.
-        if ((lastMode != DrawingMode.STANDARD && lastMode != DrawingMode.STANDARD_PAIRED) || baseQuality) {
+        if (lastMode != DrawingMode.STANDARD || baseQuality) {
             renderBases(g2, gp, samRec, level, refSeq, range, readHeight);
         }
 
@@ -384,38 +388,38 @@ public class BAMTrackRenderer extends TrackRenderer {
                     if (sequenceSaved) {
                         for (int i=0; i < operatorLength; i++) {
                             // indices into refSeq and readBases associated with this position in the cigar string
-                            int readIndex = readCursor-alignmentStart+i;
+                            int readIndex = readCursor - alignmentStart + i;
                             int refIndex = sequenceCursor + i - range.getFrom();
+                            boolean mismatched = false;
                             if (refIndex >= 0 && refSeq != null && refIndex < refSeq.length) {
+                                mismatched = refSeq[refIndex] != readBases[readIndex];
+                            }
                                 
-                                boolean mismatched = refSeq[refIndex] != readBases[readIndex];
-                                
-                                if (mismatched || drawingAllBases) {
-                                    Color col;
-                                    if ((mismatched && lastMode != DrawingMode.STANDARD) || lastMode == DrawingMode.SEQUENCE) {
-                                        col = cs.getBaseColor((char)readBases[readIndex]);
-                                    } else {
-                                        col = cs.getColor(samRecord.getReadNegativeStrandFlag() ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
-                                    }
+                            if (mismatched || drawingAllBases) {
+                                Color col;
+                                if ((mismatched && lastMode != DrawingMode.STANDARD) || lastMode == DrawingMode.SEQUENCE) {
+                                    col = cs.getBaseColor((char)readBases[readIndex]);
+                                } else {
+                                    col = cs.getColor(samRecord.getReadNegativeStrandFlag() ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
+                                }
 
-                                    if (baseQualityEnabled && col != null) {
-                                        col = new Color(col.getRed(), col.getGreen(), col.getBlue(), getConstrainedAlpha((int)Math.round((baseQualities[readIndex] * 0.025) * 255)));
-                                    }
+                                if (baseQualityEnabled && col != null) {
+                                    col = new Color(col.getRed(), col.getGreen(), col.getBlue(), getConstrainedAlpha((int)Math.round((baseQualities[readIndex] * 0.025) * 255)));
+                                }
 
-                                    double xCoordinate = gp.transformXPos(sequenceCursor + i);
-                                    double top = gp.transformYPos(0) - ((level + 1) * unitHeight) - offset;
-                                    if (col != null) {
-                                        opRect = new Rectangle2D.Double(xCoordinate, top, unitWidth, unitHeight);
-                                        g2.setColor(col);
-                                        g2.fill(opRect);
-                                    }
-                                    if (lastMode != DrawingMode.SEQUENCE && mismatched && fontFits) {
-                                        // If it's a real mismatch, we want to draw the base letter (space permitting).
-                                        g2.setColor(new Color(10, 10, 10));
-                                        String s = new String(readBases, readIndex, 1);
-                                        charRect = fm.getStringBounds(s, g2);
-                                        g2.drawString(s, (float)(xCoordinate + (unitWidth - charRect.getWidth()) * 0.5), (float)(top + fm.getAscent() + (unitHeight - charRect.getHeight()) * 0.5));
-                                    }
+                                double xCoordinate = gp.transformXPos(sequenceCursor + i);
+                                double top = gp.transformYPos(0) - ((level + 1) * unitHeight) - offset;
+                                if (col != null) {
+                                    opRect = new Rectangle2D.Double(xCoordinate, top, unitWidth, unitHeight);
+                                    g2.setColor(col);
+                                    g2.fill(opRect);
+                                }
+                                if (lastMode != DrawingMode.SEQUENCE && mismatched && fontFits) {
+                                    // If it's a real mismatch, we want to draw the base letter (space permitting).
+                                    g2.setColor(new Color(10, 10, 10));
+                                    String s = new String(readBases, readIndex, 1);
+                                    charRect = fm.getStringBounds(s, g2);
+                                    g2.drawString(s, (float)(xCoordinate + (unitWidth - charRect.getWidth()) * 0.5), (float)(top + fm.getAscent() + (unitHeight - charRect.getHeight()) * 0.5));
                                 }
                             }
                         }
