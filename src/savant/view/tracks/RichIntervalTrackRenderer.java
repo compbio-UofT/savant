@@ -21,7 +21,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -66,7 +65,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             renderSquishMode(g2, gp, resolution);
         }
 
-        if (data.isEmpty()){
+        if (data.isEmpty()) {
             throw new RenderingException("No data in range", RenderingException.INFO_PRIORITY);
         }
     }
@@ -134,7 +133,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // chose the color for the strand
         Color fillColor;
-        if ((Boolean)instructions.get(DrawingInstruction.ITEMRGB) && rec.getItemRGB() != null && !rec.getItemRGB().isNull()){
+        if ((Boolean)instructions.get(DrawingInstruction.ITEMRGB) && rec.getItemRGB() != null && !rec.getItemRGB().isNull()) {
             //if an RGB value was supplied, use it
             fillColor = rec.getItemRGB().createColor();
         } else {
@@ -155,7 +154,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         boolean isInsertion = false;
 
         // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it.
-        if (interval.getLength() == 0){
+        if (interval.getLength() == 0) {
             Shape rhombus = drawInsertion(g2, gp.transformXPos(interval.getStart()), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
             isInsertion = true;
 
@@ -170,7 +169,14 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         int thickStart = rec.getThickStart();
-        int thickEnd = rec.getThickEnd() + 1;
+        int thickEnd = rec.getThickEnd();
+        if (thickStart >= thickEnd) {
+            // No actual thickness.  So make sure we don't get a "flange".
+            thickStart = thickEnd = -1;
+        } else {
+            // The +1 is necessary to get range to be a multiple of 3.
+            thickEnd++;
+        }
         double thickStartX = gp.transformXPos(thickStart);
         double thickEndX = gp.transformXPos(thickEnd);
         if (!isInsertion) {
@@ -404,7 +410,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 int startXPos = (int)gp.transformXPos(interval.getStart());
 
                 //If length is 0, draw insertion rhombus.
-                if(interval.getLength() == 0){
+                if (interval.getLength() == 0) {
 
                     drawInsertion(g2, gp.transformXPos(interval.getStart()), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
                     // draw nothing else for this interval
@@ -434,7 +440,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     private void mergeBlocks(List<Interval> intervals, RichIntervalRecord bedRecord) {
 
         List<Block> blocks = bedRecord.getBlocks();
-        if(blocks == null){
+        if (blocks == null) {
             // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
             // This occurs in snp tracks
             blocks = new ArrayList<Block>();

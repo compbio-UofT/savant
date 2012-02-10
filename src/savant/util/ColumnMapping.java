@@ -131,7 +131,7 @@ public class ColumnMapping {
 
         // It's either bed, or it's not any format we recognise.
         int chrom = -1, start = -1, end = -1;
-        int name = -1, score = -1, strand = -1, thickStart = -1, thickEnd = -1, itemRGB = -1, blockStarts = -1, blockEnds = -1, blockSizes = -1, name2 = -1;
+        int name = -1, score = -1, strand = -1, thickStart = -1, thickEnd = -1, itemRGB = -1, blockStartsRelative = -1, blockStartsAbsolute = -1, blockEnds = -1, blockSizes = -1, name2 = -1;
         boolean bed = false;
 
         for (int i = 0; i < columnNames.length; i++) {
@@ -173,8 +173,12 @@ public class ColumnMapping {
             } else if (colName.equals("blockcount") || colName.equals("exoncount")) {
                 columnNames[i] = "Block count";
                 bed = true;
-            } else if (colName.equals("blockstarts") || colName.equals("exonstarts") || colName.equals("tstarts") || colName.equals("chromstarts")) {
-                blockStarts = i;
+            } else if (colName.equals("blockstarts")) {
+                blockStartsRelative = i;
+                columnNames[i] = null;
+                bed = true;
+            } else if (colName.equals("exonstarts") || colName.equals("tstarts") || colName.equals("chromstarts")) {
+                blockStartsAbsolute = i;
                 columnNames[i] = null;
                 bed = true;
             } else if (colName.equals("blocksizes") || colName.equals("exonsizes")) {
@@ -193,7 +197,7 @@ public class ColumnMapping {
         }
         if (bed) {
             // We have enough extra columns to justify using a Bed track.
-            return ColumnMapping.createRichIntervalMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2, oneBased);
+            return ColumnMapping.createRichIntervalMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
         } else {
             return ColumnMapping.createIntervalMapping(chrom, start, end, name, oneBased);
         }

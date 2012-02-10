@@ -572,9 +572,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) {
+    private void renderSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
 
         Genome genome = GenomeController.getInstance().getGenome();
+        if (!genome.isSequenceSet()) {
+            throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", RenderingException.WARNING_PRIORITY);
+        }
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
@@ -613,16 +616,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (Pileup p : pileups) {
             int totalCoverage = p.getTotalCoverage(null);
             if (totalCoverage > 0) {
-                VariantType snpNuc = null;
                 double bottom = gp.transformYPos(0);
                 double x = gp.transformXPos(p.getPosition());
                 double h = unitHeight * totalCoverage;
 
-                VariantType genomeNuc = null;
-                if (genome.isSequenceSet()) {
-                    genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - startPosition]);
-                    snpNuc = genomeNuc;
-                }
+                VariantType genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - startPosition]);
+                VariantType snpNuc = genomeNuc;
                 if (totalCoverage > p.getCoverage(genomeNuc, null)) {
                     // Only record a shape if we have at least some mismatches.
                     recordToShapeMap.put(new PileupRecord(p, false), new Rectangle2D.Double(x, bottom - h, unitWidth, h));
@@ -648,9 +647,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderStrandSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) {
+    private void renderStrandSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
 
         Genome genome = GenomeController.getInstance().getGenome();
+        if (!genome.isSequenceSet()) {
+            throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", RenderingException.WARNING_PRIORITY);
+        }
+
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         int xMin = axisRange.getXMin();
