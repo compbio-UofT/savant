@@ -33,7 +33,7 @@ This document applies to Savant version 2.0.0\\
 
 Savant stands for ``Sequence Annotation Visualisation and Analysis Tool''. In other words, Savant is a program for visualising and analysing genomics data. It was designed to run quickly and efficiently on conventional desktop or laptop computers.
 
-\section{Who should use Savant?}
+\section{Who Should Use Savant?}
 
 Savant makes visualisation and analysis of genomics data very efficient. If you use genome browsers like UCSC or IGV or if you are a biologist or bioinformatician who works with genomics data, you should try Savant. 
 
@@ -47,7 +47,7 @@ When you launch Savant, you will be presented with the start screen, which shows
 When working with Savant you will typically be working with a number of ``tracks'' which are organised together into a ``project''.  In addition to the tracks, a project file also maintains associated information, such as the reference genome, your browsing location, and any saved bookmarks. Each track normally corresponds to single data file, although there are exceptions (e.g. a BAM alignment track may also be accompanied by a TDF file containing coverage information to be displayed at lower resolutions).  In order to be loaded as a track by Savant, a file must be in one of the formats described in Table~\ref{NativeFileFormats}.  Files which are not already in one of those formats can be converted as described in \S\ref{UsingFormatDialog}.
 
 \section{Projects}
-Projects have a file extension of .svp, and are typically stored in the .savant/projects directory.  The project stores the following information:
+Projects have a file extension of \textit{.svp}, and are typically stored in the \textit{.savant/projects directory}.  The project stores the following information:
 \begin{itemize}
 \item Reference genome
 \item Absolute paths of all loaded tracks.
@@ -107,7 +107,7 @@ Alignment tracks display data from a BAM file.  They present reads in a choice o
 \begin{table}[h]
 \label{AlignmentModes}
 \begin{center}
-\begin{tabular}{|l p{5in}|}
+\begin{tabular}{|l p{12.5cm}|}
 \hline
 Standard & Displays the reads stacked vertically in the most efficient manner.  Colour indicates strand direction.\\
 Mismatch & Like Standard, but also displays SNPs and indels.  Requires that the reference genome be an actual sequence track.\\
@@ -169,7 +169,7 @@ You can convert these files either by using choosing Format from Savant’s File m
 \begin{table}[ht] 
 \label{CompatibleFileFormatsTable}
 \begin{center}
-\begin{tabular}{|l|p{3in}|l|}  
+\begin{tabular}{|l|p{7.5cm}|l|}  
 \hline                      
 Format & Description & Converted To\\
 \hline                    
@@ -185,7 +185,6 @@ Tab-delimited & any feature-oriented data in tab-delimited form & .tabix \\
 \end{center} 
 \end{table} 
 
-\begin{minipage}{6.5in}
 Genomic annotations are also available from other databases. Downloading and formatting data from these and other popular data sources is encouraged:\\
 
 \begin{tabular}{l l}
@@ -194,14 +193,13 @@ UCSC & \href{http://genome.ucsc.edu}{http://genome.ucsc.edu}\\
 NCBI & \href{http://www.ncbi.nlm.nih.gov}{http://www.ncbi.nlm.nih.gov}\\
 EBI & \href{http://www.ebi.ac.uk}{http://www.ebi.ac.uk}\\
 \end{tabular}
-\end{minipage}
 
 \section{Using the Format Dialog}
 \label{UsingFormatDialog}
 
 The Format Dialog can be used to format text files (e.g. ones downloaded from the various data sources listed above) for use with Savant. In most cases, Savant is able to infer the file's format from its extension.  Given the size of data files associated with bioinformatics, formatting a file may take a considerable amount of time.
 
-The Format Dialog can be opened by choosing File~\textgreater~Format File. \\
+The Format Dialog can be opened by choosing \textit{File~\textgreater~Format~File}. \\
 
 \begin{figure}
 \label{FormatDialog}
@@ -226,21 +224,21 @@ In addition to formatting the file types described in Table~\ref{CompatibleFileF
 
 \chapter{Navigation}
 
-Navigation refers to changing the region of the genome which is viewed by the browser. A user can navigate by either interacting with the navigation toolbar (\S\ref{NavigationToolbar}) located at the top of the Savant main window, or by using the appropriate keyboard and mouse shortcuts (\S\ref{NavigationShortcuts}).
+Navigation refers to changing the region of the genome which is being viewed by the browser. You can navigate either by interacting with the navigation toolbar (\S\ref{NavigationToolbar}) located at the top of the Savant main window, or by using the appropriate keyboard and mouse shortcuts (\S\ref{NavigationShortcuts}).
 
-In Savant a location consists of two parts:  the current reference and the current visible range.  The current reference is typically a chromosome, so the terms ``chromosome'' is used below, even though the reference in question could actually be any contiguous range of bases, and not necessarily a chromosome \textit{per se.}
+In Savant a location consists of two parts:  the current reference and the current visible range.  The current reference is typically a chromosome, so the term ``chromosome'' is used below, even though the reference in question could actually be any contiguous range of bases, and not necessarily a chromosome \textit{per se.}  The current range specifies a range of bases in the coordinate space of the current reference. 
 
 \section{Navigation Toolbar}
 
 \begin{figure}[h]
 \label{NavigationToolbar}
 \begin{center}
-\includegraphics[type=png,ext=.png,read=.png,width=7in]{images/NavigationBars}
+\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/NavigationBars}
 \caption{Navigation Toolbar}
 \end{center}
 \end{figure}
 
-The top row of the navigation toolbar contains the location field (\S\ref{LocationField}) and the navigation buttons (\S\ref{NavigationButtons}).  Below that are the range selection bar and the ruler (\S\ref{RangeSelectionBar}).
+The top row of the navigation toolbar contains the location field (\S\ref{LocationField}) and the navigation buttons (\S\ref{NavigationButtons}).  Below that are the genome bar and the ruler (\S\ref{GenomeBar}).
 
 \subsection{Location Field}
 \label{LocationField}
@@ -259,7 +257,8 @@ The location field displays the current visible range within the genome.  It can
 \hline
 1) & \multicolumn{2}{l|}{Clicking the downward-pointing triangle to reveal a menu of chromosomes.}\\
 \hline
-2) & \multicolumn{2}{p{6in}|}{Type a gene name into the text field or type a partial gene name and hit {\sc tab} to pop up a menu of matching genes.}\\
+2) & \multicolumn{2}{p{15cm}|}{Type a gene name into the text field.}\\
+& \multicolumn{2}{p{15cm}|}{Type a partial gene name and hit {\sc tab} to pop up a menu of matching genes.}\\
 \hline
 3) & \multicolumn{2}{l|}{Type a range specification into the text field:}\\
 & &\\
@@ -296,18 +295,18 @@ At the top right of the Navigation Toolbar are eight buttons which perform a var
 
 \textit{Beginning} and \textit{End} allow you to navigate quickly to the beginning or end of the current chromosome.
 
-\subsection{Range Selection Bar and Ruler}
-\label{RangeSelectionBar}
+\subsection{Genome Bar and Ruler}
+\label{GenomeBar}
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png]{images/RangeSelection}
-\caption{Range Selection Bar and Ruler}
+\caption{Genome Bar and Ruler}
 \end{center}
 \end{figure}
-Below the location field and the navigation buttons lies the range selection bar.  This bar highlights in blue the current visible region in the context of the genome. If the current genome has associated cytoband information, it will be displayed in this bar.  Users can select a new range by clicking and dragging within the bar.
+Below the location field and the navigation buttons lies the genome bar.  This bar highlights in blue the current visible region in the context of the genome. If the current genome has associated cytoband information, it will be displayed in this bar.  You can select a new range by clicking and dragging within the bar.
 
-Underneath the range selection bar is the ruler, which indicates the current viewable range in the coordinate space of the current chromosome.
+Underneath the genome bar is the ruler, which indicates the current viewable range in the coordinate space of the current chromosome.
 
 \section{Mouse and Keyboard Shortcuts}
 \label{NavigationShortcuts}
@@ -357,27 +356,57 @@ Range changes can be undone and redone using the commands in the following table
 \hline                      
 Keys & Action \\
 \hline                    
-{\sc ctrl/cmd}+{\sc z} & undo range change  \\
-{\sc ctrl/cmd} + {\sc y} & redo range change \\ 
-{\sc ctrl/cmd} + {\sc i} & export track images (see \S\ref{ExportingImages}) \\ 
-{\sc ctrl/cmd} + {\sc b} & bookmark current location (see \S\ref{Bookmarks}) \\ 
+{\sc ctrl/cmd + z} & undo range change  \\
+{\sc ctrl/cmd + y} & redo range change \\ 
+{\sc ctrl/cmd + i} & export track images (see \S\ref{ExportingImages}) \\ 
+{\sc ctrl/cmd + b} & bookmark current location (see \S\ref{Bookmarks}) \\ 
+{\sc ctrl/cmd + j} & crosshair (see \S\ref{HighlightingAreas}) \\ 
+{\sc ctrl/cmd + k} & plumbline (see \S\ref{HighlightingAreas}) \\ 
+{\sc ctrl/cmd + l} & spotlight (see \S\ref{HighlightingAreas}) \\ 
 \hline
 \end{tabular}
 \caption{Other Shortcuts}  
 \end{center}
 \end{table} 
 
+\chapter{Visualisation Features}
+
+In addition to making it easy to navigate quickly and efficiently through the genome, Savant provides a variety of mechanisms for making it easier to visualise the data more effectively.
+
+\section{Track Locking}
+\label{TrackLocking}
+Individual tracks can also be locked to a particular range so that they are not updated until they are unlocked. Locked tracks can be used as overview profiles from which subregions can be selected to specify range changes for other tracks. To lock a track, select the \textit{Lock Track} option from the track's \textit{Tools} menu. While a track is locked, you may select a subrange from the track (by using the mouse zoom options, described previously) which will become the new range for other, unlocked tracks. To unlock a track, go to the track's menu and uncheck the \textit{Lock Track} option.
+
+\section{Selecting}
+In most cases, a track consists of a collection of underlying records, which can be selected individually.  By default, selected records are highlighted in green.  Selected records remain selected when the display mode changes, so  for instance you could select an arc in Read Pair (Arc) mode and then switch to Mismatch mode to see the details of the selected reads.  Records selected in a track are also selected in the Data Table (Chapter~\ref{DataTable}).
+
+Hovering the mouse over a track will pop up a menu which provides information about the record under the mouse, as shown in Figure~\ref{TrackPopup}.  The details of what fields are displayed in the popup is entirely dependent on the type of data contained in the track.  To make it clearer exactly which record corresponds to the popup, the track will give the record a reddish tint while the popup is open.
+
+At the bottom of the popup menu are a number of blue menu-items which allow you to perform specific actions on the current record.  The \textit{Select/Deselect} and \textit{Add to Bookmarks} items are common to popups for all track types; certain track types may add additional items as appropriate.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[type=png,ext=.png,read=.png,width=9cm]{images/TrackPopup}
+\caption{Track Popup}
+\label{TrackPopup}
+\end{center}
+\end{figure}
+
+\section{Highlighting Areas of Interest}
+\label{HighlightingAreas}
+
+
 \chapter{Docking Framework}
 \label{DockingFramework}
 
-Savant features a docking framework which allows users to rearrange modules to their liking. Such modules include tracks and built-in items (e.g. Bookmarks, Variants, etc.) and plugins. Non-track modules are constrained to be docked to the sides of the UI and not among tracks. Similarly, track modules are constrained so that they cannot be docked among other modules.
+Savant features a docking framework which allows you to rearrange modules to their liking. Such modules include tracks and built-in items (e.g. Bookmarks, Variants, etc.) and plugins. Non-track modules are constrained to be docked to the sides of the UI and not among tracks. Similarly, track modules are constrained so that they cannot be docked among other modules.
 
 While a number of important functions are presented here, the best way to learn all the features of the docking framework is to try using it.
 
 \begin{figure}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=12cm]{images/dockingcontrols}
-\caption{Left: A track module. Upper-right: Docking menu presented when the title bar of a module is right-clicked. Bottom-right: Docking controls embedded in the title bar of the module. The latter controls are {\it not} available in the Mac version.}
+\caption[Docking Controls]{Left: A track module. Upper-right: Docking menu presented when the title bar of a module is right-clicked. Bottom-right: Docking controls embedded in the title bar of the module. The latter controls are {\it not} available in the Mac version.}
 \end{center}
 \end{figure}
 
@@ -388,7 +417,7 @@ By default, built-in modules are hidden. Hidden modules appear as tabs located o
 \begin{figure}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=14cm]{images/hideshowmodules}
-\caption{Hiding and showing modules. Left: The Annotation module, hidden on the right of the Savant UI. Middle: The Annotation module, shown by mousing over the Annotation tab. Right: The Annotation module, pinned so that it will remain shown even when the user is interacting with other components of the UI. }
+\caption[Hiding and Showing Modules]{Hiding and Showing Modules. Left: The Annotation module, hidden on the right of the Savant UI. Middle: The Annotation module, shown by mousing over the Annotation tab. Right: The Annotation module, pinned so that it will remain shown even when you are interacting with other components of the UI. }
 \label{HideShowModules}
 \end{center}
 \end{figure}
@@ -397,48 +426,47 @@ By default, built-in modules are hidden. Hidden modules appear as tabs located o
 
 Modules can be resized. To resize a module, click an edge and drag it until it occupies the desired size. 
 
-\section{Rearranging modules}
+\section{Rearranging Modules}
 
 Modules can be arranged in virtually any configuration within the UI. To move a module, click its title bar and drag it to the desired new location. While dragging, a grey outline will appear showing the location the module will occupy if the mouse is released. Track modules can be docked to the top or bottom of the track space, while other modules can be docked to any edge of the UI. In addition, modules can be docked on top of each other (in which case tabs will appear allowing one to switch between modules) or beside each other.
 
 \begin{figure}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=14cm]{images/arrangemodules}
-\caption{Rearranging modules. Left: Demonstration of the rearrangement process. Right: The result of the rearrangement.  }
+\caption[Rearranging Modules]{Rearranging Modules. Left: Demonstration of the rearrangement process. Right: The result of the rearrangement.  }
 \label{ArrangeModules}
 \end{center}
 \end{figure}
 
 \section{Maximising and Restoring Modules}
 
-A module can be maximised to occupy the entire screen or UI, to make interaction or visualisation with it easier, and then restored back to its original state among other modules to resume a concerted view. To maximise, press the embedded icon which resembles a square. To restore, press the embedded icon which resembles two overlapping squares (in the same location as the icon pressed to maximise). On a Mac, you can maximise and restore by right-clicking the title bar and click maximise and restore, respectively. The same functionality is possible through the title bar on Windows and Linux.
+A module can be maximised to occupy the entire screen or UI, to make interaction or visualisation with it easier, and then restored back to its original state among other modules to resume a concerted view. To maximise, press the embedded icon which resembles a square. To restore, press the embedded icon which resembles two overlapping squares (in the same location as the icon pressed to maximise). On a Mac, you can maximise and restore by double-clicking the title bar. The same functionality is possible through the title bar on Windows and Linux.
 
 \section{Detaching and Attaching from and to the UI}
 
-A module can be detached from the UI and moved to a separate location on the screen. This is particularly useful for multidisplay setups where, for example, analytics modules can be moved to one display and tracks kept on another. To detach a module, press the embedded icon which resembles to squares. The detached module can then be moved to another location by clicking and dragging its title bar. To reattach it to the UI, press the embedded icon which resembles a square with an L-shape in it (in the same location as the icon pressed to detach it). On a Mac, you can detach and reattach by right-clicking the title bar and checking or unchecking Floating, respectively. The same functionality is possible through the title bar on Windows and Linux.
+A module can be detached from the UI and moved to a separate location on the screen. This is particularly useful for multi-display setups where, for example, analytics modules can be moved to one display and tracks kept on another. To detach a module, press the embedded icon which resembles to squares. The detached module can then be moved to another location by clicking and dragging its title bar. To reattach it to the UI, press the embedded icon which resembles a square with an L-shape in it (in the same location as the icon pressed to detach it). On a Mac, you can detach and reattach by right-clicking the title bar and checking or unchecking Floating, respectively. The same functionality is possible through the title bar on Windows and Linux.
 
 
 \chapter{Bookmarks}
-
-The Bookmarks module helps to keep track of interesting regions or to make annotations. At any time, users may add, remove, or seek to a bookmarked region by using buttons within the module or by using keyboard shortcuts. 
+\label{Bookmarks}
+The Bookmarks module helps to keep track of interesting regions or to make annotations. At any time, you may add, remove, or seek to a bookmarked region by using buttons within the module or by using keyboard shortcuts. 
 
 \begin{figure}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=6cm]{images/bookmarks}
 \caption{Bookmarks Module}
-\label{BookmarksModule}
 \end{center}
 \end{figure}
 
 \section{Adding and Removing Bookmarks}
 
-A bookmark can be added by pressing the Add button embedded in the Bookmarks module. The current range will be used for the bookmark, although the from and to coordinates of the bookmark can be adjusted by double clicking and changing them. The keyboard shortcut CTRL+B (or CMD+B on a Mac) can be used to quickly add a bookmark. Bookmarks can be removed by right clicking them and choosing the Delete option.
+A bookmark can be added by pressing the Add button embedded in the Bookmarks module. The current range will be used for the bookmark, although the from and to coordinates of the bookmark can be adjusted by double clicking and changing them. The keyboard shortcut {\sc CTRL+B} (or {\sc CMD+B} on a Mac) can be used to quickly add a bookmark. Bookmarks can be removed by right clicking them and choosing the Delete option.
 
 \section{Seeking to a Bookmark}
 
 A bookmark can be sought to by right clicking it and choosing the Go option.
 
-\section{Adding annotations to bookmarks}
+\section{Adding Annotations to Bookmarks}
 
 An annotation can be added to a bookmark by double-clicking the Annotation field and typing in some text. 
 
@@ -446,63 +474,132 @@ An annotation can be added to a bookmark by double-clicking the Annotation field
 
 Navigation history can be tracked by clicking the Record button embedded in the Bookmarks module. From then on, every new range viewed will be stored as a Bookmark. To stop recording, press the Stop Recording button.
 
-\section{Saving and loading bookmarks}
+\section{Saving and Loading Bookmarks}
 
-Bookmarks can be saved, to be reused in future sessions or to be shared with colleagues. To save the existing bookmarks, click the Save button embedded in the module. These bookmarks can subsequently be loaded by clicking the Load button embedded in the module. A user can opt to append the loaded bookmarks to the existing bookmarks, or to replace the existing bookmarks entirely with the loaded ones.
+Bookmarks can be saved, to be reused in future sessions or to be shared with colleagues. To save the existing bookmarks, click the Save button embedded in the module. These bookmarks can subsequently be loaded by clicking the Load button embedded in the module. You can opt to append the loaded bookmarks to the existing bookmarks, or to replace the existing bookmarks entirely with the loaded ones.
 
-\chapter{Table View}
+\chapter{Data Table}
+\label{DataTable}
 
-The Table View module displays the data in the current range in a tabular format. This module displays records as rows and fields as columns
-in a spreadsheet. The data is automatically updated when a range is changed, unless the Auto Update checkbox is unchecked.
+The Data Table is a plugin (see Chapter~\ref{Plugins}) which is installed by default as part of Savant.  The Data Table module displays the data in the current range in a tabular format, with the records being rows and the fields being columns.
 
-\begin{figure}
+The data is automatically updated when the range in the main track display changes, unless the \textit{Auto Update} checkbox is unchecked.  The \textit{Show Only Selected} checkbox allows you to filter the table, showing only records which are selected in the current track.
+
+\begin{figure}[h]
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=16cm]{images/tableview}
-\caption{Table View module, showing data from a read alignment track.}
-\label{TableView}
+\caption[Data Table Module]{Data Table Module, showing data from a read alignment track.}
 \end{center}
 \end{figure}
 
-\section{Changing tracks}
+\section{Changing Tracks}
 
-The Table View only displays data from a single track at a time. To change the track whose data is being displayed, a drop-down list of tracks is provided from which to chose from.
+The Data Table only displays data from a single track at a time. To change the track whose data is being displayed, a drop-down list of tracks is provided from which to choose.
 
-\section{Sorting rows}
+\section{Sorting Rows}
 
-The entries in the Table View can be sorted by clicking the field header by which the rows are to be sorted.
+The entries in the Data Table can be sorted by clicking the field header by which the rows are to be sorted.  Subsequent clicks on the field header toggle between sorting in ascending order and descending order.
 
 \section{Exporting Data}
 
-The data in the Table View can be exported by clicking the Export button embedded in the module. The resulting file is a tab-delimited encoding of the information shown in the browser.
+The data being viewed in the Data Table can be exported to a text file by clicking the Export button.
+
+The format of the resulting text file depends on the type of the track being exported.  Sequence tracks are exported as Fasta files.  BAM alignment tracks are exported as SAM files.  All other track types are simply exported as tab-delimited text.
 
 \chapter{Plugins}
+\label{Plugins}
 
-Savant is able to integrate plugins, allowing for powerful extensions of the browser. To learn how to develop a plugin, see the {\bf Developer's Guide} downloadable from the Savant website.
+Savant is able to integrate plugins, allowing for powerful extensions of the browser. To learn how to develop a plugin, see the {\bf Developer's Guide} downloadable from the Savant web-site.
 
-\section{Installing a plugin}
+\section{Installing and Uninstalling Plugins}
 
-To install a third-party plugin, copy the plugin's .jar file to the Savant/plugins directory and restart Savant.
+To install a plugin, choose \textit{Plugin Manager\ldots} from the \textit{Plugins} menu.  Savant will present the dialog shown in Figure~\ref{PluginManager}.  This dialog lists all the plugins which are currently installed.  Selecting one of plugins from the list will display information about the plugin's version and status, and provide a button to allow uninstalling the plugin.
 
-\section{Un-installing a plugin}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/PluginManager}
+\caption{Plugin Manager Dialog}
+\label{PluginManager}
+\end{center}
+\end{figure}
 
-To un-install a third-party plugin, remove the plugin's .jar file from the Savant/plugins directory and restart Savant. Do not remove the SavantCore.jar file at any time.
+Clicking \textit{Install from Repository} will bring up a second dialog (Figure~\ref{PluginRepository}) which lets you browse the plugins available on the Savant web-site.  Plugins in the repository are segregated by Savant version, since Savant 2.0.0 is not compatible with plugins developed for older versions of Savant.
 
-\section{Using a plugin}
+Third-party plugins which are not available through the Savant Plugin Repository can be installed using the \textit{Install from File} command, which lets you select a \textit{.jar} file to be installed.  \textit{Install from File} will copy the selected file into Savant's plugin directory and make it available to Savant.
+
+Some third-party plugins may require ancillary files (e.g. supporting libraries or data files).  Installing this sort of plugin cannot be done through the Plugin Manager dialog; in such cases the necessary files must be manually copied into the \textit{.savant/plugins} directory (\textit{savant\textbackslash plugins} on Windows).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/PluginRepository}
+\caption{Plugin Repository Dialog}
+\label{PluginRepository}
+\end{center}
+\end{figure}
+
+\section{Using a Plugin}
 
 Every plugin works differently and may or may not have a user interface. For instructions on how to use a third-party plugin, see the developer's documentation.
+
+Typical plugins (such as the built-in Data Table and UCSC Explorer plugins) are presented in tabs at the bottom left of the Savant user interface.  Click the tab to reveal the plugin's user interface.  The windows for these plugins can be detached, docked and rearranged, as described in Chapter~\ref{DockingFramework}.
+
+Plugins can be temporarily disabled by unchecking the corresponding menu-item on the \textit{Plugins} menu.  This is a less extreme measure than uninstalling the plugin; a disabled plugin is still installed and can easily be reenabled by reselecting its menu-item from the \textit{Plugins} menu.
+
+Data Source plugins are a special class of plugins which extend Savant, allowing it to access data in non-standard ways.  Data Source plugins do not have a tab at the bottom left of the Savant window, but are accessed through the \textit{Load Track from Other Datasource} menu-item.\footnote{Or in the case of genomes, from the \textit{Other Datasource} button on the genome dialog.}
 
 \chapter{Other Features}
 
 \section{Track Locking}
 \label{TrackLocking}
-Individual tracks can also be locked to a particular range so that they are not updated until they are unlocked. Locked tracks can be used as overview profiles from which subregions can be selected to specify range changes for other tracks. To lock a track, right-click inside the track module and check the Lock option. While a track is locked, users may select a subrange from the track (by using the mouse zoom options, described previously) which will become the new range for other, unlocked tracks. To unlock a track, right-click inside the track module and uncheck the Lock option.
+Individual tracks can also be locked to a particular range so that they are not updated until they are unlocked. Locked tracks can be used as overview profiles from which subregions can be selected to specify range changes for other tracks. To lock a track, right-click inside the track module and check the Lock option. While a track is locked, you may select a subrange from the track (by using the mouse zoom options, described previously) which will become the new range for other, unlocked tracks. To unlock a track, go to the track's menu and uncheck the Lock option.
 
 \section{Selecting}
-In most cases, a track consists of a selection of underlying records, which can be selected individually.  By default, selected records are highlighted in green.
+In most cases, a track consists of a collection of underlying records, which can be selected individually.  By default, selected records are highlighted in green.
+
+Hovering the mouse over a track will pop up a menu which provides information about the record under the mouse, as shown in Figure~\ref{TrackPopup}.  The details of what fields are displayed in the popup is entirely dependent on the type of data contained in the track.  To make it clearer exactly which record corresponds to the popup, the track will give the record a reddish tint while the popup is open.
+
+At the bottom of the popup menu are a number of blue menu-items which allow you to perform specific actions on the current record.  The \textit{Select/Deselect} and \textit{Add to Bookmarks} items are common to popups for all track types; certain track types may add additional items as appropriate.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[type=png,ext=.png,read=.png,width=9cm]{images/TrackPopup}
+\caption{Track Popup}
+\label{TrackPopup}
+\end{center}
+\end{figure}
+
 \section{Exporting Images}
 \label{ExportingImages}
 
+\section{Highlighting Areas of Interest}
+\label{HighlightingAreas}
+
 \chapter{Variants}
 \label{Variants}
+
+\chapter{Preferences}
+\label{Preferences}
+
+
+\appendix
+\chapter{Savant Home Directory}
+\label{SavantHomeDirectory}
+
+By default, Savant stores settings, plugins, and temporary files in your home directory in a folder called \textit{.savant} on Mac and Linux, or \textit{savant} on Windows.  In most cases, it should not be necessary to delve into this directory, but it can be useful to know what is stored there.  Table~\ref{SavantDirectory} summarises the contents of the \textit{.savant} directory.
+
+\begin{table}[h]
+\begin{tabular}{|l p{12cm}|}
+\hline
+cache & Keeps a cache of files accessed from remote URLs.  Over time, this directory may use up a considerable amount of disk space. It can be cleared using the \textit{Clear remote file cache} option in the \textit{Preferences} dialog (Chapter~\ref{Preferences}).\\
+index & Stores index files for remote BAM, Tabix, and Fasta files.\\
+plugins & The Plugin Manager dialog (\ref{PluginManager}) installs plugins in this directory.\\
+projects & Default location for Savant project (\textit{.svp}) files.\\
+savant.settings & Stores values for Savant preferences.  Edit this file at your own risk.\\
+tmp & Savant temporary directory (obsolete).\\
+\hline
+\end{tabular}
+\caption{Contents of \textit{.savant} Directory}
+\label{SavantDirectory}
+\end{table}
 
 \end{document}
