@@ -84,7 +84,7 @@ Savant supports five different types of tracks, which are described below.  Each
 
 At the right of the track is a legend which describes its contents.  Above the legend is a track-specific menu-bar which allows you to control the display and behaviour of that track.  This menu-bar will have at least two items:  Tools and Appearance.  In addition, some tracks have menu items which let you control \textit{Display Mode} and \textit{Interval Height}.
 
-The \textit{Tools} menu provides useful functionality such as the ability to Lock a track (see \S\ref{TrackLocking}) and to copy the track's URL to the clipboard.  Track types which have the ability to filter their contents add a Filter… item to the Tools menu, which invokes a dialog to specify filter parameters.
+The \textit{Tools} menu provides useful functionality such as the ability to Lock a track (see \S\ref{TrackLocking}) and to copy the track's URL to the clipboard.  Track types which have the ability to filter their contents add a \textit{Filter\ldots} item to the Tools menu, which invokes a dialog to specify filter parameters.
 
 The Appearance menu controls the track's colour settings.  For tracks which have a vertical scale (all but sequence tracks), the \textit{Scale to Fit} menu-item controls whether the track scales its y-axis to fit the size of the window or uses a vertical scrollbar when necessary.
 
@@ -202,20 +202,21 @@ The Format Dialog can be used to format text files (e.g. ones downloaded from th
 The Format Dialog can be opened by choosing \textit{File~\textgreater~Format~File}. \\
 
 \begin{figure}
-\label{FormatDialog}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,height=8cm]{images/FormatDialog}
+\label{FormatDialog}
 \caption{The Format Dialog}
 \end{center}
 \end{figure}
 
-Components of the Format Dialog (Figure \ref{FormatDialog}):
-\begin{description}
-\item[Input file]The text file to be formatted
-\item[Format]The format of the input file
-\item[Input is 1-based]Whether or not the input file's positional annotations start at 0 or 1.  In most cases, this is determined by the choice of Format.
-\item[Output file]The output file to be produced which can subsequently be loaded into Savant
-\end{description}
+Components of the Format Dialog:
+
+\begin{tabular}{l p{15cm}}
+Input file & The text file to be formatted.\\
+Format & The format of the input file.\\
+Input is 1-based & Whether or not the input file's positional annotations start at 0 or 1.  In most cases, this is determined by the choice of Format.\\
+Output file & The output file to be produced which can subsequently be loaded into Savant.\\
+\end{tabular}
 
 \subsection{Generating Coverage Files}
 \label{GeneratingCoverageFiles}
@@ -263,7 +264,7 @@ The location field displays the current visible range within the genome.  It can
 3) & \multicolumn{2}{l|}{Type a range specification into the text field:}\\
 & &\\
 & chr2:1000-2000 & chr2, range 1000-2000\\
-& chr2: & the current range, but in chr2\\
+& chr2 & chr2, range 1-1000\\
 & 1000-2000 & in current chromosome, range 1000-2000\\
 & 1000-900 & in current chromosome, range 900-1000 (equivalent to 900-1000)\\
 & 1000+2000 & in current chromosome, range 1000-3000\\
@@ -377,10 +378,11 @@ In addition to making it easy to navigate quickly and efficiently through the ge
 \label{TrackLocking}
 Individual tracks can also be locked to a particular range so that they are not updated until they are unlocked. Locked tracks can be used as overview profiles from which subregions can be selected to specify range changes for other tracks. To lock a track, select the \textit{Lock Track} option from the track's \textit{Tools} menu. While a track is locked, you may select a subrange from the track (by using the mouse zoom options, described previously) which will become the new range for other, unlocked tracks. To unlock a track, go to the track's menu and uncheck the \textit{Lock Track} option.
 
-\section{Selecting}
+\section{Selecting Records}
 In most cases, a track consists of a collection of underlying records, which can be selected individually.  By default, selected records are highlighted in green.  Selected records remain selected when the display mode changes, so  for instance you could select an arc in Read Pair (Arc) mode and then switch to Mismatch mode to see the details of the selected reads.  Records selected in a track are also selected in the Data Table (Chapter~\ref{DataTable}).
 
-Hovering the mouse over a track will pop up a menu which provides information about the record under the mouse, as shown in Figure~\ref{TrackPopup}.  The details of what fields are displayed in the popup is entirely dependent on the type of data contained in the track.  To make it clearer exactly which record corresponds to the popup, the track will give the record a reddish tint while the popup is open.
+\section{Popup Menus}
+Hovering the mouse over a track will pop up a menu which provides information about the record under the mouse, as shown in Figure~\ref{TrackPopup}.  The details of what fields are displayed in the popup is dependent on the type of data contained in the track.  To make it clearer exactly which record corresponds to the popup, the track will give the record a reddish tint while the popup is open.
 
 At the bottom of the popup menu are a number of blue menu-items which allow you to perform specific actions on the current record.  The \textit{Select/Deselect} and \textit{Add to Bookmarks} items are common to popups for all track types; certain track types may add additional items as appropriate.
 
@@ -395,6 +397,13 @@ At the bottom of the popup menu are a number of blue menu-items which allow you 
 \section{Highlighting Areas of Interest}
 \label{HighlightingAreas}
 
+Often, it is helpful to focus one's attention on a particular portion of the display.  Savant provides three tools for making this easier, found under the \textit{View} menu.
+
+The \textit{Crosshair} tool displays a crosshair cursor and shows the current track-space coordinates of the mouse.  This is intended to make it easier to identify particular features by location.  Note that the current location (without the crosshair) is also shown in the lower left of the Savant window. 
+
+The \textit{Plumbline} tool displays vertical bars which run across all the tracks, allowing you to clearly see how features on different tracks are aligned.
+
+The \textit{Spotlight} tool is similar to the Plumbline tool, except that portions of tracks outside the spotlight area are dimmed to deemphasise them.
 
 \chapter{Docking Framework}
 \label{DockingFramework}
@@ -460,23 +469,31 @@ The Bookmarks module helps to keep track of interesting regions or to make annot
 
 \section{Adding and Removing Bookmarks}
 
-A bookmark can be added by pressing the Add button embedded in the Bookmarks module. The current range will be used for the bookmark, although the from and to coordinates of the bookmark can be adjusted by double clicking and changing them. The keyboard shortcut {\sc CTRL+B} (or {\sc CMD+B} on a Mac) can be used to quickly add a bookmark. Bookmarks can be removed by right clicking them and choosing the Delete option.
+A bookmark can be added by pressing the Add button ($\vcenter{\hbox{\includegraphics{images/bkm_add.png}}}$) in the Bookmarks module's toolbar. The current range will be used for the bookmark, although the from and to coordinates of the bookmark can be adjusted by double clicking and changing them. The keyboard shortcut {\sc ctrl+b} (or {\sc cmd+b} on a Mac) can be used to quickly add a bookmark.
+
+For tracks which contain multiple features (e.g. gene tracks), the track's \textit{Tools} menu provides a way to automatically create a bookmark for each of a track's features.
+
+Bookmarks can be removed by selecting them and choosing the Delete button ($\vcenter{\hbox{\includegraphics{images/bkm_rm.png}}}$).
 
 \section{Seeking to a Bookmark}
 
-A bookmark can be sought to by right clicking it and choosing the Go option.
+A bookmark can be sought to by selecting it and choosing the Go option.
 
 \section{Adding Annotations to Bookmarks}
 
 An annotation can be added to a bookmark by double-clicking the Annotation field and typing in some text. 
 
-\section{Recording Navigation History}
-
-Navigation history can be tracked by clicking the Record button embedded in the Bookmarks module. From then on, every new range viewed will be stored as a Bookmark. To stop recording, press the Stop Recording button.
-
 \section{Saving and Loading Bookmarks}
 
-Bookmarks can be saved, to be reused in future sessions or to be shared with colleagues. To save the existing bookmarks, click the Save button embedded in the module. These bookmarks can subsequently be loaded by clicking the Load button embedded in the module. You can opt to append the loaded bookmarks to the existing bookmarks, or to replace the existing bookmarks entirely with the loaded ones.
+As bookmarks are created, they are automatically stored as part of the current project file, and will be saved whenever the project is saved.
+
+Bookmarks can be exported, to be reused in other sessions or to be shared with colleagues. To save the existing bookmarks, click the Save button ($\vcenter{\hbox{\includegraphics{images/save2.png}}}$) in the Bookmarks module's toolbar. These bookmarks can subsequently be loaded by clicking the Load button ($\vcenter{\hbox{\includegraphics{images/open.png}}}$).
+
+Exported bookmarks are stored as a simple tab-delimited text file with four columns:  chromosome, start, end, and annotation.  Consequently, if you create your own tab-delimited file with this layout, it can be loaded into a Savant project as a set of bookmarks.
+
+You can opt to append the loaded bookmarks to the existing bookmarks, or to replace the existing bookmarks entirely with the loaded ones.
+
+Savant also gives you the option of adding padding to bookmarks to make them more prominent.  For instance, if you have loaded bookmarks from a text file containing SNP coordinates, you might want to add padding so that navigating to a SNP will display it centred in the display area; without padding, selecting one of these SNP bookmarks would set the range so that the selected SNP filled the entire display.
 
 \chapter{Data Table}
 \label{DataTable}
@@ -512,6 +529,7 @@ The format of the resulting text file depends on the type of the track being exp
 Savant is able to integrate plugins, allowing for powerful extensions of the browser. To learn how to develop a plugin, see the {\bf Developer's Guide} downloadable from the Savant web-site.
 
 \section{Installing and Uninstalling Plugins}
+\label{InstallingPlugins}
 
 To install a plugin, choose \textit{Plugin Manager\ldots} from the \textit{Plugins} menu.  Savant will present the dialog shown in Figure~\ref{PluginManager}.  This dialog lists all the plugins which are currently installed.  Selecting one of plugins from the list will display information about the plugin's version and status, and provide a button to allow uninstalling the plugin.
 
@@ -525,7 +543,7 @@ To install a plugin, choose \textit{Plugin Manager\ldots} from the \textit{Plugi
 
 Clicking \textit{Install from Repository} will bring up a second dialog (Figure~\ref{PluginRepository}) which lets you browse the plugins available on the Savant web-site.  Plugins in the repository are segregated by Savant version, since Savant 2.0.0 is not compatible with plugins developed for older versions of Savant.
 
-Third-party plugins which are not available through the Savant Plugin Repository can be installed using the \textit{Install from File} command, which lets you select a \textit{.jar} file to be installed.  \textit{Install from File} will copy the selected file into Savant's plugin directory and make it available to Savant.
+Third-party plugins which are not available through the Savant Plugin Repository can be installed using the \textit{Install from File} command, which lets you select a JAR file to be installed.  \textit{Install from File} will copy the selected file into Savant's plugin directory and make it available to Savant.
 
 Some third-party plugins may require ancillary files (e.g. supporting libraries or data files).  Installing this sort of plugin cannot be done through the Plugin Manager dialog; in such cases the necessary files must be manually copied into the \textit{.savant/plugins} directory (\textit{savant\textbackslash plugins} on Windows).
 
@@ -537,45 +555,61 @@ Some third-party plugins may require ancillary files (e.g. supporting libraries 
 \end{center}
 \end{figure}
 
-\section{Using a Plugin}
+\section{Using Plugins}
 
-Every plugin works differently and may or may not have a user interface. For instructions on how to use a third-party plugin, see the developer's documentation.
+Every plugin works differently and may or may not have a user interface. For instructions on how to use a third-party plugin, see the developer's documentation.  Savant supports three general types of plugins, which are described below.
 
+\subsection{Panel Plugins}
 Typical plugins (such as the built-in Data Table and UCSC Explorer plugins) are presented in tabs at the bottom left of the Savant user interface.  Click the tab to reveal the plugin's user interface.  The windows for these plugins can be detached, docked and rearranged, as described in Chapter~\ref{DockingFramework}.
 
 Plugins can be temporarily disabled by unchecking the corresponding menu-item on the \textit{Plugins} menu.  This is a less extreme measure than uninstalling the plugin; a disabled plugin is still installed and can easily be reenabled by reselecting its menu-item from the \textit{Plugins} menu.
 
-Data Source plugins are a special class of plugins which extend Savant, allowing it to access data in non-standard ways.  Data Source plugins do not have a tab at the bottom left of the Savant window, but are accessed through the \textit{Load Track from Other Datasource} menu-item.\footnote{Or in the case of genomes, from the \textit{Other Datasource} button on the genome dialog.}
+\subsection{Tool Plugins}
+New in Savant 2.0 is a new variety of plugin, referred to as ``tool plugins''.  To the end-user, these are functionally similar to panel plugins, but where panel plugins consist of Java code packaged inside a JAR file, tool plugins consist of an XML file which provides instructions on how to invoke an external application.  The format of this XML file is described in the Developer Manual.
+
+Like panel plugins, tool plugins present their user interface in a dockable tab at the bottom left of the Savant user interface, and can be enabled/disabled from the \textit{Plugins} menu.
+
+\subsection{Data Source Plugins}
+Data source plugins are a special class of plugins which extend Savant, allowing it to access data in non-standard ways.  Data source plugins do not have a tab at the bottom left of the Savant window, but instead are accessed through the \textit{Load Track from Other Datasource} menu-item.\footnote{Or in the case of genomes, from the \textit{Other Datasource} button on the genome dialog.}
+
+The UCSC and SQL plugins are both examples of data source plugins.
 
 \chapter{Other Features}
-
-\section{Track Locking}
-\label{TrackLocking}
-Individual tracks can also be locked to a particular range so that they are not updated until they are unlocked. Locked tracks can be used as overview profiles from which subregions can be selected to specify range changes for other tracks. To lock a track, right-click inside the track module and check the Lock option. While a track is locked, you may select a subrange from the track (by using the mouse zoom options, described previously) which will become the new range for other, unlocked tracks. To unlock a track, go to the track's menu and uncheck the Lock option.
-
-\section{Selecting}
-In most cases, a track consists of a collection of underlying records, which can be selected individually.  By default, selected records are highlighted in green.
-
-Hovering the mouse over a track will pop up a menu which provides information about the record under the mouse, as shown in Figure~\ref{TrackPopup}.  The details of what fields are displayed in the popup is entirely dependent on the type of data contained in the track.  To make it clearer exactly which record corresponds to the popup, the track will give the record a reddish tint while the popup is open.
-
-At the bottom of the popup menu are a number of blue menu-items which allow you to perform specific actions on the current record.  The \textit{Select/Deselect} and \textit{Add to Bookmarks} items are common to popups for all track types; certain track types may add additional items as appropriate.
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[type=png,ext=.png,read=.png,width=9cm]{images/TrackPopup}
-\caption{Track Popup}
-\label{TrackPopup}
-\end{center}
-\end{figure}
 
 \section{Exporting Images}
 \label{ExportingImages}
 
-\section{Highlighting Areas of Interest}
-\label{HighlightingAreas}
-
 \chapter{Variants}
 \label{Variants}
+Savant 2 provides improved support for viewing variant data in VCF files.  In addition to being able to open Tabix-formatted VCF files as variant tracks, Savant 2 also provides a Variation tab at the right of the user interface (next to the Bookmarks tab).  This tab provides a variety of ways of exploring variation data, as described in \S\ref{VariationTab}.
+
+\section{Variant Tracks}
+Variant data can be loaded into Savant using the \textit{Load Track from XXX\ldots} commands.  Loading a VCF file in this fashion will create a new track in the main display area.  As with other data types, the VCF file must first be formatted and indexed as a Tabix file in order to be usable (see \S\ref{UsingFormatDialog}).
+
+SNPs are displayed with a vertical line in the colour of the alternate (non-reference) base.  Participants drawn from the VCF file are arranged vertically.  A gap in the vertical line indicates that a particular participant lacks that variant.  If a variant is heterozygous for a participant, that portion of the line will be drawn using a paler version of the associated colour.
+
+Insertions and deletions are displayed in the same manner as SNPs, with a single vertical line (black for deletions, magenta for insertions).  The variant track makes no attempt to visually indicate the extent of the inserted or deleted material.  In order to see what was actually substituted by the indel, you will need to mouse over the variant track, and the popup will provide the details of the substitution that took place.
+
+\section{Variation Module}
+\label{VariationTab}
+
+The Variation module groups together four different ways of viewing aggregated variant data.  While variant tracks contain data only from a single VCF file, the visualisations on the Variation module comprise data from all currently-open variant tracks.
+
+At the top of the variation module is a field for entering the desired visible range.  The variation module maintains its own visible range, which is distinct from the visible range for the main track display area.  The variation module also has its own Zoom In and Zoom Out buttons to alter its visible range.
+
+At the top right of the variation module is the \textit{Controls} button.  This is used to select which participants in a dataset are considered to be controls (as opposed to cases).  When graphing allele frequency, the control and case participants are graphed separately.
+
+\subsection{Variation Table}
+
+The variation table provides a spreadsheet-like summary of all variants in the variation module's current display range.  Double clicking on  row will centre the main track display on the position of that variant.
+
+\subsection{Variation Map}
+
+The variation map provides a graphical overview of all variants in the variation module's display range.  SNPs and indels are presented with all their participants
+
+\subsection{Allele Frequency Plot}
+
+\subsection{Linkage Disequilibrium Plot}
 
 \chapter{Preferences}
 \label{Preferences}
@@ -592,10 +626,9 @@ By default, Savant stores settings, plugins, and temporary files in your home di
 \hline
 cache & Keeps a cache of files accessed from remote URLs.  Over time, this directory may use up a considerable amount of disk space. It can be cleared using the \textit{Clear remote file cache} option in the \textit{Preferences} dialog (Chapter~\ref{Preferences}).\\
 index & Stores index files for remote BAM, Tabix, and Fasta files.\\
-plugins & The Plugin Manager dialog (\ref{PluginManager}) installs plugins in this directory.\\
+plugins & The Plugin Manager dialog (\S\ref{InstallingPlugins}) installs plugins in this directory.\\
 projects & Default location for Savant project (\textit{.svp}) files.\\
 savant.settings & Stores values for Savant preferences.  Edit this file at your own risk.\\
-tmp & Savant temporary directory (obsolete).\\
 \hline
 \end{tabular}
 \caption{Contents of \textit{.savant} Directory}

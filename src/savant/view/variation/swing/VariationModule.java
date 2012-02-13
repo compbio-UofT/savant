@@ -15,6 +15,7 @@
  */
 package savant.view.variation.swing;
 
+import java.text.ParseException;
 import savant.view.variation.VariationController;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -26,8 +27,10 @@ import java.util.List;
 import javax.swing.*;
 
 import savant.api.data.VariantRecord;
+import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.settings.TrackResolutionSettings;
+import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
@@ -39,7 +42,7 @@ import savant.view.icon.SavantIconFactory;
  *
  * @author tarkvara
  */
-public class VariationSheet extends JPanel {
+public class VariationModule extends JPanel {
     private static final String ZOOM_MESSAGE = MiscUtils.MAC ? "<html><center>Zoom in to see data<br><small>To view data at this range, change Preferences > Track Resolutions</small></center></html>" : "<html><center>Zoom in to see data<br><small>To view data at this range, change Edit > Preferences > Track Resolutions</small></center></html>";
 
     private VariationController controller;
@@ -70,7 +73,7 @@ public class VariationSheet extends JPanel {
         }
     };
 
-    public VariationSheet(VariationController vc) {
+    public VariationModule(VariationController vc) {
         super(new GridBagLayout());
         controller = vc;
 
@@ -78,6 +81,18 @@ public class VariationSheet extends JPanel {
         JToolBar tools = new JToolBar();
         tools.setFloatable(false);
         rangeField = new JTextField();
+        rangeField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                String text = rangeField.getText();
+                try {
+                    Bookmark bm = new Bookmark(text, controller.getReference(), controller.getVisibleRange());
+                    controller.setLocation(bm.getReference(), (Range)bm.getRange());
+                } catch (ParseException x) {
+                    DialogUtils.displayMessage(String.format("Unable to parse \"%s\" as a location.", text));
+                }
+            } 
+        });
         tools.add(rangeField);
         tools.addSeparator();
         

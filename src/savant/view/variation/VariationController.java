@@ -44,7 +44,7 @@ import savant.settings.TrackResolutionSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.tracks.VariantTrack;
-import savant.view.variation.swing.VariationSheet;
+import savant.view.variation.swing.VariationModule;
 
 /**
  * Controller class which governs the behaviour of the various variation-related views.
@@ -71,7 +71,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     private String visibleRef;
     private Range visibleRange;
     
-    private VariationSheet sheet;
+    private VariationModule sheet;
 
     private VariationController() {
         LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
@@ -235,7 +235,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         return tracks.toArray(new VariantTrack[0]);
     }
 
-    private void setLocation(String ref, Range r) {
+    public void setLocation(String ref, Range r) {
         visibleRef = ref;
         setVisibleRange(r);
     }
@@ -265,6 +265,9 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         }
     }
     
+    public String getReference() {
+        return visibleRef;
+    }
 
     /**
      * Zoom out by a factor of two.
@@ -362,8 +365,8 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         }
     }
 
-    public VariationSheet getSheet() {
-        sheet = new VariationSheet(this);
+    public VariationModule getSheet() {
+        sheet = new VariationModule(this);
         return sheet;
     }
     

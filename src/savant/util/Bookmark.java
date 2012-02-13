@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package savant.util;
 
-import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
@@ -29,8 +28,7 @@ import savant.controller.LocationController;
  *
  * @author mfiume
  */
-public class Bookmark implements BookmarkAdapter, Serializable {
-    static final long serialVersionUID = 8942835825767587873L;
+public class Bookmark implements BookmarkAdapter {
 
     private String reference;
     private int from, to;
@@ -56,6 +54,14 @@ public class Bookmark implements BookmarkAdapter, Serializable {
 
     /**
      * Construct a bookmark from a string containing a range specification.
+     * Any relative range specifications are calculated relative to the LocationController.
+     */
+    public Bookmark(String text) throws ParseException {
+        this(text, LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
+    }
+
+    /**
+     * Construct a bookmark from a string containing a range specification.
      *
      * Note that the bookmark produced by the constructor may be relative to the reference and range
      * which were current at the time of its construction.
@@ -70,15 +76,17 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      * <dt>+1000</dt><dd>1000 bases to the right of the current start, keeping same range-length</dd>
      * <dt>-1000</dt><dd>1000 bases to the left of the current range, keeping same range-length</dd>
      * </dl>
+     * 
+     * @param text the string typed in by the user
+     * @param baseRef the current reference (for resolving relative location specs)
+     * @param baseRange the current range (for resolving relative location specs)
      */
-    public Bookmark(String text) throws ParseException {
-        LocationController locationController = LocationController.getInstance();
-        Range r = locationController.getRange();
+    public Bookmark(String text, String baseRef, Range baseRange) throws ParseException {
         from = -1;
         to = -1;
-        if (r != null) {
-            from = r.getFrom();
-            to = r.getTo();
+        if (baseRange != null) {
+            from = baseRange.getFrom();
+            to = baseRange.getTo();
         }
 
         text = text.replace(" ", "");
@@ -90,7 +98,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
             text = text.substring(colonPos + 1);
         } else {
             // No reference before a colon, so le
-            reference = locationController.getReferenceName();
+            reference = baseRef;
         }
 
         if (text.length() > 0) {
@@ -127,7 +135,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
                     to = from + numberParser.parse(text.substring(plusPos + 1)).intValue() - 1;
                 } else {
                     // No plusses or minusses.
-                    if (locationController.getReferenceNames().contains(text)) {
+                    if (LocationController.getInstance().getReferenceNames().contains(text)) {
                         // User has just specified a bare chromosome name.
                         reference = text;
                         from = 1;

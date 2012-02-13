@@ -401,7 +401,6 @@ public class Savant extends JFrame {
         statusBarItem = new javax.swing.JCheckBoxMenuItem();
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JSeparator jSeparator9 = new javax.swing.JSeparator();
-        startPageItem = new javax.swing.JCheckBoxMenuItem();
         bookmarksItem = new javax.swing.JCheckBoxMenuItem();
         pluginsMenu = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
@@ -783,15 +782,6 @@ public class Savant extends JFrame {
         windowMenu.add(speedAndEfficiencyItem);
         windowMenu.add(jSeparator9);
 
-        startPageItem.setSelected(true);
-        startPageItem.setText("Start Page");
-        startPageItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startPageItemActionPerformed(evt);
-            }
-        });
-        windowMenu.add(startPageItem);
-
         bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         bookmarksItem.setText("Bookmarks");
         bookmarksItem.addActionListener(new java.awt.event.ActionListener() {
@@ -805,7 +795,7 @@ public class Savant extends JFrame {
 
         pluginsMenu.setText("Plugins");
 
-        menuitem_pluginmanager.setText("Plugin Manager");
+        menuitem_pluginmanager.setText("Plugin Manager…");
         menuitem_pluginmanager.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_pluginmanagerActionPerformed(evt);
@@ -1126,10 +1116,6 @@ public class Savant extends JFrame {
         gpc.setAiming(crosshairItem.isSelected());
     }//GEN-LAST:event_crosshairItemActionPerformed
 
-    private void startPageItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPageItemActionPerformed
-        setStartPageVisible(startPageItem.isSelected());
-    }//GEN-LAST:event_startPageItemActionPerformed
-
     private void loadFromDataSourcePluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginItemActionPerformed
         try {
             DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
@@ -1338,7 +1324,6 @@ public class Savant extends JFrame {
     private javax.swing.JMenuItem saveProjectItem;
     private javax.swing.JCheckBoxMenuItem speedAndEfficiencyItem;
     private javax.swing.JCheckBoxMenuItem spotlightItem;
-    private javax.swing.JCheckBoxMenuItem startPageItem;
     private javax.swing.JCheckBoxMenuItem statusBarItem;
     private javax.swing.JLabel timeCaption;
     private javax.swing.JMenuItem toEndItem;
@@ -1593,9 +1578,6 @@ public class Savant extends JFrame {
 
     /**
      * Prompt the user to open a genome file.
-     *
-     * Expects a Binary Fasta file (created using the data formatter included in
-     * the distribution).
      */
     public void showOpenGenomeDialog() {
         LoadGenomeDialog d = new LoadGenomeDialog(this,true);
@@ -1631,11 +1613,6 @@ public class Savant extends JFrame {
 
         navigationBar.setVisible(true);
         browserControlsShown = true;
-    }
-
-    private void setStartPageVisible(boolean b) {
-        MiscUtils.setFrameVisibility("Start Page", b, this.getTrackDockingManager());
-        startPageItem.setSelected(b);
     }
 
     public void updateStatus(String msg) {
