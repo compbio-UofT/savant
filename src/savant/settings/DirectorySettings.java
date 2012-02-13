@@ -30,9 +30,7 @@ public class DirectorySettings {
     private static File savantDir;
 
     private static final String CACHE_DIR_KEY = "CacheDir";
-    private static final String TMP_DIR_KEY = "TmpDir";
     private static final String PLUGINS_DIR_KEY = "PluginsDir";
-    private static final String XML_TOOLS_DIR_KEY = "XMLToolDir";
     private static final String PROJECTS_DIR_KEY = "ProjectsDir";
 
     public static File getSavantDirectory() {
@@ -87,19 +85,11 @@ public class DirectorySettings {
     }
 
     public static File getTmpDirectory() {
-        return getDirectory(TMP_DIR_KEY, "tmp");
-    }
-
-    public static File getXMLToolDescriptionsDirectory() {
-        return getDirectory(XML_TOOLS_DIR_KEY, "xmltools");
+        return new File(System.getProperty("java.io.tmpdir"));
     }
 
     public static void setPluginsDirectory(File dir) {
         setDirectory(PLUGINS_DIR_KEY, dir);
-    }
-
-    public static void setXMLToolDescriptionsDirectory(File dir) {
-        setDirectory(XML_TOOLS_DIR_KEY, dir);
     }
 
     public static void setCacheDirectory(File dir) {
