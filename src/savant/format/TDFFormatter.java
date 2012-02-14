@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,16 +21,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import org.broad.igv.feature.Chromosome;
 import org.broad.igv.feature.Cytoband;
-
 import org.broad.igv.feature.genome.Genome;
 import org.broad.igv.tools.PreprocessingException;
 import org.broad.igv.tools.Preprocessor;
 import org.broad.igv.tools.StatusMonitor;
 import org.broad.igv.track.WindowFunction;
 
-import savant.file.FileType;
 import savant.util.MiscUtils;
 
 
@@ -53,7 +52,7 @@ public class TDFFormatter extends SavantFileFormatter {
     protected int lineCount;
 
     public TDFFormatter(File inFile, File outFile) {
-        super(inFile, outFile, FileType.CONTINUOUS_TDF);
+        super(inFile, outFile);
     }
 
     @Override

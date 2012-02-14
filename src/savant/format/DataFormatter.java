@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -57,18 +57,6 @@ public class DataFormatter {
      */
     private File outFile;
 
-    public final File getInputFile() { return inFile; }
-
-    public File getOutputFile() {
-        if (getInputFileType() == FileType.INTERVAL_BAM) {
-            return new File(inFile + ".cov.tdf").getAbsoluteFile();
-        } else {
-            return outFile;
-        }
-    }
-
-    public FileType getInputFileType() { return inputFileType; }
-
     /**
      * File type
      */
@@ -111,9 +99,17 @@ public class DataFormatter {
         this(inFile, outFile, fileType, true);
     }
 
-    /**
-     * FUNCTIONS
-     */
+    public final File getInputFile() {
+        return inFile;
+    }
+
+    public File getOutputFile() {
+        if (inputFileType == FileType.INTERVAL_BAM) {
+            return new File(inFile + ".cov.tdf").getAbsoluteFile();
+        } else {
+            return outFile;
+        }
+    }
 
     /**
      * Format the input file path, storing the result in the output file path
@@ -149,9 +145,6 @@ public class DataFormatter {
                     break;
                 case CONTINUOUS_WIG:
                     runFormatter(new TDFFormatter(inFile, outFile));
-                    break;
-                case SEQUENCE_FASTA:
-                    runFormatter(new FastaFormatter(inFile, outFile));
                     break;
                 default:
                     return false;
@@ -366,7 +359,7 @@ public class DataFormatter {
         progressListeners.remove(listener);
     }
 
-    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException, SavantFileFormattingException {
+    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException {
         for (FormatProgressListener listener : progressListeners) {
             ff.addProgressListener(listener);
         }

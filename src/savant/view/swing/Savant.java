@@ -944,7 +944,7 @@ public class Savant extends JFrame {
 
     private void formatItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatItemActionPerformed
         LOG.info("Showing format form...");
-        new DataFormatForm(this, null, false).setVisible(true);
+        new DataFormatForm(this, null).setVisible(true);
     }//GEN-LAST:event_formatItemActionPerformed
 
     private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed

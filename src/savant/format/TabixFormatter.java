@@ -58,7 +58,7 @@ public class TabixFormatter extends SavantFileFormatter {
      * @param outFile output .gz file (index will append .tbi to the name)
      */
     public TabixFormatter(File inFile, File outFile, FileType inputFileType) throws IOException {
-        super(inFile, outFile, FileType.TABIX);
+        super(inFile, outFile);
 
         int flags = 0;
         switch (inputFileType) {

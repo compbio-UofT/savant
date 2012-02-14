@@ -29,7 +29,6 @@ import com.jidesoft.dialog.JideOptionPane;
 import savant.api.util.DialogUtils;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
-import savant.file.FileType;
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
@@ -263,7 +262,7 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
     public void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
 
         if (wasFormatSuccessful) {
-            if (GenomeController.getInstance().isGenomeLoaded() || dataFormatter.getInputFileType() == FileType.SEQUENCE_FASTA) {
+            if (GenomeController.getInstance().isGenomeLoaded()) {
                 int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
                 setVisible(false);
                 if (result == JOptionPane.YES_OPTION) {

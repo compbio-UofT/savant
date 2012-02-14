@@ -33,11 +33,9 @@ import savant.api.data.Block;
 import savant.api.data.IntervalRecord;
 import savant.api.util.DialogUtils;
 import savant.api.data.Strand;
-import savant.controller.GenomeController;
 import savant.data.types.*;
 import savant.file.FieldType;
 import savant.file.FileType;
-import savant.file.FileTypeHeader;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.util.Range;
@@ -192,212 +190,6 @@ public class SavantFileFormatterUtils {
     }
 
     /** IO **/
-
-    /**
-     * Write this line as binary to outFile
-     * @param outFile
-     * @param line
-     * @param fields
-     * @param modifiers
-     * @throws IOException
-     */
-    public static void writeBinaryRecord(DataOutputStream outFile, List<Object> line, List<FieldType> fields, List<Object> modifiers) throws IOException {
-
-        //System.out.println("Writing records with fields:");
-        for (int i = 0; i < line.size(); i++) {
-            //System.out.println("\t" + (i+1) + ". " + fields.get(i) + "\t" + line.get(i));
-        }
-
-//        FieldType fieldType = null;
-        Object o = null;
-        Object instruction = null;
-
-        int entryNum = 0;
-        int numIgnores = 0;
-
-        for (FieldType ft : fields) {
-            if (ft == FieldType.IGNORE) {
-                numIgnores++;
-                continue;
-            }
-
-            o = line.get(entryNum);
-            instruction = modifiers.get(entryNum + numIgnores);
-
-            //System.out.println("Writing " + o + " as " + ft + " with instruction " + instruction);
-
-            switch (ft) {
-                case STRING:
-                    int stringLength;
-                    if (modifiers.get(entryNum) == null) {
-                        stringLength = ((String) o).length();
-                    } else {
-                        stringLength = (Integer) instruction;
-                    }
-                    writeFixedLengthString(outFile, (String) o, stringLength);
-                    break;
-                case CHAR:
-                    outFile.writeByte((Character) o);
-                    break;
-                case BLOCKS:
-                    List<Block> blocks = (List<Block>) o;
-                    outFile.writeInt(blocks.size());
-                    for (Block b : blocks) {
-                        outFile.writeInt((int)b.getPosition());
-                        outFile.writeInt((int)b.getSize());
-                    }
-                    break;
-                case ITEMRGB:
-                    ItemRGB rgb = (ItemRGB) o;
-                    outFile.writeInt(rgb.getRed());
-                    outFile.writeInt(rgb.getBlue());
-                    outFile.writeInt(rgb.getGreen());
-                    break;
-                case INTEGER:
-                    outFile.writeInt((Integer) o);
-                    break;
-                case DOUBLE:
-                    outFile.writeDouble((Double) o);
-                    break;
-                case FLOAT:
-                    outFile.writeFloat((Float) o);
-                    break;
-                case LONG:
-                    outFile.writeLong((Long) o);
-                    break;
-                case BOOLEAN:
-                    int bool = Integer.parseInt((String) o);
-                    outFile.writeInt(bool);
-                    break;
-                case RANGE:
-                    Range r = (Range) o;
-                    outFile.writeInt((int)r.getFrom());
-                    outFile.writeInt((int)r.getTo());
-                    break;
-                default:
-                    log.info("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
-                    break;
-            }
-
-            entryNum++;
-        }
-    }
-
-   /**
-     * Parse next line in the inFile according to given field types.
-     * Assumes that you are not parsing a GFF file.
-     * @param txtLine - String line of text
-     * @param fields
-     * @throws IOException
-     */
-    public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields) throws IOException {
-        return parseTxtLine(txtLine, fields, false);
-    }
-
-
-    /**
-     * Parse next line in the inFile according to given field types
-     * @param txtLine - String line of text
-     * @param fields
-     * @param isGFF - specific cases for GFF formatting
-     * @throws IOException
-     */
-    public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields, boolean isGFF) throws IOException {
-
-        if (txtLine == null) {
-            return null;
-        }
-
-        //String delimiter = "\\s+";
-        String delimiter = "( |\t)+";
-
-        String[] s = txtLine.split(delimiter);
-
-        List<Object> line = new ArrayList<Object>(fields.size());
-
-        String token = "";
-
-        for(int i = 0; i < Math.min(fields.size(), s.length); i++){
-
-            token = s[i];
-            FieldType ft = fields.get(i);
-
-            switch (fields.get(i)) {
-                case STRING:
-                    line.add(token);
-                    break;
-                case CHAR:
-                    line.add(token.charAt(0));
-                    break;
-                case INTEGER:
-                    line.add(Integer.parseInt(token));
-                    break;
-                case LONG:
-                    line.add(Long.parseLong(token));
-                    break;
-                case DOUBLE:
-                    if(isGFF && token.contains(".") && token.length() == 1){
-                        line.add(-1.0);
-                        break;
-                    }
-                    line.add(Double.parseDouble(token));
-                    break;
-                case FLOAT:
-                    line.add(Float.parseFloat(token));
-                    break;
-                case BOOLEAN:
-                    line.add(Integer.parseInt(token));
-                    break;
-                case ITEMRGB:
-                    ItemRGB rgb = ItemRGB.parseItemRGB(token);
-                    line.add(rgb);
-                    break;
-                case BLOCKS:
-                    int numBlocks = Integer.parseInt(token);
-                    String blockSizes = s[i+1];
-                    String blockPositions = s[i+2];
-                    List<Block> blocks = parseBlocks(numBlocks,blockPositions,blockSizes);
-                    line.add(blocks);
-                    break;
-                case IGNORE:
-                    break;
-                default:
-                    throw new IOException("Unrecognized field type: " + ft);
-            }
-        }
-
-        return line;
-    }
-
-        /** HEADERS **/
-    /**
-     * FILE TYPE HEADER
-     * @throws IOException
-     */
-    public static void writeFileTypeHeader(DataOutputStream outFile, FileTypeHeader fth) throws IOException {
-        outFile.writeInt(fth.fileType.getMagicNumber());
-        outFile.writeInt(fth.version);
-    }
-
-    /**
-     * FIELDS HEADER
-     * @param fields
-     * @throws IOException
-     */
-    public static void writeFieldsHeader(DataOutputStream outFile, List<FieldType> fields) throws IOException {
-
-        if (fields == null) {
-            outFile.writeInt(0);
-            return;
-        }
-
-        outFile.writeInt(fields.size());
-        
-        for (FieldType ft : fields) {
-            outFile.writeInt(ft.ordinal());
-        }
-    }
-    
 
     public static int getRecordSize(List<Object> record, List<FieldType> fields) {
 
@@ -563,25 +355,6 @@ public class SavantFileFormatterUtils {
         }
     }
 
-    public static void writeString(DataOutputStream out, String s) throws IOException {
-        writeFixedLengthString(out,s,s.length());
-    }
-
-    public static void writeFixedLengthString(DataOutputStream out, String s, int len) throws IOException {
-
-        int pad = len - s.length();
-
-        out.writeInt(len);
-        if (!s.equals("")) { out.writeBytes(s.substring(0, Math.min(s.length(),len))); }
-        while (pad > 0) {
-            out.writeBytes(" ");
-            pad--;
-        }
-
-        //System.out.println("\tWriting " + len + " chars from [" + s + "] padded by " + (len - s.length()) + " = " + (after-before) + " bytes");
-    }
-
-
     public static Map<String, String> splitFile(File file, int columnNumber) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -657,7 +430,7 @@ public class SavantFileFormatterUtils {
      */
     public static void promptUserToFormatFile(URI uri) {
         if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", NetworkUtils.getFileName(uri))) == DialogUtils.YES) {
-            new DataFormatForm(DialogUtils.getMainWindow(), uri, !GenomeController.getInstance().isGenomeLoaded()).setVisible(true);
+            new DataFormatForm(DialogUtils.getMainWindow(), uri).setVisible(true);
         }
     }
 
