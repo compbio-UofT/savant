@@ -107,18 +107,13 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
     public void recordSelected(Record rec) {
         Record varRec = rec instanceof ParticipantRecord ? ((ParticipantRecord)rec).getVariantRecord() : rec;
         if (varRec instanceof AggregateRecord) {
-            Collection<VariantRecord> constituents = ((AggregateRecord)varRec).getConstituents();
-            for (VariantTrack t: VariationController.getInstance().getTracks()) {
-                for (VariantRecord rec2: constituents) {
-                    t.getRenderer().addToSelected(rec2);
-                }
-                t.repaintSelection();
-            }
-        } else {
-            for (VariantTrack t: VariationController.getInstance().getTracks()) {
-                t.getRenderer().addToSelected(varRec);
-                t.repaintSelection();
-            }
+            // While the aggregate may contain several records, they will all correspond to the same position, so
+            // the record comparator will consider them equivalent.
+            varRec = ((AggregateRecord<VariantRecord>)varRec).getConstituents().get(0);
+        }
+        for (VariantTrack t: VariationController.getInstance().getTracks()) {
+            t.getRenderer().addToSelected(varRec);
+            t.repaintSelection();
         }
         VariationController.getInstance().navigateToRecord(varRec);
     }
