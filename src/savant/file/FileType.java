@@ -44,7 +44,8 @@ public enum FileType {
         INTERVAL_VCF(-1),
         INTERVAL_KNOWNGENE(-1),
         INTERVAL_REFGENE(-1),     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
-        INTERVAL_UNKNOWN(-1);     // Some unknown interval format.  Columns must be identified by comment-line at start of file.
+        INTERVAL_UNKNOWN(-1),     // Some unknown interval format.  Columns must be identified by comment-line at start of file.
+        INTERVAL_GTF(-1);     
 
     int magicNumber;
 
@@ -64,6 +65,7 @@ public enum FileType {
                 return DataFormat.GENERIC_INTERVAL;
             case INTERVAL_BED:
             case INTERVAL_GFF:
+            case INTERVAL_GTF:
             case TABIX:
             case INTERVAL_BIGBED:
             case INTERVAL_BED1:      // BED file with a bin column inserted as column 0.

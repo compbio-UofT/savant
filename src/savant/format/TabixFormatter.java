@@ -76,6 +76,9 @@ public class TabixFormatter extends SavantFileFormatter {
             case INTERVAL_GFF:
                 header = ColumnMapping.GFF_HEADER;
                 break;
+            case INTERVAL_GTF:
+                header = ColumnMapping.GTF_HEADER;
+                break;
             case INTERVAL_KNOWNGENE:
                 flags = TabixWriter.TI_FLAG_UCSC;
                 header = ColumnMapping.KNOWNGENE_HEADER;

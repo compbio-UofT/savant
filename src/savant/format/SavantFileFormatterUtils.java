@@ -80,6 +80,9 @@ public class SavantFileFormatterUtils {
         if (extension.equals("gff")) {
             return FileType.INTERVAL_GFF;
         }
+        if (extension.equals("gtf")) {
+            return FileType.INTERVAL_GTF;
+        }
         if (extension.equals("wig") || extension.equals("wigfix") || extension.equals("bedgraph")) {
             return FileType.CONTINUOUS_WIG;
         }
@@ -245,7 +248,6 @@ public class SavantFileFormatterUtils {
                 ir = convertRecordToBEDInterval(record,fields);
                 break;
             case INTERVAL_GFF:
-
                 //TODO: fix... this won't work unless indexes correspond to start / end indicies
                 ir = convertRecordToGenericInterval(record,fields);
                 break;

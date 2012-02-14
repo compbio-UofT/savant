@@ -44,10 +44,11 @@ public final class DataFormatForm extends JDialog {
 
         formatList.setListData(new FormatDef[] {
                                     new FormatDef("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes."),
-                                    new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
+                                    new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF (General Feature Format) is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
+                                    new FormatDef("GTF", true, false, FileType.INTERVAL_GTF , "GTF (Gene Transfer Format) is a refinement to GFF which stores gene and transcript IDs in a standard way."),
                                     new FormatDef("VCF", false, false, FileType.INTERVAL_VCF , "VCF (Variant Call Format) is a format for storing gene sequence variants."),
-                                    new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments."),
-                                    new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.")
+                                    new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data."),
+                                    new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments. This option generates a coverage graph which will represent the BAM data at low resolutions."),
                 });
 
         if (input != null) {
@@ -337,6 +338,7 @@ public final class DataFormatForm extends JDialog {
                         case INTERVAL_BED1:
                         case INTERVAL_GENERIC:
                         case INTERVAL_GFF:
+                        case INTERVAL_GTF:
                         case INTERVAL_PSL:
                         case INTERVAL_VCF:
                         case INTERVAL_KNOWNGENE:

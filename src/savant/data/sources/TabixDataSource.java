@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package savant.data.sources;
 
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -124,6 +123,9 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         } else if (matchesMapping(ColumnMapping.GFF)) {
             columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Group" };
             mapping = ColumnMapping.GFF;
+        } else if (matchesMapping(ColumnMapping.GTF)) {
+            columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Attributes" };
+            mapping = ColumnMapping.GTF;
         } else if (matchesMapping(ColumnMapping.PSL)) {
             columnNames = new String[] { "Matches", "Mismatches", "Matches that are part of repeats", "Number of 'N' bases", "Number of inserts in query", "Number of bases inserted in query", "Number of inserts in target", "Number of bases inserted in target", "Strand", "Query sequence name", "Query sequence size", "Alignment start in query", "Alignment end in query", "Target sequence name", "Target sequence size", "Alignment start in target", "Alignment end in target", null, null, null };
             mapping = ColumnMapping.PSL;

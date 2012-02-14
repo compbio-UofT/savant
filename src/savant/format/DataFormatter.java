@@ -136,6 +136,7 @@ public class DataFormatter {
                 case INTERVAL_BED1:
                 case INTERVAL_GENERIC:
                 case INTERVAL_GFF:
+                case INTERVAL_GTF:
                 case INTERVAL_PSL:
                 case INTERVAL_VCF:
                 case INTERVAL_KNOWNGENE:

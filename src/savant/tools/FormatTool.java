@@ -88,6 +88,7 @@ public class FormatTool {
                     case INTERVAL_BED:
                     case INTERVAL_BED1:
                     case INTERVAL_GFF:
+                    case INTERVAL_GTF:
                     case INTERVAL_PSL:
                     case INTERVAL_VCF:
                     case INTERVAL_KNOWNGENE:
@@ -139,6 +140,9 @@ public class FormatTool {
         if (s.equals("gff")) {
             return FileType.INTERVAL_GFF;
         }
+        if (s.equals("gtf")) {
+            return FileType.INTERVAL_GTF;
+        }
         if (s.equals("bam")) {
             return FileType.INTERVAL_BAM;
         }
@@ -173,6 +177,7 @@ public class FormatTool {
         switch (ft) {
             case SEQUENCE_FASTA:
             case INTERVAL_GFF:
+            case INTERVAL_GTF:
             case INTERVAL_BAM:
             case CONTINUOUS_WIG:
                 return true;

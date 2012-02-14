@@ -33,6 +33,7 @@ public class ColumnMapping {
     public static final String KNOWNGENE_HEADER = "name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tproteinID\talignID";
     public static final String REFGENE_HEADER = "bin\tname\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
     public static final String GFF_HEADER = "seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tgroup";
+    public static final String GTF_HEADER = "seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tattributes";
     public static final String PSL_HEADER = "matches\tmisMatches\trepMatches\tnCount\tqNumInsert\tqBaseInsert\ttNumInsert\ttBaseInsert\tstrand\tqName\tqSize\tqStart\tqEnd\ttName\ttSize\ttStart\ttEnd\tblockCount\tblockSizes\tqStarts\ttStarts";
     public static final String VCF_HEADER = "CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
 
@@ -45,8 +46,11 @@ public class ColumnMapping {
     /** Set of columns observed in RefSeq genes from UCSC FAQ.  Similar to knownGene, but adds a bin column, and the name2 column is different. */
     public static final ColumnMapping REFSEQ = inferMapping(REFGENE_HEADER, false);
 
-    /** Set of columns for GFF and GTF files.  The only difference is that in GTF the final column is called "attributes" rather than "group". */
+    /** Set of columns for GFF files. */
     public static final ColumnMapping GFF = inferMapping(GFF_HEADER, true);
+
+    /** Set of columns for GTF files.  Like GFF, but the final column is called "attributes" rather than "group". */
+    public static final ColumnMapping GTF = inferMapping(GTF_HEADER, true);
 
     /** Set of columns for PSL files.  Not sure if this will work quite right. */
     public static final ColumnMapping PSL = inferMapping(PSL_HEADER, false);
