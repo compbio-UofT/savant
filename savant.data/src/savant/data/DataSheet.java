@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import savant.api.adapter.TrackAdapter;
-import savant.api.event.LocationChangedEvent;
+import savant.api.data.Record;
+import savant.api.event.LocationChangeCompletedEvent;
 import savant.api.event.SelectionChangedEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
-import savant.api.util.NavigationUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
-import savant.api.data.Record;
+import savant.api.util.NavigationUtils;
 
 
 /**
@@ -172,9 +172,9 @@ public class DataSheet {
         jtb.setFloatable(false);
         panel.add(jtb);
 
-        NavigationUtils.addLocationChangedListener(new Listener<LocationChangedEvent>() {
+        NavigationUtils.addLocationChangeCompletedListener(new Listener<LocationChangeCompletedEvent>() {
             @Override
-            public void handleEvent(LocationChangedEvent event) {
+            public void handleEvent(LocationChangeCompletedEvent event) {
                 if (autoUpdate) {
                     refreshData();
                     refreshSelection();
@@ -288,6 +288,7 @@ public class DataSheet {
                     break;
                 default:
                     defaultName = "Export.txt";
+                    break;
             }
             File selectedFile = DialogUtils.chooseFileForSave("Export Data", defaultName);
 
