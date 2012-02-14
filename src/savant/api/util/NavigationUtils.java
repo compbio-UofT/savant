@@ -15,11 +15,16 @@
  */
 package savant.api.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.event.LocationChangedEvent;
+import savant.api.event.LocationChangeCompletedEvent;
+import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
+import savant.controller.event.GraphPaneEvent;
 import savant.util.MiscUtils;
 import savant.util.Range;
 
@@ -32,6 +37,7 @@ import savant.util.Range;
 public class NavigationUtils {
 
     private static LocationController lc = LocationController.getInstance();
+    private static List<Listener<LocationChangeCompletedEvent>> completionListeners = new ArrayList<Listener<LocationChangeCompletedEvent>>();
 
     /**
      * Get the name of the current reference.
@@ -114,6 +120,24 @@ public class NavigationUtils {
     }
 
     /**
+     * Subscribe a listener to be notified when the range has finished changing.
+     *
+     * @param l the listener to subscribe
+     */
+    public static synchronized void addLocationChangeCompletedListener(Listener<LocationChangeCompletedEvent> l) {
+        completionListeners.add(l);
+    }
+
+    /**
+     * Unsubscribe a listener from being notified when the range has finished changing.
+     *
+     * @param l the listener to unsubscribe
+     */
+    public static synchronized void removeLocationChangeCompletedListener(Listener<LocationChangeCompletedEvent> l) {
+        completionListeners.remove(l);
+    }
+
+    /**
      * Given a string like "1" or "chr1", return it in a form which corresponds to whatever is being
      * used by the current genome.
      * @param orig the string to be homogenised
@@ -130,5 +154,11 @@ public class NavigationUtils {
             // Not good.
         }
         return orig;
+    }
+    
+    public static void fireLocationChangeCompletedEvent() {
+        for (Listener l: completionListeners) {
+            l.handleEvent(new LocationChangeCompletedEvent());
+        }
     }
 }

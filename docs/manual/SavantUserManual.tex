@@ -584,6 +584,7 @@ The UCSC and SQL plugins are both examples of data source plugins.
 Savant 2 provides improved support for viewing variant data in VCF files.  In addition to being able to open Tabix-formatted VCF files as variant tracks, Savant 2 also provides a Variation tab at the right of the user interface (next to the Bookmarks tab).  This tab provides a variety of ways of exploring variation data, as described in \S\ref{VariationTab}.
 
 \section{Variant Tracks}
+\label{VariantTracks}
 Variant data can be loaded into Savant using the \textit{Load Track from XXX\ldots} commands.  Loading a VCF file in this fashion will create a new track in the main display area.  As with other data types, the VCF file must first be formatted and indexed as a Tabix file in order to be usable (see \S\ref{UsingFormatDialog}).
 
 SNPs are displayed with a vertical line in the colour of the alternate (non-reference) base.  Participants drawn from the VCF file are arranged vertically.  A gap in the vertical line indicates that a particular participant lacks that variant.  If a variant is heterozygous for a participant, that portion of the line will be drawn using a paler version of the associated colour.
@@ -595,7 +596,9 @@ Insertions and deletions are displayed in the same manner as SNPs, with a single
 
 The Variation module groups together four different ways of viewing aggregated variant data.  While variant tracks contain data only from a single VCF file, the visualisations on the Variation module comprise data from all currently-open variant tracks.
 
-At the top of the variation module is a field for entering the desired visible range.  The variation module maintains its own visible range, which is distinct from the visible range for the main track display area.  The variation module also has its own Zoom In and Zoom Out buttons to alter its visible range.
+The variation module maintains its own visible range, which is distinct from the visible range for the main track display area.  Changing the range in the variation module has no effect on the main range.  The reverse is not true, since if you move the main display range outside the variation module's range (e.g. by shifting to another chromosome), the variation module will update its range to ``follow'' your navigation.
+
+At the top of the variation module is a field for entering the module's desired visible range.  The variation module also has its own Zoom In and Zoom Out buttons to alter its visible range.
 
 At the top right of the variation module is the \textit{Controls} button.  This is used to select which participants in a dataset are considered to be controls (as opposed to cases).  When graphing allele frequency, the control and case participants are graphed separately.
 
@@ -605,11 +608,17 @@ The variation table provides a spreadsheet-like summary of all variants in the v
 
 \subsection{Variation Map}
 
-The variation map provides a graphical overview of all variants in the variation module's display range.  SNPs and indels are presented with all their participants
+The variation map provides a graphical overview of all variants in the variation module's display range.  Variant records are arranged vertically by position, but the scale is non-linear since the gaps between variants are squeezed down.  Participants are laid out horizontally, using the same colour scheme as described for variant tracks (\S\ref{VariantTracks})
 
 \subsection{Allele Frequency Plot}
 
+The allele frequency plot graphs frequencies of each allele for each variant location.  Like the variation map, the allele frequency display is arranged vertically by position, with a non-linear scale.
+
+If controls have been specified, allele frequencies for controls will be displayed on the left of the central axis, while case allele frequencies will be displayed to the right of the central axis.
+
 \subsection{Linkage Disequilibrium Plot}
+
+The linkage disequilibrium plot graphs LD values calculated using D$^\prime$ or r$^2$.  Variant locations are used as the loci for the LD calculation (i.e. there is no attempt to segregate ranges into groups).
 
 \chapter{Preferences}
 \label{Preferences}

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.GraphPaneAdapter;
+import savant.api.util.NavigationUtils;
 import savant.controller.event.GraphPaneEvent;
 import savant.util.Controller;
 import savant.util.Range;
@@ -81,6 +82,9 @@ public class GraphPaneController extends Controller {
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis * 0.001F;
             fireEvent(new GraphPaneEvent(String.format("took %.3f s", elapsedTimeSec)));
+            
+            // For the benefit of plugins, fire a LocationChangeCompletedEvent.
+            NavigationUtils.fireLocationChangeCompletedEvent();
         }
     }
 

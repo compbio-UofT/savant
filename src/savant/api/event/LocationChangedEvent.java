@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import savant.util.Range;
 
 /**
  * Event which is fired when the viewable reference and/or range is changed.
+ * In general, code will want to listen to LocationChangedEvent or LocationChangeCompletedEvent,
+ * but not to both.
  *
  * @author mfiume, tarkvara, AndrewBrook
  */
