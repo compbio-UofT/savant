@@ -45,7 +45,7 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
 
     //DataFormatter dataFormatter;
     Thread formatThread;
-    DataFormatter dataFormatter;
+    final DataFormatter dataFormatter;
 
     /** Creates new form FormatFrame */
     public FormatProgressDialog(Window parent, DataFormatter formatter) {
@@ -56,7 +56,6 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
 
         label_src.setText(shorten(dataFormatter.getInputFile().getPath()));
         label_dest.setText(shorten(dataFormatter.getOutputFile().getPath()));
-        //this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
         setSubtaskProgress(0);
@@ -70,7 +69,6 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
     }
 
     int overallprogress_at;
-    //int overallprogress_total;
 
     private void setTitle() {
         setTitle("("  + subtaskprogress + "% done current task" + /*"/" + overallprogress_total +*/ ") Formatting " + dataFormatter.getInputFile());
@@ -83,8 +81,8 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
             //this.progress_current.setIndeterminate(true);
         } else if (p >= 0 && p <= 100) {
             subtaskprogress = p;
-            this.progress_current.setIndeterminate(false);
-            this.progress_current.setValue(p);
+            progress_current.setIndeterminate(false);
+            progress_current.setValue(p);
             setTitle();
         }
     }
@@ -94,28 +92,18 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
         this.label_overallstatus.setText("Format complete.");
     }
 
+    void setFormatThread(Thread t) {
+        formatThread = t;
+    }
+
     public final void setOverallProgress(int at) {
         if (at != overallprogress_at) {
             setSubtaskProgress(0);
         }
         overallprogress_at = at;
         setTitle();
-        //this.label_overallstatus.setText("Status: ");
-        //this.label_overallstatus.setText("Performing task " + at + ":");
     }
 
-
-    private void cancelTask() {
-        int result =JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to cancel?",
-                "Confirm cancel",
-                JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) {
-            formatThread.interrupt();
-            this.dispose();
-        }
-    }
 
     @Override
     public void taskProgressUpdate(Integer progress, String status) {
@@ -125,7 +113,7 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
 
     @Override
     public void incrementOverallProgress() {
-        this.setOverallProgress(overallprogress_at+1);
+        setOverallProgress(overallprogress_at+1);
     }
 
     /** This method is called from within the constructor to
@@ -223,7 +211,10 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        cancelTask();
+        if (DialogUtils.askYesNo("Confirm Cancel", "Are you sure you want to cancel?") == DialogUtils.YES) {
+            formatThread.interrupt();
+            dispose();
+        }
 }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -241,9 +232,8 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
 
         if (wasFormatSuccessful) {
             if (GenomeController.getInstance().isGenomeLoaded()) {
-                int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
                 setVisible(false);
-                if (result == JOptionPane.YES_OPTION) {
+                if (DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
                     try {
                         FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath(), null, null);
                     } catch (Exception ex) {

@@ -36,11 +36,7 @@
                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" alignment="0" pref="483" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="zeroBasedCheck" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="tempOutputCheck" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="zeroBasedCheck" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="outputField" pref="397" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -72,10 +68,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane2" pref="103" max="32767" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="zeroBasedCheck" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="tempOutputCheck" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="zeroBasedCheck" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -213,18 +206,6 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outputFieldActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="tempOutputCheck">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Store output temporarily"/>
-        <Property name="toolTipText" type="java.lang.String" value="Store the formatted file just for this session"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tempOutputCheckActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JCheckBox" name="zeroBasedCheck">
       <Properties>
@@ -232,9 +213,6 @@
         <Property name="toolTipText" type="java.lang.String" value="Checked for 1-based; unchecked for 0-based."/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zeroBasedCheckActionPerformed"/>
-      </Events>
     </Component>
   </SubComponents>
 </Form>

@@ -32,6 +32,7 @@ import savant.format.SavantFileFormatterUtils;
  * @author mfiume, tarkvara
  */
 public final class DataFormatForm extends JDialog {
+    private boolean terminated = false;
 
     /**
      * Construct new data format form.
@@ -58,8 +59,6 @@ public final class DataFormatForm extends JDialog {
             }
         }
 
-        // This feature is temporarily disabled.
-        tempOutputCheck.setVisible(false);
         setLocationRelativeTo(parent);
 
         validateReadyToFormat();
@@ -87,7 +86,6 @@ public final class DataFormatForm extends JDialog {
         formatButton = new javax.swing.JButton();
         javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
         outputField = new javax.swing.JTextField();
-        tempOutputCheck = new javax.swing.JCheckBox();
         zeroBasedCheck = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -146,28 +144,10 @@ public final class DataFormatForm extends JDialog {
 
         outputField.setEditable(false);
         outputField.setDisabledTextColor(new java.awt.Color(255, 255, 255));
-        outputField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                outputFieldActionPerformed(evt);
-            }
-        });
-
-        tempOutputCheck.setText("Store output temporarily");
-        tempOutputCheck.setToolTipText("Store the formatted file just for this session");
-        tempOutputCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tempOutputCheckActionPerformed(evt);
-            }
-        });
 
         zeroBasedCheck.setText("Input file is 0-based");
         zeroBasedCheck.setToolTipText("Checked for 1-based; unchecked for 0-based.");
         zeroBasedCheck.setEnabled(false);
-        zeroBasedCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                zeroBasedCheckActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -185,10 +165,7 @@ public final class DataFormatForm extends JDialog {
                     .addComponent(jLabel2)
                     .addComponent(jLabel4)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(zeroBasedCheck)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tempOutputCheck))
+                    .addComponent(zeroBasedCheck)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(outputField, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -215,9 +192,7 @@ public final class DataFormatForm extends JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(zeroBasedCheck)
-                    .addComponent(tempOutputCheck))
+                .addComponent(zeroBasedCheck)
                 .addGap(16, 16, 16)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -245,12 +220,6 @@ public final class DataFormatForm extends JDialog {
         validateReadyToFormat();
     }//GEN-LAST:event_inputButtonActionPerformed
 
-    private void tempOutputCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tempOutputCheckActionPerformed
-        
-        setOutputPath();
-        
-    }//GEN-LAST:event_tempOutputCheckActionPerformed
-
 
     private void formatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatButtonActionPerformed
 
@@ -262,29 +231,26 @@ public final class DataFormatForm extends JDialog {
         final DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
 
         final FormatProgressDialog fpd = new FormatProgressDialog(this, df);
-        fpd.setLocationRelativeTo(this);
         new Thread("Formatter") {
             @Override
             public void run() {
                 try {
+                    fpd.setFormatThread(this);
                     df.format(fpd);
+                    terminated = true;
                     fpd.notifyOfTermination(true, null);
                 } catch (Throwable ex) {
+                    terminated = true;
                     fpd.notifyOfTermination(false, ex);
                 }
             }
         }.start();
-        fpd.setVisible(true);
-        dispose();
+        fpd.setLocationRelativeTo(this);
+        if (!terminated) {
+            fpd.setVisible(true);
+        }
+        setVisible(false);
     }//GEN-LAST:event_formatButtonActionPerformed
-
-    private void zeroBasedCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zeroBasedCheckActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_zeroBasedCheckActionPerformed
-
-    private void outputFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outputFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_outputFieldActionPerformed
 
     private void formatListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_formatListValueChanged
         if (!evt.getValueIsAdjusting()) {
@@ -317,7 +283,6 @@ public final class DataFormatForm extends JDialog {
     private javax.swing.JTextField inputField;
     private javax.swing.JButton outputButton;
     private javax.swing.JTextField outputField;
-    private javax.swing.JCheckBox tempOutputCheck;
     private javax.swing.JCheckBox zeroBasedCheck;
     // End of variables declaration//GEN-END:variables
 
@@ -338,9 +303,6 @@ public final class DataFormatForm extends JDialog {
                 } else {
                     String outputPath = inputPath;
                     if (outputPath.equals(""))
-                    if (tempOutputCheck.isSelected()) {
-                        outputPath += ".tmp";
-                    }
                     switch (ft) {
                         case CONTINUOUS_WIG:
                             outputPath += ".tdf";
