@@ -107,8 +107,7 @@ public class FormatTool {
             }
             try {
                 DataFormatter df = new DataFormatter(inFile, outFile, ft, oneBased);
-                df.addProgressListener(new CommandLineProgressListener());
-                df.format();
+                df.format(new CommandLineProgressListener());
             } catch (InterruptedException ix) {
                 System.err.println("Formatting interrupted.");
             } catch (IOException iox) {

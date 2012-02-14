@@ -57,8 +57,8 @@ public class TabixFormatter extends SavantFileFormatter {
      * @param inFile input text file
      * @param outFile output .gz file (index will append .tbi to the name)
      */
-    public TabixFormatter(File inFile, File outFile, FileType inputFileType) throws IOException {
-        super(inFile, outFile);
+    public TabixFormatter(File inFile, File outFile, FileType inputFileType, FormatProgressListener listener) throws IOException {
+        super(inFile, outFile, listener);
 
         int flags = 0;
         switch (inputFileType) {
@@ -213,7 +213,6 @@ public class TabixFormatter extends SavantFileFormatter {
             }
             setSubtaskProgress(100);
         } catch (Exception x) {
-            LOG.error("Unable to create tabix index.", x);
             throw new IOException(x);
         }
     }

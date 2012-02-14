@@ -51,8 +51,8 @@ public class TDFFormatter extends SavantFileFormatter {
 
     protected int lineCount;
 
-    public TDFFormatter(File inFile, File outFile) {
-        super(inFile, outFile);
+    public TDFFormatter(File inFile, File outFile, FormatProgressListener listener) {
+        super(inFile, outFile, listener);
     }
 
     @Override

@@ -259,12 +259,23 @@ public final class DataFormatForm extends JDialog {
         FileType ft = ((FormatDef)formatList.getSelectedValue()).type;
         boolean isInputOneBased = !zeroBasedCheck.isSelected();
         
-        DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
-        FormatFrame fpd = new FormatFrame(this, df);
-        fpd.setLocationRelativeTo(this);
-        fpd.setVisible(true);
-        this.dispose();
+        final DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
 
+        final FormatProgressDialog fpd = new FormatProgressDialog(this, df);
+        fpd.setLocationRelativeTo(this);
+        new Thread("Formatter") {
+            @Override
+            public void run() {
+                try {
+                    df.format(fpd);
+                    fpd.notifyOfTermination(true, null);
+                } catch (Throwable ex) {
+                    fpd.notifyOfTermination(false, ex);
+                }
+            }
+        }.start();
+        fpd.setVisible(true);
+        dispose();
     }//GEN-LAST:event_formatButtonActionPerformed
 
     private void zeroBasedCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zeroBasedCheckActionPerformed

@@ -19,6 +19,7 @@ package savant.api.util;
 import java.io.File;
 import savant.file.FileType;
 import savant.format.DataFormatter;
+import savant.format.FormatProgressListener;
 
 
 /**
@@ -40,7 +41,14 @@ public class FormatUtils {
      */
     public static boolean formatFile(File inFile, File outFile, FileType fileType, boolean isInputOneBased) {
         try {
-            new DataFormatter(inFile, outFile, fileType, isInputOneBased).format();
+            new DataFormatter(inFile, outFile, fileType, isInputOneBased).format(new FormatProgressListener() {
+
+                @Override
+                public void taskProgressUpdate(Integer progress, String status) {}
+
+                @Override
+                public void incrementOverallProgress() {}
+            });
         } catch (Exception ex) {
             return false;
         }

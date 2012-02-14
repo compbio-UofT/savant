@@ -62,11 +62,6 @@ public class DataFormatter {
      */
     private FileType inputFileType;
 
-    // property change support to make progress changes visible to UI
-    // FIXME: figure out why PropertyChangeSupport does not work. Then get rid of FormatProgressListener and related stuff.
-    // private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-    private List<FormatProgressListener> progressListeners = new ArrayList<FormatProgressListener>();
-
     // used to generalize 0 vs 1-based input files
     boolean isOneBased = true; // TRUE if 1-based; FALSE if 0-based
 
@@ -113,15 +108,14 @@ public class DataFormatter {
 
     /**
      * Format the input file path, storing the result in the output file path
-     * @return whether or not the format was successful
      * @throws InterruptedException
      * @throws IOException
      */
-    public boolean format() throws InterruptedException, IOException, SavantFileFormattingException {
+    public void format(FormatProgressListener listener) throws InterruptedException, IOException, SavantFileFormattingException {
 
         if (inputFileType == FileType.INTERVAL_BAM) {
             // Create a coverage file from a BAM file.
-            runFormatter(new BAMToCoverage(inFile));
+            new BAMToCoverage(inFile, listener).format();
         } else {
             // format files with Savant header
 
@@ -142,16 +136,15 @@ public class DataFormatter {
                 case INTERVAL_KNOWNGENE:
                 case INTERVAL_REFGENE:
                 case INTERVAL_UNKNOWN:
-                    runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
+                    new TabixFormatter(inFile, outFile, inputFileType, listener).format();
                     break;
                 case CONTINUOUS_WIG:
-                    runFormatter(new TDFFormatter(inFile, outFile));
+                    new TDFFormatter(inFile, outFile, listener).format();
                     break;
                 default:
-                    return false;
+                    break;
             }
         }
-        return true;
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
@@ -352,22 +345,19 @@ public class DataFormatter {
         }
     }
 
-    public void addProgressListener(FormatProgressListener listener) {
-        progressListeners.add(listener);
-    }
-
-    public void removeProgressListener(FormatProgressListener listener) {
-        progressListeners.remove(listener);
-    }
-
-    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException {
-        for (FormatProgressListener listener : progressListeners) {
-            ff.addProgressListener(listener);
-        }
-        ff.format();
-
-        for (FormatProgressListener listener : progressListeners) {
-            ff.removeProgressListener(listener);
+/*    @Override
+    public void run() {
+        try {
+            format();
+            notifyFormatFrameOfTermination(true, null);
+        } catch (Throwable ex) {
+            notifyFormatFrameOfTermination(false, ex);
         }
     }
+    
+    private void notifyFormatFrameOfTermination(boolean wasFormatSuccessful, Throwable e) {
+        if (ff != null) {
+            ff.notifyOfTermination(wasFormatSuccessful, e);
+        }
+    }*/
 }

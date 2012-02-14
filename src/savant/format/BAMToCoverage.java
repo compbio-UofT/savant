@@ -44,8 +44,8 @@ public class BAMToCoverage extends TDFFormatter {
     private static final int DEFAULT_EXT_FACTOR = 0;
     private static final int DEFAULT_STRAND_OPTION = -1;
 
-    public BAMToCoverage(File inFile) {
-        super(inFile, new File(inFile.getAbsolutePath() + ".cov.tdf"));
+    public BAMToCoverage(File inFile, FormatProgressListener listener) {
+        super(inFile, new File(inFile.getAbsolutePath() + ".cov.tdf"), listener);
     }
 
     @Override
@@ -99,8 +99,7 @@ public class BAMToCoverage extends TDFFormatter {
         String path = inFile.getAbsolutePath();
         String pathWithoutExtension;
         int lastIndex = path.lastIndexOf(".bam");
-        if(lastIndex == -1){
-            LOG.error("BAM files should end with the \".bam\" file extension.");
+        if (lastIndex == -1) {
             throw new IOException("BAM files should end with the \".bam\" file extension.");
         } else {
             pathWithoutExtension = path.substring(0, lastIndex);

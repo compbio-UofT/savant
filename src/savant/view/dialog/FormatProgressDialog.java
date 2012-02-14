@@ -30,7 +30,6 @@ import savant.api.util.DialogUtils;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.format.DataFormatter;
-import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
 import savant.format.SavantFileFormattingException;
 import savant.util.MiscUtils;
@@ -42,24 +41,18 @@ import savant.view.icon.SavantIconFactory;
  *
  * @author mfiume
  */
-public class FormatFrame extends JDialog implements FormatProgressListener {
+public class FormatProgressDialog extends JDialog implements FormatProgressListener {
 
     //DataFormatter dataFormatter;
     Thread formatThread;
     DataFormatter dataFormatter;
 
     /** Creates new form FormatFrame */
-    public FormatFrame(Window parent, DataFormatter formatter) {
+    public FormatProgressDialog(Window parent, DataFormatter formatter) {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         dataFormatter = formatter;
         setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
-
-        DataFormatterThread dft = new DataFormatterThread(formatter);
-        dft.setFormatFrame(this);
-        formatThread = new Thread(dft);
-
-        dataFormatter.addProgressListener(this);
 
         label_src.setText(shorten(dataFormatter.getInputFile().getPath()));
         label_dest.setText(shorten(dataFormatter.getOutputFile().getPath()));
@@ -68,15 +61,6 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
         setSubtaskStatus("");
         setSubtaskProgress(0);
         setOverallProgress(0);
-        //setOverallProgress(0,1);
-
-        formatThread.start();
-    }
-
-    @Override
-    public void dispose() {
-        dataFormatter.removeProgressListener(this);
-        super.dispose();
     }
 
     public final void setSubtaskStatus(String msg) {
@@ -201,21 +185,15 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(label_src, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(label_dest, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
+                            .addComponent(label_dest, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(label_overallstatus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_status, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(progress_current, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE))
-                        .addContainerGap())))
+                        .addComponent(label_status, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(progress_current, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -259,7 +237,7 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
     private javax.swing.JProgressBar progress_current;
     // End of variables declaration//GEN-END:variables
 
-    public void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
+    void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
 
         if (wasFormatSuccessful) {
             if (GenomeController.getInstance().isGenomeLoaded()) {
@@ -332,6 +310,4 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
             return string;
         }
     }
-
-
 }

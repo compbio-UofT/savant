@@ -17,44 +17,23 @@
 package savant.format;
 
 import java.io.*;
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import savant.file.FileType;
-import savant.file.FieldType;
-
 
 public abstract class SavantFileFormatter {
-    protected static final Log LOG = LogFactory.getLog(SavantFileFormatter.class);
 
-    /**
-     * Input file.  For now, this is usually a file URI.
-     */
-    protected File inFile;
+    /** Input file. */
+    protected final File inFile;
 
-    /**
-     * Output file.
-     */
-    protected File outFile;
+    /** Output file. */
+    protected final File outFile;
 
-    protected BufferedReader inFileReader;  // input file reader
+    protected BufferedReader inFileReader;
 
-    /* PROGRESS */
-
-    // UI ...
-    protected List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
+    private final FormatProgressListener progressListener;
 
     // non-UI ...
     // variables to keep track of progress processing the input file(s)
     protected long totalBytes;
     protected long byteCount;
-
-    // TODO: remove, or make cleaner
-    // stuff needed by IO; mandated by SavantFileFormatterUtils which we're depending on
-    protected List<FieldType> fields;
-    protected List<Object> modifiers;
 
     private Integer makePercentage(Integer progress) {
         if (progress == null || progress < 0 || progress > 100) { return null; }
@@ -64,47 +43,28 @@ public abstract class SavantFileFormatter {
     }
 
     public void setSubtaskProgress(int progress) {
-        this.setSubtaskProgressAndStatus(progress,null);
+        setSubtaskProgressAndStatus(progress, null);
     }
 
     public void setSubtaskStatus(String status) {
-        this.setSubtaskProgressAndStatus(null,status);
+        setSubtaskProgressAndStatus(null, status);
     }
     
     public void incrementOverallProgress() {
-        fireIncrementOverallProgress();
+        progressListener.incrementOverallProgress();
     }
 
     public abstract void format() throws InterruptedException, IOException;
 
     public void setSubtaskProgressAndStatus(Integer progress, String status) {
-        fireStatusProgressUpdate(makePercentage(progress),status);
+        progressListener.taskProgressUpdate(makePercentage(progress), status);
     }
 
-    public void addProgressListener(FormatProgressListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeProgressListener(FormatProgressListener listener) {
-        listeners.remove(listener);
-    }
-
-    protected void fireStatusProgressUpdate(Integer progress, String status) {
-        for (FormatProgressListener listener : listeners) {
-            listener.taskProgressUpdate(progress,status);
-        }
-    }
-
-    protected void fireIncrementOverallProgress() {
-        for (FormatProgressListener listener : listeners) {
-            listener.incrementOverallProgress();
-        }
-    }
-
-    public SavantFileFormatter(File inFile, File outFile) {
+    public SavantFileFormatter(File inFile, File outFile, FormatProgressListener listener) {
         
         this.inFile = inFile;
         this.outFile = outFile;
+        progressListener = listener;
     }
 
 
@@ -118,7 +78,6 @@ public abstract class SavantFileFormatter {
     }
 
     public int getProgressAsInteger(float current, float total) {
-        return (int) Math.round((current*100/total));
+        return (int)Math.round((current * 100 / total));
     }
-
 }
