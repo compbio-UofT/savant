@@ -18,6 +18,8 @@ package savant.view.variation.swing;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.SwingUtilities;
 
 import savant.api.adapter.PopupHostingAdapter;
@@ -30,6 +32,7 @@ import savant.selection.PopupPanel;
 import savant.util.AggregateRecord;
 import savant.util.Hoverer;
 import savant.view.tracks.VariantTrack;
+import savant.view.variation.LDRecord;
 import savant.view.variation.ParticipantRecord;
 import savant.view.variation.VariationController;
 
@@ -105,13 +108,21 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
     @Override
     public void recordSelected(Record rec) {
         Record varRec = rec instanceof ParticipantRecord ? ((ParticipantRecord)rec).getVariantRecord() : rec;
-        if (varRec instanceof AggregateRecord) {
+        List<VariantRecord> selection = new ArrayList<VariantRecord>();
+        if (varRec instanceof LDRecord) {
+            // When selecting on the LD plot, we want to select both the subrecords.
+            selection.addAll(((AggregateRecord<VariantRecord>)varRec).getConstituents());
+        } else if (varRec instanceof AggregateRecord) {
             // While the aggregate may contain several records, they will all correspond to the same position, so
             // the record comparator will consider them equivalent.
-            varRec = ((AggregateRecord<VariantRecord>)varRec).getConstituents().get(0);
+            selection.add(((AggregateRecord<VariantRecord>)varRec).getConstituents().get(0));
+        } else {
+            selection.add((VariantRecord)varRec);
         }
         for (VariantTrack t: VariationController.getInstance().getTracks()) {
-            t.getRenderer().addToSelected(varRec);
+            for (VariantRecord selRec: selection) {
+                t.getRenderer().addToSelected(selRec);
+            }
             t.repaintSelection();
         }
         VariationController.getInstance().navigateToRecord(varRec);
