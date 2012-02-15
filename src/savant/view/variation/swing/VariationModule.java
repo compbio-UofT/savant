@@ -27,13 +27,17 @@ import java.util.List;
 import javax.swing.*;
 
 import savant.api.data.VariantRecord;
+import savant.api.event.SelectionChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
+import savant.api.util.SelectionUtils;
 import savant.controller.LocationController;
 import savant.settings.TrackResolutionSettings;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
+import savant.util.swing.RecordTable;
 import savant.view.icon.SavantIconFactory;
 
 
@@ -133,7 +137,7 @@ public class VariationModule extends JPanel {
         tools.add(controlsButton);
         
         tabs = new JTabbedPane();
-        table = new JTable(new VariantTableModel(null));
+        table = new RecordTable(new VariantTableModel(null));
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent me) {
@@ -304,6 +308,5 @@ public class VariationModule extends JPanel {
         } else {
             showMessage("No data in range");
         }
-
     }
 }

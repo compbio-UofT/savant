@@ -16,17 +16,18 @@
 package savant.view.variation.swing;
 
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang3.StringUtils;
+
 import savant.api.data.VariantRecord;
+import savant.util.swing.RecordTableModel;
 
 /**
  * Dirt-simple model class for populating a table of variant records.
  *
  * @author tarkvara
  */
-class VariantTableModel extends AbstractTableModel {
+class VariantTableModel extends RecordTableModel<VariantRecord> {
 
     private static final Class[] COLUMN_CLASSES = { String.class, String.class, Integer.class, String.class, String.class };
     private static final String[] COLUMN_NAMES = { "Name", "Type", "Position", "Ref", "Alt" };
@@ -83,5 +84,10 @@ class VariantTableModel extends AbstractTableModel {
     @Override
     public int getColumnCount() {
         return COLUMN_NAMES.length;
+    }
+
+    @Override
+    public VariantRecord getRecord(int row) {
+        return data != null ? data.get(row) : null;
     }
 }

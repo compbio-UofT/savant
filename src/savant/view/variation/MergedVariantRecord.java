@@ -162,7 +162,8 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     @Override
     public int compareTo(Object t) {
         VariantRecord that = (VariantRecord)t;
-        return new CompareToBuilder().append(getPosition(), that.getPosition()).
+        return new CompareToBuilder().append(getReference(), that.getReference()).
+                                      append(getPosition(), that.getPosition()).
                                       append(getRefBases(), that.getRefBases()).
                                       append(getAltAlleles(), that.getAltAlleles()).toComparison();
     }
@@ -171,7 +172,7 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     public boolean equals(Object t) {
         if (t instanceof VariantRecord) {
             VariantRecord that = (VariantRecord)t;
-            return new EqualsBuilder().appendSuper(super.equals(that)).
+            return new EqualsBuilder().append(getReference(), that.getReference()).
                                        append(getPosition(), that.getPosition()).
                                        append(getRefBases(), that.getRefBases()).
                                        append(getAltAlleles(), that.getAltAlleles()).isEquals();
@@ -181,11 +182,12 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().appendSuper(super.hashCode()).
+        return new HashCodeBuilder().append(getReference()).
                                      append(getPosition()).
                                      append(getRefBases()).
                                      append(getAltAlleles()).toHashCode();
     }
+
 
     @Override
     public List<VariantRecord> getConstituents() {

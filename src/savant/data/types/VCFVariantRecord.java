@@ -98,7 +98,8 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     @Override
     public int compareTo(Object t) {
         VariantRecord that = (VariantRecord)t;
-        return new CompareToBuilder().append(getPosition(), that.getPosition()).
+        return new CompareToBuilder().append(getReference(), that.getReference()).
+                                      append(getPosition(), that.getPosition()).
                                       append(getRefBases(), that.getRefBases()).
                                       append(getAltAlleles(), that.getAltAlleles()).toComparison();
     }
@@ -107,7 +108,8 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     public boolean equals(Object t) {
         if (t instanceof VariantRecord) {
             VariantRecord that = (VariantRecord)t;
-            return new EqualsBuilder().append(getPosition(), that.getPosition()).
+            return new EqualsBuilder().append(getReference(), that.getReference()).
+                                       append(getPosition(), that.getPosition()).
                                        append(getRefBases(), that.getRefBases()).
                                        append(getAltAlleles(), that.getAltAlleles()).isEquals();
         }
@@ -116,7 +118,8 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(getPosition()).
+        return new HashCodeBuilder().append(getReference()).
+                                     append(getPosition()).
                                      append(getRefBases()).
                                      append(getAltAlleles()).toHashCode();
     }
@@ -126,6 +129,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         return reference;
     }
 
+    @Override
     public int getPosition() {
         return interval.getStart();
     }

@@ -106,6 +106,17 @@ public class PaddedVariantRecord implements VariantRecord, AggregateRecord<Varia
     }
 
     @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object t) {
+        return original.equals(t);
+    }
+
+    @Override
+    public int hashCode() {
+        return original.hashCode();
+    }
+
+    @Override
     public List<VariantRecord> getConstituents() {
         List<VariantRecord> result = new ArrayList<VariantRecord>();
         if (original instanceof AggregateRecord) {
