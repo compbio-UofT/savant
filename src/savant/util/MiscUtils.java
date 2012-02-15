@@ -284,6 +284,14 @@ public class MiscUtils {
             return "Array index out of bounds: " + t.getMessage();
         } else if (t instanceof OutOfMemoryError) {
             return "Out of memory: " + t.getMessage();
+        } else if (t instanceof NumberFormatException) {
+            String msg = t.getMessage();
+            int quotePos = msg.indexOf('\"');
+            if (quotePos > 0) {
+                // Exception message is of form "For input string: \"foo\"".
+                return String.format("Unable to interpret %s as a number", msg.substring(quotePos));
+            }
+            return msg;
         } else {
             if (t.getMessage() != null) {
                 return t.getMessage();

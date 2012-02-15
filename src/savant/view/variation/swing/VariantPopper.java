@@ -18,7 +18,6 @@ package savant.view.variation.swing;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 import javax.swing.SwingUtilities;
 
 import savant.api.adapter.PopupHostingAdapter;

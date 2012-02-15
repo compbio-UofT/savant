@@ -15,22 +15,14 @@
  */
 package savant.view.variation.swing;
 
-import java.text.ParseException;
-import savant.view.variation.VariationController;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.*;
+import java.text.ParseException;
 import java.util.List;
 import javax.swing.*;
 
 import savant.api.data.VariantRecord;
-import savant.api.event.SelectionChangedEvent;
 import savant.api.util.DialogUtils;
-import savant.api.util.Listener;
-import savant.api.util.SelectionUtils;
 import savant.controller.LocationController;
 import savant.settings.TrackResolutionSettings;
 import savant.util.Bookmark;
@@ -39,6 +31,7 @@ import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.util.swing.RecordTable;
 import savant.view.icon.SavantIconFactory;
+import savant.view.variation.VariationController;
 
 
 /**
@@ -152,6 +145,7 @@ public class VariationModule extends JPanel {
         mapPanel.setLayout(new GridBagLayout());
         
         mapScroller = new JScrollBar();
+        mapScroller.setMinimum(1);
         mapScroller.addAdjustmentListener(scrollerListener);
 
         map = new VariantMap(controller);
@@ -171,6 +165,7 @@ public class VariationModule extends JPanel {
         frequencyPanel.setLayout(new GridBagLayout());
         
         frequencyScroller = new JScrollBar();
+        frequencyScroller.setMinimum(1);
         frequencyScroller.addAdjustmentListener(scrollerListener);
 
         frequencyPlot = new AlleleFrequencyPlot(controller);
@@ -284,16 +279,26 @@ public class VariationModule extends JPanel {
         if (r.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold()) {
             showMessage(ZOOM_MESSAGE);
         } else {
-            mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
-            mapScroller.setValue(r.getFrom());
-            mapScroller.setVisibleAmount(r.getLength());
-            mapScroller.setBlockIncrement(r.getLength());
-            mapScroller.repaint();
-            frequencyScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
-            frequencyScroller.setValue(r.getFrom());
-            frequencyScroller.setVisibleAmount(r.getLength());
-            frequencyScroller.setBlockIncrement(r.getLength());
-            frequencyScroller.repaint();
+            try {
+                // Detach the adjustment listeners so that setting the maximum doesn't fire an event.
+                mapScroller.removeAdjustmentListener(scrollerListener);
+                frequencyScroller.removeAdjustmentListener(scrollerListener);
+                
+                mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+                mapScroller.setValue(r.getFrom());
+                mapScroller.setVisibleAmount(r.getLength());
+                mapScroller.setBlockIncrement(r.getLength());
+                mapScroller.repaint();
+                frequencyScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+                frequencyScroller.setValue(r.getFrom());
+                frequencyScroller.setVisibleAmount(r.getLength());
+                frequencyScroller.setBlockIncrement(r.getLength());
+                frequencyScroller.repaint();
+            } finally {
+                // Reattach the adjustment listeners.
+                mapScroller.addAdjustmentListener(scrollerListener);
+                frequencyScroller.addAdjustmentListener(scrollerListener);
+            }
         }
         rangeField.setText(String.format("%s:%d-%d", ref, r.getFrom(), r.getTo()));
     }

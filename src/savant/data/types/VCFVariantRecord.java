@@ -37,6 +37,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     private static final int REF_COLUMN = 3;
     private static final int ALT_COLUMN = 4;
     private static final int FIRST_PARTICIPANT_COLUMN = 9;
+    private static final byte MISSING = -1;
     
     private final String reference;
     private final String name;
@@ -71,16 +72,23 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         participants1 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
         for (int i = 0; i < participants0.length; i++) {
             String info = values[FIRST_PARTICIPANT_COLUMN + i];
-            int colonPos = info.indexOf(':');
-            if (colonPos >= 0) {
-                info = info.substring(0, colonPos);
-            }
-            String[] alleleIndices = info.split("[|/]");
-            participants0[i] = Byte.parseByte(alleleIndices[0]);
-            if (alleleIndices.length > 1) {
-                participants1[i] = Byte.parseByte(alleleIndices[1]);
+            if (info.equals(".")) {
+                // Missing value for this participant.  Not sure if this is legal, but
+                // MedSavant produces VCF files with missing values for some participants.
+                participants0[i] = MISSING;
+                participants1[i] = MISSING;
             } else {
-                participants1[i] = (byte)-1;
+                int colonPos = info.indexOf(':');
+                if (colonPos >= 0) {
+                    info = info.substring(0, colonPos);
+                }
+                String[] alleleIndices = info.split("[|/]");
+                participants0[i] = Byte.parseByte(alleleIndices[0]);
+                if (alleleIndices.length > 1) {
+                    participants1[i] = Byte.parseByte(alleleIndices[1]);
+                } else {
+                    participants1[i] = MISSING;    // Haploid
+                }
             }
         }
 
@@ -163,7 +171,10 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     @Override
     public VariantType[] getVariantsForParticipant(int index) {
         int[] alleles = getAllelesForParticipant(index);
-        if (alleles.length == 1) {
+        if (alleles == null) {
+            // Missing value for this participant.
+            return null;
+        } else if (alleles.length == 1) {
             // Either haploid or homozygous.
             return new VariantType[] { getVariantType(alleles[0]) };
         } else {
@@ -180,8 +191,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     @Override
     public int[] getAllelesForParticipant(int index) {
         int allele0 = participants0[index];
+        if (allele0 == MISSING) {
+            return null;
+        }
         int allele1 = participants1[index];
-        if (allele0 == allele1 || allele1 < 0) {
+        if (allele0 == allele1 || allele1 == MISSING) {
             // Either haploid or homozygous.
             return new int[] { allele0 };
         }

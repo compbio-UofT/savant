@@ -38,6 +38,8 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     
     /** Number of participants after the end of original1 and before the first participant from original2. */
     private final int padding;
+
+    /** Name may be composed of portions from two records. */
     private final String name;
     private final String[] altAlleles;
     
@@ -119,8 +121,12 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     public VariantType[] getVariantsForParticipant(int index) {
         int count1 = original1.getParticipantCount();
         if (index < count1) {
-            return original1.getVariantsForParticipant(index);
-        } else if (index >= count1 + padding && index < getParticipantCount()) {
+            VariantType[] result = original1.getVariantsForParticipant(index);
+            if (result != null) {
+                return result;
+            }
+        }
+        if (index >= count1 + padding && index < getParticipantCount()) {
             return original2.getVariantsForParticipant(index - count1 - padding);
         }
         // Participants which fall into the padding implicitly have NONE at this location.
@@ -131,8 +137,12 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     public int[] getAllelesForParticipant(int index) {
         int count1 = original1.getParticipantCount();
         if (index < count1) {
-            return original1.getAllelesForParticipant(index);
-        } else if (index >= count1 + padding && index < getParticipantCount()) {
+            int[] result = original1.getAllelesForParticipant(index);
+            if (result != null) {
+                return result;
+            }
+        }
+        if (index >= count1 + padding && index < getParticipantCount()) {
             int[] alleles2 = original2.getAllelesForParticipant(index - count1 - padding);
             if (alleles2.length == 1) {
                 return new int[] { renumberedAlleles[alleles2[0]] };

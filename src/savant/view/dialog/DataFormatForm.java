@@ -302,7 +302,6 @@ public final class DataFormatForm extends JDialog {
                     outputField.setText("No input file selected");
                 } else {
                     String outputPath = inputPath;
-                    if (outputPath.equals(""))
                     switch (ft) {
                         case CONTINUOUS_WIG:
                             outputPath += ".tdf";

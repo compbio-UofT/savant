@@ -18,7 +18,6 @@ package savant.view.tracks;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +27,6 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
-import savant.api.event.DataRetrievalEvent;
 import savant.exception.RenderingException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -45,25 +43,6 @@ public class VariantTrackRenderer extends TrackRenderer {
     VariantTrackRenderer() {
     }
     
-    /**
-     * We won't know our axis range until we've fetched our data.
-     * @param evt 
-     */
-    @Override
-    public void handleEvent(DataRetrievalEvent evt) {
-        switch (evt.getType()) {
-            case COMPLETED:
-                if (evt.getData() != null && evt.getData().size() > 0) {
-                    int yMax = ((VariantTrack)evt.getTrack()).getParticipantCount();
-                    AxisRange oldRange = (AxisRange)getInstruction(DrawingInstruction.AXIS_RANGE);
-                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(oldRange.getXRange(), new Range(0, yMax)));
-                }
-                break;
-        }
-        super.handleEvent(evt);
-    }
-
-
     @Override
     public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
@@ -132,20 +111,22 @@ public class VariantTrackRenderer extends TrackRenderer {
      */
     public static void accumulateZygoteShapes(VariantType[] vars, ColourAccumulator accumulator, Rectangle2D rect) {
         ColourScheme scheme = accumulator.getScheme();
-        if (vars.length == 1) {
-            accumulator.addShape(scheme.getVariantColor(vars[0]), rect);
-        } else {
-            Color color0 = scheme.getVariantColor(vars[0]);
-            Color color1 = scheme.getVariantColor(vars[1]);
-            Color blend;
-            if (color0 == null) {
-                blend = new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), 128);
-            } else if (color1 == null) {
-                blend = new Color(color0.getRed(), color0.getGreen(), color0.getBlue(), 128);
+        if (vars != null) {
+            if (vars.length == 1) {
+                accumulator.addShape(scheme.getVariantColor(vars[0]), rect);
             } else {
-                blend = new Color((color0.getRed() + color1.getRed()) / 2, (color0.getGreen() + color1.getGreen()) / 2, (color0.getBlue() + color1.getBlue()) / 2);
+                Color color0 = scheme.getVariantColor(vars[0]);
+                Color color1 = scheme.getVariantColor(vars[1]);
+                Color blend;
+                if (color0 == null) {
+                    blend = new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), 128);
+                } else if (color1 == null) {
+                    blend = new Color(color0.getRed(), color0.getGreen(), color0.getBlue(), 128);
+                } else {
+                    blend = new Color((color0.getRed() + color1.getRed()) / 2, (color0.getGreen() + color1.getGreen()) / 2, (color0.getBlue() + color1.getBlue()) / 2);
+                }
+                accumulator.addShape(blend, rect);
             }
-            accumulator.addShape(blend, rect);
         }
     }
 }

@@ -80,12 +80,12 @@ public class VariantTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
-        // Shove in a placeholder axis range since we won't know the actual range until the data arrives.
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
+        String[] participants = ((TabixDataSource)getDataSource()).getExtraColumns();
+        renderer.addInstruction(DrawingInstruction.PARTICIPANTS, participants);
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, participants.length)));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         
-        renderer.addInstruction(DrawingInstruction.PARTICIPANTS, ((TabixDataSource)getDataSource()).getExtraColumns());
     }
 
     @Override
@@ -129,7 +129,7 @@ public class VariantTrack extends Track {
             int count = getParticipantCount();
             for (int i = 0; i < count; i++) {
                 VariantType[] participantVars = varRec.getVariantsForParticipant(i);
-                if (participantVars.length > 1 || participantVars[0] != VariantType.NONE) {
+                if (participantVars != null && (participantVars.length > 1 || participantVars[0] != VariantType.NONE)) {
                     return true;
                 }
             }

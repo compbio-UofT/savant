@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,10 +54,16 @@ import savant.view.variation.swing.VariationModule;
 public class VariationController implements Listener<DataRetrievalEvent> {
     static final Log LOG = LogFactory.getLog(VariationController.class);
 
+    /**
+     * Compare two variant records with an eye to merger.  The comparison is based on reference and position only (ignoring
+     * the refBases and altAlleles fields which are usually considered by compareTo.
+     */
     private static final Comparator<VariantRecord> VARIANT_COMPARATOR = new Comparator<VariantRecord>() {
         @Override
         public int compare(VariantRecord t, VariantRecord t1) {
-            return t.compareTo(t1);
+            return new CompareToBuilder().append(t.getReference(), t1.getReference()).
+                                          append(t.getPosition(), t1.getPosition()).toComparison();
+
         }
     };
 
@@ -71,7 +78,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     private String visibleRef;
     private Range visibleRange;
     
-    private VariationModule sheet;
+    private VariationModule module;
 
     private VariationController() {
         LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
@@ -132,7 +139,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 switch (evt.getType()) {
                     case STARTED:
                         rawData.set(index, null);
-                        sheet.showProgress("Retrieving variant data…");
+                        module.showProgress("Retrieving variant data…");
                         break;
                     case COMPLETED:
                         if (evt.getData() != null) {
@@ -143,7 +150,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                         break;
                     case FAILED:
                         LOG.info("Received " + evt.getError() + " error for " + evt.getTrack());
-                        sheet.showMessage(MiscUtils.getMessage(evt.getError()));
+                        module.showMessage(MiscUtils.getMessage(evt.getError()));
                         break;
                 }
             }
@@ -160,31 +167,27 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 if (trackData != null) {
                     if (aggregateData == null) {
                         aggregateData = new ArrayList<VariantRecord>(trackData.size());
-                        for (VariantRecord rec: trackData) {
-                            aggregateData.add(new PaddedVariantRecord(rec, 0));
-                        }
-                    } else {
-                        // Slower process.  Traverse the list inserting data as we go.
-                        // It would might be more efficient to insert everything and sort,
-                        // but we have to allow for the possibility of having to munge together
-                        // two VariantRecords.
-                        for (VariantRecord rec: trackData) {
-                            int index = Collections.binarySearch(aggregateData, rec, VARIANT_COMPARATOR);
-                            if (index < 0) {
-                                // Not found in list.  Insert it at the given location.
-                                int insertionPos = -index - 1;
-                                if (LOG.isDebugEnabled()) {
-                                    String before = insertionPos > 0 ? aggregateData.get(insertionPos - 1).toString() : "START";
-                                    String after = insertionPos < aggregateData.size() ? aggregateData.get(insertionPos).toString() : "END";
+                    }
+                    // Slower process.  Traverse the list inserting data as we go.
+                    // It would might be more efficient to insert everything and sort,
+                    // but we have to allow for the possibility of having to munge together
+                    // two VariantRecords.
+                    for (VariantRecord rec: trackData) {
+                        int index = Collections.binarySearch(aggregateData, rec, VARIANT_COMPARATOR);
+                        if (index < 0) {
+                            // Not found in list.  Insert it at the given location.
+                            int insertionPos = -index - 1;
+                            if (LOG.isDebugEnabled()) {
+                                String before = insertionPos > 0 ? aggregateData.get(insertionPos - 1).toString() : "START";
+                                String after = insertionPos < aggregateData.size() ? aggregateData.get(insertionPos).toString() : "END";
 
-                                    LOG.debug("Inserting " + rec + " after " + before + " and before " + after);
-                                }
-                                aggregateData.add(insertionPos, new PaddedVariantRecord(rec, n));
-                            } else {
-                                VariantRecord oldRec = aggregateData.get(index);
-                                LOG.debug("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));
-                                aggregateData.set(index, new MergedVariantRecord(oldRec, rec, n - oldRec.getParticipantCount()));
+                                LOG.debug("Inserting " + rec + " after " + before + " and before " + after);
                             }
+                            aggregateData.add(insertionPos, new PaddedVariantRecord(rec, n));
+                        } else {
+                            VariantRecord oldRec = aggregateData.get(index);
+                            LOG.debug("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));
+                            aggregateData.set(index, new MergedVariantRecord(oldRec, rec, n - oldRec.getParticipantCount()));
                         }
                     }
                     names.addAll(Arrays.asList(((TabixDataSource)t.getDataSource()).getExtraColumns()));
@@ -247,7 +250,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     void setVisibleRange(Range r) {
         if (!r.equals(visibleRange)) {
             visibleRange = r;
-            sheet.visibleRangeChanged(visibleRef, r);
+            module.visibleRangeChanged(visibleRef, r);
             if (r.getLength() <= TrackResolutionSettings.getVariantLowToHighThreshold()) {
                 for (VariantTrack t: tracks) {
                     t.requestData(visibleRef, visibleRange);
@@ -353,9 +356,9 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 return;
             }
         }
-        sheet.showProgress("Aggregating variant data…");
+        module.showProgress("Aggregating variant data…");
         aggregateData = null;
-        sheet.recalculated(getData());
+        module.recalculated(getData());
     }
 
     public void cancelDataRequests() {
@@ -366,11 +369,11 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     }
 
     public VariationModule getSheet() {
-        sheet = new VariationModule(this);
-        return sheet;
+        module = new VariationModule(this);
+        return module;
     }
     
     public boolean isDPrimeSelected() {
-        return sheet.isDPrimeSelected();
+        return module.isDPrimeSelected();
     }
 }
