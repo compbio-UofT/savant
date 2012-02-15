@@ -148,13 +148,13 @@ public class FrameController {
     private void addFrame(Frame f, DataFormat df) {
         frames.add(f);
 
-        DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
-        trackDockingManager.addFrame(f);
+        DockingManager dm = Savant.getInstance().getTrackDockingManager();
+        dm.addFrame(f);
 
         // Insert the frame immediately below the currently-active frame.
         if (frames.size() > 1) {
-            FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
-            trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
+            FrameHandle lastFrame = getFrontmostFrame(dm);
+            dm.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
         }
     }
 
@@ -171,6 +171,11 @@ public class FrameController {
         return null;
     }
 
+    public Frame getActiveFrame() {
+        DockingManager dm = Savant.getInstance().getTrackDockingManager();
+        FrameHandle fh = getFrontmostFrame(dm);
+        return fh != null ? (Frame)dm.getFrame(fh.getKey()) : null;
+    }
 
     /**
      * Draw the frames in the current viewable range
@@ -232,7 +237,7 @@ public class FrameController {
         });
         return result;
     }
-    
+
     /**
      * Listens for track frames being added.  Either ordinary ones to the TrackDockingManager,
      * or Variant frames to the AuxDockingManager.
@@ -278,6 +283,7 @@ public class FrameController {
             DockableFrame df = evt.getDockableFrame();
             if (df instanceof Frame) {
                 ((Frame)df).setActiveFrame(true);
+                
             }
         }
 

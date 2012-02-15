@@ -565,9 +565,11 @@ Typical plugins (such as the built-in Data Table and UCSC Explorer plugins) are 
 Plugins can be temporarily disabled by unchecking the corresponding menu-item on the \textit{Plugins} menu.  This is a less extreme measure than uninstalling the plugin; a disabled plugin is still installed and can easily be reenabled by reselecting its menu-item from the \textit{Plugins} menu.
 
 \subsection{Tool Plugins}
-New in Savant 2.0 is a new variety of plugin, referred to as ``tool plugins''.  To the end-user, these are functionally similar to panel plugins, but where panel plugins consist of Java code packaged inside a JAR file, tool plugins consist of an XML file which provides instructions on how to invoke an external application.  The format of this XML file is described in the Developer Manual.
+New in Savant 2.0 is are ``tool plugins'', which provide a way to integrate external applications into Savant.  To the end-user, these are functionally similar to panel plugins, but where panel plugins consist of Java code packaged inside a JAR file, tool plugins consist of an XML file providing instructions on how to invoke an external application.  The format of this XML file is described in the Developer Manual.
 
 Like panel plugins, tool plugins present their user interface in a dockable tab at the bottom left of the Savant user interface, and can be enabled/disabled from the \textit{Plugins} menu.
+
+The GATK and SRMA plugins are examples of tool plugins.
 
 \subsection{Data Source Plugins}
 Data source plugins are a special class of plugins which extend Savant, allowing it to access data in non-standard ways.  Data source plugins do not have a tab at the bottom left of the Savant window, but instead are accessed through the \textit{Load Track from Other Datasource} menu-item.\footnote{Or in the case of genomes, from the \textit{Other Datasource} button on the genome dialog.}

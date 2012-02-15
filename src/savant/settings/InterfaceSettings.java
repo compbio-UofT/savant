@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ public class InterfaceSettings {
     private static final String RICH_INTERVAL_HEIGHT_KEY = "RichIntervalHeight";
     private static final String GENERIC_INTERVAL_HEIGHT_KEY = "GenericIntervalHeight";
     private static final String POPUPS_DISABLED_KEY = "PopupsDisabled";
+    private static final String LEGENDS_DISABLED_KEY = "LegendsDisabled";
 
     public static int getBamIntervalHeight() {
         return SETTINGS.getInt(BAM_INTERVAL_HEIGHT_KEY, BAM_INTERVAL_HEIGHT);
@@ -60,10 +61,6 @@ public class InterfaceSettings {
         }
     }
 
-    public static boolean isPopupsDisabled() {
-        return SETTINGS.getBoolean(POPUPS_DISABLED_KEY, false);
-    }
-
     public static void setBamIntervalHeight(int value) {
         SETTINGS.setInt(BAM_INTERVAL_HEIGHT_KEY, value);
     }
@@ -74,6 +71,18 @@ public class InterfaceSettings {
 
     public static void setGenericIntervalHeight(int value) {
         SETTINGS.setInt(GENERIC_INTERVAL_HEIGHT_KEY, value);
+    }
+
+    public static boolean areLegendsDisabled() {
+        return SETTINGS.getBoolean(LEGENDS_DISABLED_KEY, false);
+    }
+
+    public static void setLegendsDisabled(boolean value) {
+        SETTINGS.setBoolean(LEGENDS_DISABLED_KEY, value);
+    }
+
+    public static boolean arePopupsDisabled() {
+        return SETTINGS.getBoolean(POPUPS_DISABLED_KEY, false);
     }
 
     public static void setPopupsDisabled(boolean value) {

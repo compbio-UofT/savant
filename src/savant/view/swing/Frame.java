@@ -41,6 +41,7 @@ import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.plugin.SavantPanelPlugin;
+import savant.settings.InterfaceSettings;
 import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
@@ -188,15 +189,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
                         graphPane.setSize(goodSize);
                     }
                     
-                    // This is also an opportunity to hide/show our legend depending on the available height.
-                    setYMaxVisible(true);
-                    legend.setVisible(legend.getPreferredSize().height > 0);
-                    
-                    // We have 24 pixels of slop to allow for margins and title-bars.
-                    if (dim.height < sidePanel.getPreferredSize().height + 24) {
-                        setYMaxVisible(false);
-                        legend.setVisible(false);
-                    }
+                    setLegendVisible(true);
                 }
             }
         });
@@ -332,9 +325,29 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
     public void setActiveFrame(boolean value) {
         sidePanel.setVisible(value);
+        setLegendVisible(value);
+    }
+        
+    /**
+     * Make the legend and ymax visible, but only if we have enough space for it.
+     */
+    public void setLegendVisible(boolean value) {
         if (value) {
-            legend.setVisible(legend.getPreferredSize().height > 0);
+            // Need to show everything first so that sidePanel.getPreferredSize has a meaningful value.
+            setYMaxVisible(true);
+            legend.setVisible(!InterfaceSettings.areLegendsDisabled() && legend.getPreferredSize().height > 0);
+
+            // We have 24 pixels of slop to allow for margins and title-bars.
+            if (getHeight() < sidePanel.getPreferredSize().height + 24) {
+                setYMaxVisible(false);
+                legend.setVisible(false);
+            }
+        } else {
+            setYMaxVisible(false);
+            legend.setVisible(false);
+            
         }
+        legend.invalidate();
     }
 
     public void setInitialDrawingMode(DrawingMode dm) {
@@ -354,7 +367,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     /**
      * When the GraphPane's y-axis type has been updated, update the visibility of the yMax value.
      */
-    public void setYMaxVisible(boolean flag) {
+    void setYMaxVisible(boolean flag) {
         if (yMaxPanel != null) {
             yMaxPanel.setVisible(flag);
         }
@@ -394,9 +407,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     public void drawModeChanged(Track t) {
         DrawingMode mode = t.getDrawingMode();
         commandBar.drawModeChanged(mode);
-        setYMaxVisible(true);
-        legend.setVisible(legend.getPreferredSize().height > 0);
-        legend.invalidate();
+        setLegendVisible(true);
         validate();
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
     }

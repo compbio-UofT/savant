@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,7 +30,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+
+import savant.controller.FrameController;
 import savant.controller.TrackController;
+import savant.view.swing.Frame;
 import savant.view.tracks.Track;
 
 
@@ -45,6 +48,7 @@ public class InterfaceSection extends Section {
     private JFormattedTextField richIntervalHeightField;
     private JFormattedTextField otherIntervalHeightField;
     private JCheckBox disablePopupsCheck;
+    private JCheckBox disableLegendsCheck;
 
     @Override
     public String getTitle() {
@@ -58,10 +62,15 @@ public class InterfaceSection extends Section {
         add(getIntervalHeightsPanel(), gbc);
 
         disablePopupsCheck = new JCheckBox("Disable Informational Popups");
-        disablePopupsCheck.setSelected(InterfaceSettings.isPopupsDisabled());
+        disablePopupsCheck.setSelected(InterfaceSettings.arePopupsDisabled());
         disablePopupsCheck.addActionListener(enablingActionListener);
-        gbc.weighty = 1.0;
         add(disablePopupsCheck, gbc);
+
+        disableLegendsCheck = new JCheckBox("Disable Track Legends");
+        disableLegendsCheck.setSelected(InterfaceSettings.areLegendsDisabled());
+        disableLegendsCheck.addActionListener(enablingActionListener);
+        gbc.weighty = 1.0;
+        add(disableLegendsCheck, gbc);
     }
 
 
@@ -72,6 +81,7 @@ public class InterfaceSection extends Section {
             InterfaceSettings.setRichIntervalHeight(Integer.parseInt(richIntervalHeightField.getText().replaceAll(",", "")));
             InterfaceSettings.setGenericIntervalHeight(Integer.parseInt(otherIntervalHeightField.getText().replaceAll(",", "")));
             InterfaceSettings.setPopupsDisabled(disablePopupsCheck.isSelected());
+            InterfaceSettings.setLegendsDisabled(disableLegendsCheck.isSelected());
 
             try {
                 PersistentSettings.getInstance().store();
@@ -80,6 +90,10 @@ public class InterfaceSection extends Section {
             }
 
             // TODO: Modify existing interval heights.
+            Frame f = FrameController.getInstance().getActiveFrame();
+            if (f != null) {
+                f.setLegendVisible(!InterfaceSettings.areLegendsDisabled());
+            }
             for (Track t: TrackController.getInstance().getTracks()) {
                 t.getFrame().forceRedraw();
             }

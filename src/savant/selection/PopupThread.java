@@ -71,7 +71,7 @@ public class PopupThread implements Runnable {
                             p2.y += graphPane.getVerticalScrollBar().getValue();
                         }
 
-                        if (p1 != null && p2 != null && p1.equals(p2) && !InterfaceSettings.isPopupsDisabled()) {
+                        if (p1 != null && p2 != null && p1.equals(p2) && !InterfaceSettings.arePopupsDisabled()) {
                             graphPane.tryPopup(p2);
                         }
                     } catch (InterruptedException ignored) {
