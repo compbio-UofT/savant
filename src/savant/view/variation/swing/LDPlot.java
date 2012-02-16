@@ -237,10 +237,7 @@ public class LDPlot extends VariationPlot {
                 float baselineOffset = fm.getAscent() - fm.getHeight() * 0.5f;
 
                 for (VariantRecord varRec: data) {
-                    String name = varRec.getName();
-                    if (name == null || name.isEmpty()) {
-                        name = varRec.getReference() + ":" + varRec.getPosition();
-                    }
+                    String name = VariationController.getDisplayName(varRec);
                     Rectangle2D labelRect = fm.getStringBounds(name, g2);
                     double baseline = y + unitHeight * 0.5 + baselineOffset;
                     g2.drawString(name, (float)(getWidth() - AXIS_WIDTH + (AXIS_WIDTH - labelRect.getWidth()) * 0.5), (float)baseline);

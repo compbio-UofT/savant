@@ -368,12 +368,23 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         }
     }
 
-    public VariationModule getSheet() {
+    public VariationModule getModule() {
         module = new VariationModule(this);
         return module;
     }
     
     public boolean isDPrimeSelected() {
         return module.isDPrimeSelected();
+    }
+
+    /**
+     * Provides a displayable name for variant records which lack a name of their own.
+     */
+    public static String getDisplayName(VariantRecord rec) {
+        String result = rec.getName();
+        if (result == null || result.isEmpty()) {
+            result = rec.getReference() + ":" + rec.getPosition();
+        }
+        return result;
     }
 }

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import savant.api.data.VariantRecord;
 import savant.view.variation.LDRecord;
 import savant.view.variation.ParticipantRecord;
+import savant.view.variation.VariationController;
 
 
 /**
@@ -41,13 +42,20 @@ public class VariantPopup extends PopupPanel {
     protected void initInfo() {
         if (record instanceof LDRecord) {
             LDRecord ldRec = (LDRecord)record;
-            List<VariantRecord> varRecs = ldRec.getConstituents();
             add(new JLabel(String.format("D′: %.2f", ldRec.getDPrime())));
             add(new JLabel(String.format("r²: %.2f", ldRec.getRSquared())));
+
+            List<VariantRecord> varRecs = ldRec.getConstituents();
+            VariantRecord varRec0 = varRecs.get(0);
+            VariantRecord varRec1 = varRecs.get(1);
+
             add(new JSeparator());
-            initVariantRecord(varRecs.get(0), null);
+            initVariantRecord(varRec0, null);
             add(new JSeparator());
-            initVariantRecord(varRecs.get(1), null);
+            initVariantRecord(varRec1, null);
+            name = VariationController.getDisplayName(varRec0) + " vs. " + VariationController.getDisplayName(varRec1);
+            start = Math.min(varRec0.getPosition(), varRec1.getPosition());
+            end = Math.max(varRec0.getPosition(), varRec1.getPosition());
         } else {
             VariantRecord varRec;
             ParticipantRecord partRec = null;

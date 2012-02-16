@@ -1486,7 +1486,7 @@ public class Savant extends JFrame {
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
         auxDockingManager.addFrame(df);
         MiscUtils.setFrameVisibility("Variation", false, auxDockingManager);
-        df.getContentPane().add(VariationController.getInstance().getSheet());
+        df.getContentPane().add(VariationController.getInstance().getModule());
     }
 
     private void askToDispose() {

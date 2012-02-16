@@ -305,7 +305,7 @@ public class VariationModule extends JPanel {
 
     public void recalculated(List<VariantRecord> data) {
         table.setModel(new VariantTableModel(data));
-        if (data.size() > 0) {
+        if (data != null && data.size() > 0) {
             showCard(tabs, null);
             map.repaint();
             ldPlot.recalculate();
