@@ -103,15 +103,14 @@ public class AlleleFrequencyPlot extends VariationPlot {
                 }
             }
             
-            // This call sets the clip so that axes and data don't overwrite our numbers.
-            labelHorizontalAxis(g2, numControls > 0);
+            // Label the axis and draw the vertical lines
+            labelHorizontalAxis(g2, numControls > 0, false);
 
             ColourScheme scheme = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
             ColourAccumulator accumulator = new ColourAccumulator(scheme);
 
             double x0 = numControls > 0 ? getWidth() * 0.5 : 0.0;
             double y = 0.0;
-            double topGap = 0.0;
 
             for (int i = 0; i < casePileups.size(); i++) {
                 Pileup p = casePileups.get(i);
@@ -149,6 +148,9 @@ public class AlleleFrequencyPlot extends VariationPlot {
 
             accumulator.fill(g2);
             
+            // Redraw just the labels in case the graph has stomped on them.
+            labelHorizontalAxis(g2, numControls > 0, true);
+
             // Allele plot never draws gaps, so just label the axes.
             labelVerticalAxis(g2);
 
@@ -166,11 +168,11 @@ public class AlleleFrequencyPlot extends VariationPlot {
         }
     }
 
-    private void labelHorizontalAxis(Graphics2D g2, boolean hasControls) {
+    private void labelHorizontalAxis(Graphics2D g2, boolean hasControls, boolean justLabels) {
         // We don't want the axes stomping on our labels, so make sure the clip excludes them.
         int h = getHeight();
         int w = getWidth();
-        Area clipArea = new Area(g2.getClip());
+        Area clipArea = new Area(new Rectangle(0, 0, w, h));
         g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 9));
         FontMetrics fm = g2.getFontMetrics();
@@ -196,12 +198,15 @@ public class AlleleFrequencyPlot extends VariationPlot {
                 clipArea.subtract(new Area(labelRect));
             }
             g2.setClip(clipArea);
-            g2.draw(new Line2D.Double(verticalAxis + x, 0, verticalAxis + x, h));
-            if (hasControls) {
-                g2.draw(new Line2D.Double(verticalAxis - x, 0, verticalAxis - x, h));
+            if (!justLabels) {
+                g2.draw(new Line2D.Double(verticalAxis + x, 0, verticalAxis + x, h));
+                if (hasControls) {
+                    g2.draw(new Line2D.Double(verticalAxis - x, 0, verticalAxis - x, h));
+                }
             }
             x += step;
         }
+        g2.setClip(null);
     }
 
     /**

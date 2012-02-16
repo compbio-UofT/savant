@@ -105,12 +105,19 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                             tracks.add(t);
                             rawData.add(null);
                             t.addListener(VariationController.this);
+                            if (controls.contains(t.getName())) {
+                                controls.addAll(Arrays.asList(t.getParticipantNames()));
+                            }
                             break;
                         case REMOVED:
                             int index = tracks.indexOf(t);
                             tracks.remove(index);
                             rawData.remove(index);
                             t.removeListener(VariationController.this);
+                            if (controls.contains(t.getName())) {
+                                controls.remove(t.getName());
+                                controls.removeAll(Arrays.asList(t.getParticipantNames()));
+                            }
                             recalculate();
                             break;
                     }
