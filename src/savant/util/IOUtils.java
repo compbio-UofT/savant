@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,15 +16,7 @@
 
 package savant.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import savant.settings.DirectorySettings;
+import java.io.*;
 
 
 /**
@@ -81,12 +73,6 @@ public class IOUtils {
         } finally {
             input.close();
             output.close();
-        }
-    }
-
-    public static void removeTmpFiles() {
-        for (File f : DirectorySettings.getTmpDirectory().listFiles()) {
-            f.delete();
         }
     }
 

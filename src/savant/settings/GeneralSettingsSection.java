@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,14 +17,8 @@
 package savant.settings;
 
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-
-import savant.util.IOUtils;
-
 
 /**
  *
@@ -57,19 +51,10 @@ public class GeneralSettingsSection extends Section {
         collectrstats_cb = new JCheckBox("Collect anonymous statistics about usage");
         collectrstats_cb.setSelected(BrowserSettings.getCollectAnonymousUsage());
         collectrstats_cb.addActionListener(enablingActionListener);
-        add(collectrstats_cb, getFullRowConstraints());
-
-        JButton clearTmpButt = new JButton("Clear Temporary Files");
-        clearTmpButt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                IOUtils.removeTmpFiles();
-            }
-        });
         GridBagConstraints gbc = getFullRowConstraints();
         gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = 1.0;
-        add(clearTmpButt, gbc);
+        add(collectrstats_cb, gbc);
     }
 
     @Override

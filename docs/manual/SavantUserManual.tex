@@ -17,7 +17,7 @@ Authors: Marc Fiume \& Eric Smith\\
 Contact: savant@cs.toronto.edu \\
 Website: http://savantbrowser.com \\
 \\
-This document applies to Savant version 2.0.0\\
+This document applies to Savant version 2.0.0 beta\\
 
 \newpage
 
@@ -580,6 +580,18 @@ The UCSC and SQL plugins are both examples of data source plugins.
 
 \section{Exporting Images}
 \label{ExportingImages}
+Track images from Savant can be exported as PNG files using the \textit{File~\textgreater~Export~Images} command.  This command brings up a dialog which allows you to select the tracks you want to appear in the output.  By default, none of the tracks are selected, and you use the arrow buttons to move them from the unselected (left) side to the selected (right) side of the dialog.
+
+Checking the \textit{Always select all} check-box means that the next time the dialog is displayed, all tracks will start on the selected side of the dialog.
+
+Optionally, you may enter a single base which will be highlighted in the output PNG file using a plumbline (as described in \S\ref{HighlightingAreas}).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/PluginRepository}
+\caption{Export Image Dialog}
+\end{center}
+\end{figure}
 
 \chapter{Variants}
 \label{Variants}
@@ -591,7 +603,7 @@ Variant data can be loaded into Savant using the \textit{Load Track from XXX\ldo
 
 SNPs are displayed with a vertical line in the colour of the alternate (non-reference) base.  Participants drawn from the VCF file are arranged vertically.  A gap in the vertical line indicates that a particular participant lacks that variant.  If a variant is heterozygous for a participant, that portion of the line will be drawn using a paler version of the associated colour.
 
-Insertions and deletions are displayed in the same manner as SNPs, with a single vertical line (black for deletions, magenta for insertions).  The variant track makes no attempt to visually indicate the extent of the inserted or deleted material.  In order to see what was actually substituted by the indel, you will need to mouse over the variant track, and the popup will provide the details of the substitution that took place.
+Insertions and deletions are displayed in the same manner as SNPs, with a single vertical line (black for deletions, magenta for insertions).  The variant track makes no attempt to visually indicate the extent of the inserted or deleted material.  In order to see what was actually substituted by the indel, you will need to hover the mouse over the variant track, and the popup will provide the details of the substitution that took place.
 
 \section{Variation Module}
 \label{VariationTab}
@@ -625,6 +637,66 @@ The linkage disequilibrium plot graphs LD values calculated using D$^\prime$ or 
 \chapter{Preferences}
 \label{Preferences}
 
+The preferences dialog allows you to configure a number of Savant features.  The dialog is invoked by the \textit{Preferences} menu-item, which is found under the Savant application menu on Mac and under the \textit{Edit} menu on Windows and Linux.  Preferences are divided into five categories:  \textit{Colour Schemes, General Settings, Interface Settings, Remote Files,} and \textit{Track Resolutions}.  Each category appears on a separate panel in the preferences dialog.
+
+As described in Appendix~\ref{SavantHomeDirectory}, these settings are stored in the \textit{savant.settings} file in your Savant home directory.  Deleting the \textit{savant.settings} file will restore Savant to its factory defaults.
+
+\section{Colour Settings}
+\textit{Colour Settings} allow you to adjust the colours which are used for rendering the various track types.
+
+\section{General Settings}
+\textit{General Settings} controls some behaviours of the Savant application.  At present, all of these happen to involve connecting to the savantbrowser.com web-site at startup time.
+
+By default, Savant contacts the savantbrowser.com web-site at startup time, to determine whether a newer version of Savant has been released.  Unchecking the \textit{Check version on startup} to disable this feature if you do not wish to be reminded of new versions.
+
+At startup, Savant also contacts savantbrowser.com to retrieve the Savant news feed.  Uncheck the \textit{Show Start Page} check-box to disable this behaviour; at startup Savant will display a blank page instead of the news page.
+
+As an aid to our developers, as part of its startup process Savant reports back to the savantbrowser.com web-site with information about the usage environment.  The information reported is summarised in Table~\ref{AnonymousData}.  If you wish to disable this feature, un-check the \textit{Collect anonymous statistics about usage} check-box.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l l|}
+\hline
+Information & Example\\
+\hline\hline
+time & 2012/02/16 14:18:58\\
+language & English\\
+time zone & America/Toronto\\
+Savant version & 2.0.0\\
+Savant build & beta\\ 
+IP address & 128.100.3.60\\
+Java version & 1.6.0\_23\\
+Java vendor & Sun Microsystems Inc.\\
+operating system & Linux\\
+OS version & 3.0.0-15-generic\\
+architecture & amd64\\
+region & CA\\
+\hline
+\end{tabular}
+\caption{Anonymous Usage Stats}
+\label{AnonymousData}
+\end{center}
+\end{table}
+
+\section{Interface Settings}
+This section allows you to set the default heights for various BAM,and interval tracks.
+
+In addition, you can enable or disable the display of popup menus and legends on tracks.
+
+\section{Remote Files}
+The \textit{Remote Files} section allows you to configure Savant's access and caching of remote files.  Any changes to settings on this panel will not take effect until the next time Savant is launched.
+
+Un-checking the \textit{Enable remote file caching} button will disable the caching of remote files completely.  This is not recommended, because without caching, performance will be terrible.
+
+By default, cache files are kept in the \textit{cache} subdirectory of your Savant home directory.  You can move it to another location if your home directory is located on a file-system where space is at a premium.
+
+Remote file caching uses a default block size of 64kB.  There probably is no good reason to change this.
+
+The cache directory can grow to consume a considerable amount of disk space.  If you wish to free up some disk space, you can use the \textit{Clear remote file cache} button.
+
+\section{Track Resolutions}
+
+This selection allows you to set a range threshold for each track type, above which the track will not attempt to render data.  When the display range is above a track's threshold, the track will display either a ``Zoom in to see data'' message or a coverage track (if available).
 
 \appendix
 \chapter{Savant Home Directory}
