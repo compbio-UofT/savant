@@ -798,15 +798,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 LocationController lc = LocationController.getInstance();
                 lc.shiftRangeRight();
             }
-        }
-        else {
-            if (notches < 0) {
-                LocationController lc = LocationController.getInstance();
-                lc.zoomInOnMouse();
-           } else {
-                LocationController lc = LocationController.getInstance();
-                lc.zoomOutFromMouse();
-           }
+        } else {
+            JScrollBar sb = getVerticalScrollBar();
+            if (sb.isVisible()) {
+                sb.setValue(sb.getValue() + notches);
+            }
         }
     }
 

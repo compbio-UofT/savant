@@ -60,7 +60,7 @@ Projects have a file extension of \textit{.svp}, and are typically stored in the
 \section{Genomes}
 Before loading any tracks, the project's reference genome must be established using the \textit{File~\textgreater~Load~Genome} command.  This genome is used to specify the lengths and names of all chromosomes or contigs in the data set; no other tracks can be loaded until the genome has been set.  In many cases, the genome will itself be a sequence track, which can be loaded from a file, from a URL, or from a remote data-source.
 
-For the convenience of users, a variety of standard published genomes are available from the Savant web-site.  The commonly-used genomes include a full sequence track along with associated tracks such as UCSC and RefSeq genes.  Less popular genomes may provide only a list of the chromosome names and their sizes.  The exact list is subject to change, and we welcome requests to add your favourite genomes to Savant's standard set.
+For the convenience of users, a variety of standard published genomes are available through the \textit{Load Genome} dialog.  The commonly-used genomes include a full sequence track along with associated tracks such as UCSC and RefSeq genes.  Less popular genomes may provide only a list of the chromosome names and their sizes.  The exact list is subject to change, and we welcome requests to add your favourite genomes to Savant's standard set.
 
 In some unusual cases, you may wish to run Savant without any existing genome information.  In such cases, you can use the Load Genome dialog to specify a reference name and length.
 
@@ -73,7 +73,7 @@ Every track type has one or more display modes.  Each of these modes is intended
 
 \subsection{Loading a Track}
 
-A track is choosing one of the \textit{File~\textgreater~Load~Track} menu-items.  Track data can come from any of three different sources:  a local file, a URL, or an external data source.  \textit{Load Track from File} will present a file-chooser to let you select a local file.  \textit{Load Track from URL} presents a dialog which lets you type in an ftp://, http://, or https:// URL to be opened.
+A track is loaded by choosing one of the \textit{File~\textgreater~Load~Track} menu-items.  Track data can come from any of three different sources:  a local file, a URL, or an external data source.  \textit{Load Track from File} will present a file-chooser to let you select a local file.  \textit{Load Track from URL} presents a dialog which lets you type in an ftp://, http://, or https:// URL to be opened.
 
 The \textit{Load Track from Other Datasource} menu-item presents the Savant repository browser, which lets you select one of the tracks which is available from savantbrowser.com.  In addition, this menu-item is also used by plugins such as the SQL and UCSC plugins to allow you to open a track using that plugin.
 
@@ -105,20 +105,20 @@ In addition, interval tracks also have a number of Appearance options.  The \tex
 Alignment tracks display data from a BAM file.  They present reads in a choice of seven different display modes, listed in Table~\ref{AlignmentModes}.
 
 \begin{table}[h]
-\label{AlignmentModes}
 \begin{center}
 \begin{tabular}{|l p{12.5cm}|}
 \hline
 Standard & Displays the reads stacked vertically in the most efficient manner.  Colour indicates strand direction.\\
 Mismatch & Like Standard, but also displays SNPs and indels.  Requires that the reference genome be an actual sequence track.\\
 Read Sequence & Displays the reads stacked vertically, but colour indicates nucleotides.\\
-Read Pair (Standard) & Reads are stacked vertically, with paired reads are at the same altitude.\\
+Read Pair (Standard) & Reads are stacked vertically, with paired reads at the same altitude.\\
 Read Pair (Arc) & Read pairs are shown using arcs, where the height of the arc corresponds to the inferred insert size.\\
 SNP & For each location, all the base-reads supporting a particular call are stacked vertically.  This is intended to make SNPs more prominent.\\
 Strand SNP & Like SNP mode, but reads from the forward and reverse strands are grouped separately.\\
 \hline
 \end{tabular}
 \end{center}
+\label{AlignmentModes}
 \caption{Alignment Track Display Modes}
 \end{table}
 
@@ -140,7 +140,7 @@ Savant natively supports a number of standard file formats which are indexed to 
 
 \subsection{Native File Formats}
 
-Savant natively supports the following standard file formats.  These are formats which Savant can read directly with no extra processing.  In most cases, these files consist of a main file which contains the actual data and an index file which is must be present in the same location as the data file in order to provide fast random access to that data.
+Savant natively supports the following standard file formats.  These are formats which Savant can read directly with no extra processing.  In most cases, these files consist of a main file which contains the actual data and an index file which must be present in the same location as the data file in order to provide fast random access to that data.
 
 \begin{table}[ht] 
 \begin{center}
@@ -175,7 +175,8 @@ Format & Description & Converted To\\
 \hline                    
 \href{http://genome.ucsc.edu/FAQ/FAQformat.html#format1}{Bed} & genes, intervals, variants, and other localised data & Tabix \\
 \href{http://genome.ucsc.edu/goldenPath/help/bedgraph.html}{BedGraph} & continuous-valued data & TDF \\
-\href{http://www.sanger.ac.uk/resources/software/gff/spec.html}{GFF/GTF} & genes and other features associated with DNA, RNA and protein sequences & Tabix \\
+\href{http://www.sanger.ac.uk/resources/software/gff/spec.html}{GFF} & genes and other features associated with DNA, RNA and protein sequences & Tabix \\
+\href{http://mblab.wustl.edu/GTF22.html}{GTF} & genes and other features associated with DNA, RNA and protein sequences & Tabix \\
 Tab-delimited & any feature-oriented data in tab-delimited form & Tabix \\
 \href{http://www.1000genomes.org/node/101}{VCF} & structural variations & Tabix \\
 \href{http://genome.ucsc.edu/goldenPath/help/wiggle.html}{Wig} & continuous-valued data such as GC percent, probability scores, and transcriptome data & TDF \\
@@ -192,6 +193,7 @@ UCSC & \href{http://genome.ucsc.edu}{http://genome.ucsc.edu}\\
 1000 Genomes Project & \href{http://www.1000genomes.org}{http://www.1000genomes.org}\\
 NCBI & \href{http://www.ncbi.nlm.nih.gov}{http://www.ncbi.nlm.nih.gov}\\
 EBI & \href{http://www.ebi.ac.uk}{http://www.ebi.ac.uk}\\
+Ensembl & \href{http://ensembl.org/info/data/ftp}{http://ensembl.org/info/data/ftp}\\
 \end{tabular}
 
 \section{Using the Format Dialog}
@@ -331,32 +333,18 @@ Keys & Action \\
 \end{center}
 \end{table} 
 
-\begin{table}[ht] 
-\begin{center}
-\begin{tabular}{|l l|}  
-\hline                      
-Keys & Action \\
-\hline            
-Click and drag left/right & pan left/right  \\
-{\sc ctrl/cmd} + scroll-wheel up/down & pan left/right  \\
-{\sc ctrl/cmd} + Click and drag & zoom in on selected region  \\
-{\sc shift} + Click and drag  & select all records in region  \\
-\hline     
-\end{tabular}
-\caption{Navigation Using the Mouse}  
-\end{center}
-\end{table} 
-
-\section{Other Useful Shortcuts}
-
-Range changes can be undone and redone using the commands in the following table. 
-
+In addition to these navigation shortcuts, there are a number of other useful shortcuts, described in Table~\ref{OtherShortcuts}
 \begin{table}[h] 
 \begin{center}
 \begin{tabular}{|l l|}  
 \hline                      
 Keys & Action \\
 \hline                    
+Click and drag left/right & pan left/right  \\
+{\sc ctrl/cmd} + scroll-wheel up/down & pan left/right  \\
+{\sc ctrl/cmd} + Click and drag & zoom in on selected region  \\
+{\sc shift} + Click and drag  & select all records in region  \\
+\hline
 {\sc ctrl/cmd + z} & undo range change  \\
 {\sc ctrl/cmd + y} & redo range change \\ 
 {\sc ctrl/cmd + i} & export track images (see \S\ref{ExportingImages}) \\ 
@@ -367,6 +355,7 @@ Keys & Action \\
 \hline
 \end{tabular}
 \caption{Other Shortcuts}  
+\label{OtherShortcuts}
 \end{center}
 \end{table} 
 
@@ -408,7 +397,7 @@ The \textit{Spotlight} tool is similar to the Plumbline tool, except that portio
 \chapter{Docking Framework}
 \label{DockingFramework}
 
-Savant features a docking framework which allows you to rearrange modules to their liking. Such modules include tracks and built-in items (e.g. Bookmarks, Variants, etc.) and plugins. Non-track modules are constrained to be docked to the sides of the UI and not among tracks. Similarly, track modules are constrained so that they cannot be docked among other modules.
+Savant features a docking framework which allows you to rearrange modules to your liking. Such modules include tracks and built-in items (e.g. Bookmarks, Variants, etc.) and plugins. Non-track modules are constrained to be docked to the sides of the UI and not among tracks. Similarly, track modules are constrained so that they cannot be docked among other modules.
 
 While a number of important functions are presented here, the best way to learn all the features of the docking framework is to try using it.
 
@@ -426,7 +415,7 @@ By default, built-in modules are hidden. Hidden modules appear as tabs located o
 \begin{figure}
 \begin{center}
 \includegraphics[type=png,ext=.png,read=.png,width=14cm]{images/hideshowmodules}
-\caption[Hiding and Showing Modules]{Hiding and Showing Modules. Left: The Annotation module, hidden on the right of the Savant UI. Middle: The Annotation module, shown by mousing over the Annotation tab. Right: The Annotation module, pinned so that it will remain shown even when you are interacting with other components of the UI. }
+\caption[Hiding and Showing Modules]{Hiding and Showing Modules. Left: The Annotation module, hidden on the right of the Savant UI. Middle: The Annotation module, shown by clicking the Annotation tab. Right: The Annotation module, pinned so that it will remain shown even when you are interacting with other components of the UI. }
 \label{HideShowModules}
 \end{center}
 \end{figure}
@@ -501,6 +490,8 @@ Savant also gives you the option of adding padding to bookmarks to make them mor
 The Data Table is a plugin (see Chapter~\ref{Plugins}) which is installed by default as part of Savant.  The Data Table module displays the data in the current range in a tabular format, with the records being rows and the fields being columns.
 
 The data is automatically updated when the range in the main track display changes, unless the \textit{Auto Update} checkbox is unchecked.  The \textit{Show Only Selected} checkbox allows you to filter the table, showing only records which are selected in the current track.
+
+Double-clicking on a row in the data table will select the corresponding record in the track display.
 
 \begin{figure}[h]
 \begin{center}
@@ -588,7 +579,7 @@ Optionally, you may enter a single base which will be highlighted in the output 
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/PluginRepository}
+\includegraphics[type=png,ext=.png,read=.png,width=15cm]{images/ExportImage}
 \caption{Export Image Dialog}
 \end{center}
 \end{figure}
