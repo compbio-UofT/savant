@@ -29,7 +29,7 @@ public class TabixIntervalRecord implements IntervalRecord {
 
     protected String[] values;
     protected final ColumnMapping mapping;
-    protected final Interval interval;
+    protected Interval interval;
     private int count = 0;
 
     /**

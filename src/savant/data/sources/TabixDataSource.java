@@ -264,26 +264,11 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     
     private boolean absorbGTFRecord(TabixIntervalRecord rec, List<TabixIntervalRecord> recs) {
         if (rec instanceof GTFIntervalRecord) {
-            String feature = rec.getValues()[GTFIntervalRecord.FEATURE_COLUMN];
-            boolean exon = false;
-            if (feature.equals("exon")) {
-                exon = true;
-            } else if (!feature.equals("CDS")) {
-                // Child is not an exon or CDS, so we can't absorb it.
-                return false;
-            }
             // Find a plausible parent GTF.  It should be the last record, but not always.
             GTFIntervalRecord child = (GTFIntervalRecord)rec;
-            int start = child.getInterval().getStart();
-            int end = child.getInterval().getEnd();
             for (int i = recs.size() - 1; i >= 0; i--) {
                 GTFIntervalRecord parent = (GTFIntervalRecord)recs.get(i);
-                if (parent.getName().equals(child.getName()) && parent.getAlternateName().equals(child.getAlternateName())) {
-                    if (exon) {
-                        parent.getBlocks().add(Block.valueOf(start - parent.getInterval().getStart(), end - start));
-                    } else {
-                        parent.setThickness(start, end);
-                    }
+                if (parent.absorbRecord(child)) {
                     return true;
                 }
             }
