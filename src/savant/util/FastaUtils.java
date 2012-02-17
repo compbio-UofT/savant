@@ -16,14 +16,7 @@
 
 package savant.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,8 +58,12 @@ public class FastaUtils {
                         faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", ref, numBases, refStart, lineLen, lineLen + 1).getBytes());
                         entries.add(new IndexEntry(ref, numBases, refStart, lineLen));
                     }
-                    ref = s.substring(1);
-                    refStart = readPos + ref.length() + 2;
+                    refStart = readPos + s.length() + 1;
+                    int spacePos = s.indexOf(' ');
+                    if (spacePos < 0) {
+                        spacePos = s.length();
+                    }
+                    ref = s.substring(1, spacePos);
                     numBases = 0;
                 } else {
                     if (lineLen < 0) {

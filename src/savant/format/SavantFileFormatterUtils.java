@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,14 +19,7 @@ package savant.format;
 import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.Interval;
 import savant.api.data.Block;
@@ -48,8 +41,6 @@ import savant.view.dialog.DataFormatForm;
  */
 public class SavantFileFormatterUtils {
 
-    private static Log log = LogFactory.getLog(SavantFileFormatterUtils.class);
-    
     // Constants to use for size calculations on output fields.
     public static final int LONG_FIELD_SIZE     = 8;
     public static final int INT_FIELD_SIZE      = 4;
@@ -122,14 +113,6 @@ public class SavantFileFormatterUtils {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 
-        if (log.isDebugEnabled()) {
-            log.debug("Reading binary record");
-            log.debug("Fields");
-            for (FieldType ft : fields) {
-                log.debug("\t" + ft);
-            }
-        }
-
         for (FieldType ft : fields) {
             if (ft == FieldType.IGNORE) { continue; }
 
@@ -184,7 +167,6 @@ public class SavantFileFormatterUtils {
                 case IGNORE:
                     break;
                 default:
-                    log.info("Not implemented yet for Field Type: " + ft);
                     break;
             }
         }
@@ -330,24 +312,6 @@ public class SavantFileFormatterUtils {
        return ir;
     }
 
-    private static List<Block> parseBlocks(int numBlocks, String blockPositions, String blockSizes) {
-
-        List<Block> blocks = new ArrayList<Block>(numBlocks);
-
-        if (numBlocks > 0) {
-            StringTokenizer posTokenizer = new StringTokenizer(blockPositions,",");
-            StringTokenizer sizeTokenizer = new StringTokenizer(blockSizes,",");
-
-            while (numBlocks-- > 0) {
-                int nextPos = Integer.parseInt(posTokenizer.nextToken());
-                int nextSize = Integer.parseInt(sizeTokenizer.nextToken());
-                blocks.add(Block.valueOf(nextPos,nextSize));
-            }
-        }
-
-        return blocks;
-    }
-
     public static Strand getStrand(String strand) {
         char c = strand.charAt(0);
         if (c == '-') {
@@ -355,74 +319,6 @@ public class SavantFileFormatterUtils {
         } else {
             return Strand.FORWARD;
         }
-    }
-
-    public static Map<String, String> splitFile(File file, int columnNumber) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(file));
-
-        Map<String, String> seqnameToFileNameMap = new HashMap<String,String>();
-        Map<String, BufferedWriter> seqnameToBufferedWriterMap = new HashMap<String,BufferedWriter>();
-
-        BufferedWriter bw;
-
-        String line = "";
-
-        while((line = br.readLine()) != null) {
-
-            // TODO: this should be specific to Generic Interval and BED files separately
-            // currently all file types are affected
-            try {
-                if (line.equals("\n")) {
-                    continue;
-                }
-                if (line.substring(0, 2).equals("##")) {
-                    continue;
-                }
-                if (line.startsWith("track")) {
-                    continue;
-                }
-            } catch (IndexOutOfBoundsException e) {}
-
-            try {
-                StringTokenizer st = new StringTokenizer(line);
-                for (int i = 0; i < columnNumber; i++) {
-                    st.nextToken();
-                }
-
-                String t = st.nextToken();
-
-                if (seqnameToFileNameMap.containsKey(t)) {
-                    bw = seqnameToBufferedWriterMap.get(t);
-                } else {
-                    String fn = file + ".split_" + t;
-                    bw = new BufferedWriter(new FileWriter(fn));
-                    seqnameToFileNameMap.put(t,fn);
-                    seqnameToBufferedWriterMap.put(t,bw);
-                }
-
-                bw.write(line + "\n");
-            } catch (NoSuchElementException nseEx) {
-                // Blank lines at the end of the file.  No harm done.
-            }
-        }
-        
-        br.close();
-
-
-        for (BufferedWriter bwr : seqnameToBufferedWriterMap.values()) {
-            bwr.flush();
-            bwr.close();
-        }
-
-        //List<String> outFiles = new ArrayList<String>();
-
-        //for (String v : seqnameToFileNameMap.values()) {
-        //    outFiles.add(v);
-        //}
-
-        //return outFiles;
-
-        return seqnameToFileNameMap;
     }
 
     /**

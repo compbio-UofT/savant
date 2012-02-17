@@ -64,7 +64,7 @@ public class TabixIntervalRecord implements IntervalRecord {
     public static TabixIntervalRecord valueOf(String s, ColumnMapping mapping) {
         switch (mapping.format) {
             case RICH_INTERVAL:
-                return new TabixRichIntervalRecord(s, mapping);
+                return mapping == ColumnMapping.GTF ? new GTFIntervalRecord(s) : new TabixRichIntervalRecord(s, mapping);
             case VARIANT:
                 return new VCFVariantRecord(s, mapping);
             default:

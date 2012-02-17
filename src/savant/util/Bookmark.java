@@ -92,7 +92,7 @@ public class Bookmark implements BookmarkAdapter {
         text = text.replace(" ", "");
 
         // Extract a chromosome name (if any).
-        int colonPos = text.indexOf(':');
+        int colonPos = text.lastIndexOf(':');
         if (colonPos >= 0) {
             reference = text.substring(0, colonPos).intern();
             text = text.substring(colonPos + 1);

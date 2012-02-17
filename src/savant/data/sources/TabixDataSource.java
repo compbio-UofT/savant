@@ -34,10 +34,12 @@ import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
+import savant.api.data.Block;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
-import savant.util.IndexCache;
+import savant.data.types.GTFIntervalRecord;
 import savant.data.types.TabixIntervalRecord;
+import savant.util.IndexCache;
 import savant.util.ColumnMapping;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
@@ -121,11 +123,16 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
             columnNames = new String[] { null, "Transcript name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Gene name", null, null, null };
             mapping = ColumnMapping.REFSEQ;
         } else if (matchesMapping(ColumnMapping.GFF)) {
-            columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Group" };
-            mapping = ColumnMapping.GFF;
-        } else if (matchesMapping(ColumnMapping.GTF)) {
-            columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Attributes" };
-            mapping = ColumnMapping.GTF;
+            // Based on chrom/start/end fields, it's impossible to distinguish between GFF and GTF files.
+            // We have to look at column 8, which will have special values for GTF.
+            String attributes = line.substring(line.lastIndexOf('\t') + 1);
+            if (attributes.contains("gene_id") && attributes.contains("transcript_id")) {
+                columnNames = new String[] { "Reference", "Source", "Feature", "Start", "End", "Score", "Strand", "Frame", "Attributes" };
+                mapping = ColumnMapping.GTF;
+            } else {
+                columnNames = new String[] { "Reference", "Source", "Feature", "Start", "End", "Score", "Strand", "Frame", "Group" };
+                mapping = ColumnMapping.GFF;
+            }
         } else if (matchesMapping(ColumnMapping.PSL)) {
             columnNames = new String[] { "Matches", "Mismatches", "Matches that are part of repeats", "Number of 'N' bases", "Number of inserts in query", "Number of bases inserted in query", "Number of inserts in target", "Number of bases inserted in target", "Strand", "Query sequence name", "Query sequence size", "Alignment start in query", "Alignment end in query", "Target sequence name", "Target sequence size", "Alignment start in target", "Alignment end in target", null, null, null };
             mapping = ColumnMapping.PSL;
@@ -176,25 +183,27 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
                 while ((line = i.next()) != null) {
                     // Note: count is used to uniquely identify records in same location
                     // Assumption is that iterator will always give records in same order
-                    TabixIntervalRecord tir = TabixIntervalRecord.valueOf(line, mapping);
-                    if (filt == null || filt.accept(tir)) {
-                        if (tir.getInterval().getStart() == start) {
-                            end = tir.getInterval().getEnd();
+                    TabixIntervalRecord rec = TabixIntervalRecord.valueOf(line, mapping);
+                    if (filt == null || filt.accept(rec)) {
+                        if (rec.getInterval().getStart() == start) {
+                            end = rec.getInterval().getEnd();
                             if (ends.get(end) == null) {
                                 ends.put(end, 0);
                             } else {
                                 int count = ends.get(end)+1;
                                 ends.put(end, count);
-                                tir.setCount(count);
+                                rec.setCount(count);
                             }
                         } else {
-                            start = tir.getInterval().getStart();
-                            end = tir.getInterval().getEnd();
+                            start = rec.getInterval().getStart();
+                            end = rec.getInterval().getEnd();
                             ends.clear();
                             ends.put(end, 0);
-                            tir.setCount(0);
+                            rec.setCount(0);
                         }
-                        result.add(tir);
+                        if (!absorbGTFRecord(rec, result)) {
+                            result.add(rec);
+                        }
                     }
                     if (Thread.interrupted()) {
                         throw new InterruptedException();
@@ -251,5 +260,34 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
      */
     public boolean prefersAlternateName() {
         return mapping == ColumnMapping.REFSEQ;
+    }
+    
+    private boolean absorbGTFRecord(TabixIntervalRecord rec, List<TabixIntervalRecord> recs) {
+        if (rec instanceof GTFIntervalRecord) {
+            String feature = rec.getValues()[GTFIntervalRecord.FEATURE_COLUMN];
+            boolean exon = false;
+            if (feature.equals("exon")) {
+                exon = true;
+            } else if (!feature.equals("CDS")) {
+                // Child is not an exon or CDS, so we can't absorb it.
+                return false;
+            }
+            // Find a plausible parent GTF.  It should be the last record, but not always.
+            GTFIntervalRecord child = (GTFIntervalRecord)rec;
+            int start = child.getInterval().getStart();
+            int end = child.getInterval().getEnd();
+            for (int i = recs.size() - 1; i >= 0; i--) {
+                GTFIntervalRecord parent = (GTFIntervalRecord)recs.get(i);
+                if (parent.getName().equals(child.getName()) && parent.getAlternateName().equals(child.getAlternateName())) {
+                    if (exon) {
+                        parent.getBlocks().add(Block.valueOf(start - parent.getInterval().getStart(), end - start));
+                    } else {
+                        parent.setThickness(start, end);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

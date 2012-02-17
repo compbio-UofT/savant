@@ -151,7 +151,7 @@ public class ColumnMapping {
             } else if (colName.equals("end") || colName.equals("txend") || colName.equals("chromend") || colName.equals("genoend")) {
                 end = i;
                 columnNames[i] = "End";
-            } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname") || colName.equals("repname")) {
+            } else if (colName.equals("name") || colName.equals("qname") || colName.equals("repname")) {
                 name = i;
                 columnNames[i] = "Name";
             } else if (colName.equals("score")) {
