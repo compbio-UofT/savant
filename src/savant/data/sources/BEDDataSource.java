@@ -33,9 +33,9 @@ import savant.api.data.IntervalRecord;
 import savant.api.util.Resolution;
 import savant.data.types.BEDIntervalRecord;
 import savant.file.*;
-import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
+import savant.format.SavantFileFormatter;
 import savant.util.Range;
 
 
@@ -52,8 +52,8 @@ public class BEDDataSource extends DataSource<BEDIntervalRecord> {
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
 
     public BEDDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
-        this.dFile = new SavantROFile(uri, FileType.INTERVAL_BED);
-        this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
+        dFile = new SavantROFile(uri, FileType.INTERVAL_BED);
+        refnameToIntervalBSTIndex = SavantFileFormatter.readIntervalBSTs(dFile);
     }
 
     public IntervalSearchTree getIntervalSearchTreeForReference(String refname){

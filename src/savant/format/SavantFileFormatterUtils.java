@@ -74,7 +74,7 @@ public class SavantFileFormatterUtils {
         if (extension.equals("gtf")) {
             return FileType.INTERVAL_GTF;
         }
-        if (extension.equals("wig") || extension.equals("wigfix") || extension.equals("bedgraph")) {
+        if (extension.equals("wig") || extension.equals("bedgraph")) {
             return FileType.CONTINUOUS_WIG;
         }
         if (extension.equals("fa") || extension.equals("fasta")) {

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ public class DownloadEvent {
     final Type type;
     final double progress;
     final File file;
-    final Exception error;
+    final Throwable error;
 
-    private DownloadEvent(Type type, double progress, File file, Exception error) {
+    private DownloadEvent(Type type, double progress, File file, Throwable error) {
         this.type = type;
         this.progress = progress;
         this.file = file;
@@ -73,7 +73,7 @@ public class DownloadEvent {
      *
      * @param error the exception which caused the download to fail
      */
-    public DownloadEvent(Exception error) {
+    public DownloadEvent(Throwable error) {
         this(Type.FAILED, Double.NaN, null, error);
     }
 
@@ -89,7 +89,7 @@ public class DownloadEvent {
         return file;
     }
 
-    public Exception getError() {
+    public Throwable getError() {
         return error;
     }
 }

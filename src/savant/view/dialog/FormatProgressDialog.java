@@ -19,6 +19,7 @@ package savant.view.dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -27,10 +28,11 @@ import javax.swing.JOptionPane;
 import com.jidesoft.dialog.JideOptionPane;
 
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
-import savant.format.DataFormatter;
-import savant.format.FormatProgressListener;
+import savant.format.FormatEvent;
+import savant.format.SavantFileFormatter;
 import savant.format.SavantFileFormattingException;
 import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
@@ -41,79 +43,28 @@ import savant.view.icon.SavantIconFactory;
  *
  * @author mfiume
  */
-public class FormatProgressDialog extends JDialog implements FormatProgressListener {
+public class FormatProgressDialog extends JDialog implements Listener<FormatEvent> {
 
-    //DataFormatter dataFormatter;
-    Thread formatThread;
-    final DataFormatter dataFormatter;
+    final SavantFileFormatter formatter;
 
     /** Creates new form FormatFrame */
-    public FormatProgressDialog(Window parent, DataFormatter formatter) {
+    public FormatProgressDialog(Window parent, SavantFileFormatter sff) {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
-        dataFormatter = formatter;
+        formatter = sff;
         setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
 
-        label_src.setText(shorten(dataFormatter.getInputFile().getPath()));
-        label_dest.setText(shorten(dataFormatter.getOutputFile().getPath()));
-
-        setSubtaskStatus("");
-        setSubtaskProgress(0);
-        setOverallProgress(0);
-    }
-
-    public final void setSubtaskStatus(String msg) {
-        if (msg != null) {
-            this.label_status.setText(msg);
-        }
-    }
-
-    int overallprogress_at;
-
-    private void setTitle() {
-        setTitle("("  + subtaskprogress + "% done current task" + /*"/" + overallprogress_total +*/ ") Formatting " + dataFormatter.getInputFile());
-    }
-    
-    int subtaskprogress;
-
-    public final void setSubtaskProgress(Integer p) {
-        if (p == null) {
-            //this.progress_current.setIndeterminate(true);
-        } else if (p >= 0 && p <= 100) {
-            subtaskprogress = p;
-            progress_current.setIndeterminate(false);
-            progress_current.setValue(p);
-            setTitle();
-        }
-    }
-
-    public void setFormatComplete() {
-        this.setTitle("(100%) Format of " + dataFormatter.getInputFile() + " complete");
-        this.label_overallstatus.setText("Format complete.");
-    }
-
-    void setFormatThread(Thread t) {
-        formatThread = t;
-    }
-
-    public final void setOverallProgress(int at) {
-        if (at != overallprogress_at) {
-            setSubtaskProgress(0);
-        }
-        overallprogress_at = at;
-        setTitle();
-    }
-
-
-    @Override
-    public void taskProgressUpdate(Integer progress, String status) {
-        setSubtaskProgress(progress);
-        setSubtaskStatus(status);
+        srcLabel.setText(shorten(formatter.getInputFile().getPath()));
+        destLabel.setText(shorten(formatter.getOutputFile().getPath()));
     }
 
     @Override
-    public void incrementOverallProgress() {
-        setOverallProgress(overallprogress_at+1);
+    public void setVisible(boolean flag) {
+        if (flag) {
+            formatter.addListener(this);
+            formatter.run();
+        }
+        super.setVisible(flag);
     }
 
     /** This method is called from within the constructor to
@@ -125,39 +76,40 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel5 = new javax.swing.JLabel();
-        label_src = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        label_status = new javax.swing.JLabel();
-        progress_current = new javax.swing.JProgressBar();
-        jButton1 = new javax.swing.JButton();
-        label_dest = new javax.swing.JLabel();
-        label_overallstatus = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JLabel destCaption = new javax.swing.JLabel();
+        srcLabel = new javax.swing.JLabel();
+        javax.swing.JLabel srcCaption = new javax.swing.JLabel();
+        statusLabel = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
+        destLabel = new javax.swing.JLabel();
+        javax.swing.JLabel statusCaption = new javax.swing.JLabel();
+        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Formatting ...");
         setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+        setPreferredSize(new java.awt.Dimension(660, 194));
         setResizable(false);
 
-        jLabel5.setText("Destination: ");
+        destCaption.setText("Destination: ");
 
-        label_src.setText("filename1");
+        srcLabel.setText("filename1");
 
-        jLabel3.setText("Formatting: ");
+        srcCaption.setText("Formatting: ");
 
-        label_status.setText("status ...");
+        statusLabel.setText("status ...");
 
-        jButton1.setText("Cancel");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        label_dest.setText("filename2");
+        destLabel.setText("filename2");
 
-        label_overallstatus.setText("Status: ");
+        statusCaption.setText("Status: ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -168,19 +120,19 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel3))
+                            .addComponent(destCaption)
+                            .addComponent(srcCaption))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(label_src, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(label_dest, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(srcLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)
+                            .addComponent(destLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(label_overallstatus)
+                        .addComponent(statusCaption)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_status, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(progress_current, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE))
+                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE))
+                    .addComponent(cancelButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -188,116 +140,125 @@ public class FormatProgressDialog extends JDialog implements FormatProgressListe
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(label_src))
+                    .addComponent(srcCaption)
+                    .addComponent(srcLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(label_dest))
+                    .addComponent(destCaption)
+                    .addComponent(destLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_overallstatus)
-                    .addComponent(label_status))
+                    .addComponent(statusCaption)
+                    .addComponent(statusLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(progress_current, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(cancelButton)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         if (DialogUtils.askYesNo("Confirm Cancel", "Are you sure you want to cancel?") == DialogUtils.YES) {
-            formatThread.interrupt();
+            formatter.cancel();
             dispose();
         }
-}//GEN-LAST:event_jButton1ActionPerformed
+}//GEN-LAST:event_cancelButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel label_dest;
-    private javax.swing.JLabel label_overallstatus;
-    private javax.swing.JLabel label_src;
-    private javax.swing.JLabel label_status;
-    private javax.swing.JProgressBar progress_current;
+    private javax.swing.JLabel destLabel;
+    private javax.swing.JProgressBar progressBar;
+    private javax.swing.JLabel srcLabel;
+    private javax.swing.JLabel statusLabel;
     // End of variables declaration//GEN-END:variables
 
-    void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
-
-        if (wasFormatSuccessful) {
-            if (GenomeController.getInstance().isGenomeLoaded()) {
+    @Override
+    public void handleEvent(FormatEvent event) {
+        switch (event.getType()) {
+            case PROGRESS:
+                progressBar.setValue((int)(event.getProgress() * 100.0));
+                if (event.getSubTask() != null) {
+                    statusLabel.setText(event.getSubTask());
+                }
+                break;
+            case COMPLETED:
                 setVisible(false);
-                if (DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
-                    try {
-                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath(), null, null);
-                    } catch (Exception ex) {
+                if (GenomeController.getInstance().isGenomeLoaded()) {
+                    setVisible(false);
+                    if (DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
+                        try {
+                            FrameController.getInstance().addTrackFromPath(formatter.getOutputFile().getAbsolutePath(), null, null);
+                        } catch (Exception ex) {
+                        }
                     }
+                } else {
+                    JOptionPane.showMessageDialog(this, "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>", "Format Successful", JOptionPane.INFORMATION_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>", "Format Successful", JOptionPane.INFORMATION_MESSAGE);
-            }
-            dispose();
-        } else if (e instanceof InterruptedException) {
-            setVisible(false);
-            DialogUtils.displayMessage("Format cancelled.");
-        } else if (e instanceof SavantFileFormattingException) {
-            // Not a Savant error.  They've just chosen the wrong kind of file.
-            setVisible(false);
-            DialogUtils.displayMessage("Sorry", e.getMessage());
-        } else {
-            setVisible(false);
-            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-            optionPane.setTitle("A problem was encountered while formatting.");
-            optionPane.setOptions(new String[] {});
-            JButton reportButton = new JButton("Report Issue");
-            ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
-            final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
-            dialog.setModal(true);
-            dialog.setResizable(true);
-            optionPane.setDetails(MiscUtils.getStackTrace(e));
-            //optionPane.setDetailsVisible(true);
-            dialog.pack();
+                break;
+            case FAILED:
+                setVisible(false);
+                final Throwable e = event.getError();
+                if (e instanceof InterruptedException) {
+                    DialogUtils.displayMessage("Format cancelled.");
+                } else if (e instanceof SavantFileFormattingException) {
+                    // Not a Savant error.  They've just chosen the wrong kind of file.
+                    DialogUtils.displayMessage("Sorry", e.getMessage());
+                } else {
+                    JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+                            + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                    optionPane.setTitle("A problem was encountered while formatting.");
+                    optionPane.setOptions(new String[] {});
+                    JButton reportButton = new JButton("Report Issue");
+                    ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
+                    final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+                    dialog.setModal(true);
+                    dialog.setResizable(true);
+                    optionPane.setDetails(MiscUtils.getStackTrace(e));
+                    //optionPane.setDetailsVisible(true);
+                    dialog.pack();
 
-            reportButton.addActionListener(new ActionListener() {
+                    reportButton.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e2) {
-                    String issue = "Hey Savant Developers,\n\n";
-                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
+                        @Override
+                        public void actionPerformed(ActionEvent e2) {
+                            String issue = "Hey Savant Developers,\n\n";
+                            issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
 
-                    issue += "=== TO BE COMPLETED BY USER ===\n";
-                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
-                    issue += "- TYPE: [e.g. BED]\n";
-                    issue += "- CONTENTS: [e.g. human genes]\n";
-                    issue += "- PATH: " + dataFormatter.getInputFile().getAbsolutePath() + "\n";
-                    issue += "- ADDITIONAL COMMENTS:\n\n";
+                            issue += "=== TO BE COMPLETED BY USER ===\n";
+                            issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
+                            issue += "- TYPE: [e.g. BED]\n";
+                            issue += "- CONTENTS: [e.g. human genes]\n";
+                            issue += "- PATH: " + formatter.getInputFile().getAbsolutePath() + "\n";
+                            issue += "- ADDITIONAL COMMENTS:\n\n";
 
-                    issue += "=== ERROR DETAILS ===\n";
-                    issue += MiscUtils.getStackTrace(e);
+                            issue += "=== ERROR DETAILS ===\n";
+                            issue += MiscUtils.getStackTrace(e);
 
-                    dialog.dispose();
-                    (new BugReportDialog(issue, dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
+                            dialog.dispose();
+                            (new BugReportDialog(issue, formatter.getInputFile().getAbsolutePath())).setVisible(true);
+                        }
+
+                    });
+
+                    dialog.setVisible(true);
                 }
-
-            });
-
-            dialog.setVisible(true);
+                break;
         }
     }
 
-    private String shorten(String string) {
-        int maxlen = 50;
-        if (string.length() > maxlen) {
-            return "..." + string.substring(string.length()-maxlen);
+    private String shorten(String path) {
+        int maxLen = 50;
+        if (path.length() > maxLen) {
+            String file = new File(path).getName();
+            do {
+                path = new File(path).getParent();
+            } while (path.length() > 0 && path.length() + 2 + file.length() > maxLen);
+            return path + File.separator + "…" + file;
         } else {
-            return string;
+            return path;
         }
     }
 }

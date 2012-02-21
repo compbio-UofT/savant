@@ -31,8 +31,8 @@ import org.broad.igv.tools.sort.Parser;
 import org.broad.igv.tools.sort.Sorter;
 import org.broad.tabix.TabixWriter;
 import org.broad.tabix.TabixWriter.Conf;
-
 import org.broad.tribble.readers.AsciiLineReader;
+
 import savant.file.FileType;
 import savant.util.ColumnMapping;
 
@@ -57,8 +57,8 @@ public class TabixFormatter extends SavantFileFormatter {
      * @param inFile input text file
      * @param outFile output .gz file (index will append .tbi to the name)
      */
-    public TabixFormatter(File inFile, File outFile, FileType inputFileType, FormatProgressListener listener) throws IOException {
-        super(inFile, outFile, listener);
+    public TabixFormatter(File inFile, File outFile, FileType inputFileType) throws IOException {
+        super(inFile, outFile);
 
         int flags = 0;
         switch (inputFileType) {
@@ -128,7 +128,7 @@ public class TabixFormatter extends SavantFileFormatter {
     public void format() throws InterruptedException, IOException {
         try {
             // Sort the input file.
-            setSubtaskStatus("Sorting input file...");
+            setProgress(0.0, "Sorting input file…");
             File sortedFile = File.createTempFile("savant", ".sorted");
             new Sorter(inFile, sortedFile) {
 
@@ -159,10 +159,9 @@ public class TabixFormatter extends SavantFileFormatter {
                     return nextLine;
                 }
             }.run();
-            setSubtaskProgress(25);
 
             // Compress the text file.
-            setSubtaskStatus("Compressing text file...");
+            setProgress(0.25, "Compressing text file...");
             AsciiLineReader input = new AsciiLineReader(new FileInputStream(sortedFile));
             PrintWriter output = new PrintWriter(new BlockCompressedOutputStream(outFile));
             String line;
@@ -195,15 +194,12 @@ public class TabixFormatter extends SavantFileFormatter {
             }
             output.close();
             input.close();
-            setSubtaskProgress(50);
-
-            setSubtaskStatus("Creating index file...");
+            setProgress(0.5, "Creating index file…");
             TabixWriter writer = new TabixWriter(outFile, conf);
             writer.createIndex(outFile);
-            setSubtaskProgress(75);
 
             if (dictionary.size() > 0) {
-                setSubtaskStatus("Creating dictionary file...");
+                setProgress(0.75, "Creating dictionary file…");
                 output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
                 Collections.sort(dictionary);
                 for (String l: dictionary) {
@@ -211,7 +207,7 @@ public class TabixFormatter extends SavantFileFormatter {
                 }
                 output.close();
             }
-            setSubtaskProgress(100);
+            setProgress(1.0, null);
         } catch (Exception x) {
             throw new IOException(x);
         }

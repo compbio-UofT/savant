@@ -751,6 +751,7 @@ public class Preprocessor implements DataConsumer {
 	    String extension = getExtension(iFile.getAbsolutePath());
 	    out.println("Error: cannot 'tile' files of type " + extension);
 	    out.println("Valid file extensions are: .cn, .xcn, .cn, .snp, .wig, and .gct");
+            throw new PreprocessingException("Cannot 'tile' files of type " + extension);
 	}
     }
 

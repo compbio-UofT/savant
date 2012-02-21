@@ -33,9 +33,9 @@ import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericIntervalRecord;
 import savant.file.*;
-import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
+import savant.format.SavantFileFormatter;
 import savant.util.Range;
 
 
@@ -52,8 +52,8 @@ public class GenericIntervalDataSource extends DataSource<GenericIntervalRecord>
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
 
     public GenericIntervalDataSource(URI uri) throws IOException, SavantFileNotFormattedException {
-        this.dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
-        this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
+        dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
+        refnameToIntervalBSTIndex = SavantFileFormatter.readIntervalBSTs(dFile);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("HEADER SIZE && : "+  dFile.getFilePointer());

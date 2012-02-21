@@ -24,7 +24,7 @@ import javax.swing.JDialog;
 
 import savant.api.util.DialogUtils;
 import savant.file.FileType;
-import savant.format.DataFormatter;
+import savant.format.SavantFileFormatter;
 import savant.format.SavantFileFormatterUtils;
 
 
@@ -226,30 +226,15 @@ public final class DataFormatForm extends JDialog {
         File infile = new File(inputField.getText());
         File outfile = new File(outputField.getText());
         FileType ft = ((FormatDef)formatList.getSelectedValue()).type;
-        boolean isInputOneBased = !zeroBasedCheck.isSelected();
         
-        final DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
-
-        final FormatProgressDialog fpd = new FormatProgressDialog(this, df);
-        new Thread("Formatter") {
-            @Override
-            public void run() {
-                try {
-                    fpd.setFormatThread(this);
-                    df.format(fpd);
-                    terminated = true;
-                    fpd.notifyOfTermination(true, null);
-                } catch (Throwable ex) {
-                    terminated = true;
-                    fpd.notifyOfTermination(false, ex);
-                }
-            }
-        }.start();
-        fpd.setLocationRelativeTo(this);
-        if (!terminated) {
+        try {
+            final SavantFileFormatter sff = SavantFileFormatter.getFormatter(infile, outfile, ft);
+            FormatProgressDialog fpd = new FormatProgressDialog(this, sff);
+            fpd.setLocationRelativeTo(this);
             fpd.setVisible(true);
+            setVisible(false);
+        } catch (Exception x) {
         }
-        setVisible(false);
     }//GEN-LAST:event_formatButtonActionPerformed
 
     private void formatListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_formatListValueChanged

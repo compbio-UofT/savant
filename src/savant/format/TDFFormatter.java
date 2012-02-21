@@ -48,23 +48,25 @@ public class TDFFormatter extends SavantFileFormatter {
     protected static final int DEFAULT_ZOOMS = 9;
 
     private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
+    protected static final double INFER_CHROMOSOMES_FRACTION = 0.2;
+    protected static final double GENERATE_TDF_FRACTION = 0.8;
 
     protected int lineCount;
 
-    public TDFFormatter(File inFile, File outFile, FormatProgressListener listener) {
-        super(inFile, outFile, listener);
+    public TDFFormatter(File inFile, File outFile) {
+        super(inFile, outFile);
     }
 
     @Override
     public void format() throws InterruptedException, IOException {
         Genome genome = getTDFGenome();
-        setSubtaskStatus("Generating TDF file...");
+        setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file…");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, lineCount, new TDFProgressMonitor());
         try {
             pp.preprocess(inFile, DEFAULT_ZOOMS);
             pp.finish();
         } catch (PreprocessingException x) {
-            throw new InterruptedException(x.getMessage());
+            throw new IOException(x.getMessage());
         }
     }
 
@@ -113,8 +115,7 @@ public class TDFFormatter extends SavantFileFormatter {
 
         inFileReader = openInputFile();
 
-        setSubtaskStatus("Processing input file...");
-        incrementOverallProgress();
+        setProgress(0.0, "Processing input file…");
 
         // Skip the header if it exists.
         String strLine = inFileReader.readLine();
@@ -197,7 +198,7 @@ public class TDFFormatter extends SavantFileFormatter {
                         if (Thread.interrupted()) {
                             throw new InterruptedException();
                         }
-                        setSubtaskProgress(getProgressAsInteger(byteCount, totalBytes));
+                        setProgress(INFER_CHROMOSOMES_FRACTION * byteCount / totalBytes, null);
                     }
                 }
             }
@@ -214,7 +215,7 @@ public class TDFFormatter extends SavantFileFormatter {
         @Override
         public void setPercentComplete(double d) {
             percentComplete = d;
-            setSubtaskProgress((int)d);
+            setProgress(INFER_CHROMOSOMES_FRACTION + d * 0.01 * GENERATE_TDF_FRACTION, null);
         }
 
         @Override

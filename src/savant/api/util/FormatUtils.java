@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package savant.api.util;
 
 import java.io.File;
+
 import savant.file.FileType;
-import savant.format.DataFormatter;
-import savant.format.FormatProgressListener;
+import savant.format.SavantFileFormatter;
 
 
 /**
@@ -36,19 +36,12 @@ public class FormatUtils {
      * @param inFile input file
      * @param outFile new output file
      * @param fileType type of the input file
-     * @param isInputOneBased whether or not the input file is 1-based
+     * @param isInputOneBased whether or not the input file is 1-based (ignored)
      * @return whether or not the format was successful
      */
     public static boolean formatFile(File inFile, File outFile, FileType fileType, boolean isInputOneBased) {
         try {
-            new DataFormatter(inFile, outFile, fileType, isInputOneBased).format(new FormatProgressListener() {
-
-                @Override
-                public void taskProgressUpdate(Integer progress, String status) {}
-
-                @Override
-                public void incrementOverallProgress() {}
-            });
+            SavantFileFormatter.getFormatter(inFile, outFile, fileType).format();
         } catch (Exception ex) {
             return false;
         }

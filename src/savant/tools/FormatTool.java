@@ -20,9 +20,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import savant.api.util.Listener;
 import savant.file.FileType;
-import savant.format.DataFormatter;
-import savant.format.FormatProgressListener;
+import savant.format.FormatEvent;
+import savant.format.SavantFileFormatter;
 import savant.format.SavantFileFormatterUtils;
 import savant.format.SavantFileFormattingException;
 
@@ -106,8 +107,16 @@ public class FormatTool {
                 }
             }
             try {
-                DataFormatter df = new DataFormatter(inFile, outFile, ft, oneBased);
-                df.format(new CommandLineProgressListener());
+                SavantFileFormatter sff = SavantFileFormatter.getFormatter(inFile, outFile, ft);
+                sff.addListener(new Listener<FormatEvent>() {
+                    @Override
+                    public void handleEvent(FormatEvent event) {
+                        if (event.getType() == FormatEvent.Type.PROGRESS && event.getSubTask() != null) {
+                            System.out.println(event.getSubTask());
+                        }
+                    }
+                });
+                sff.format();
             } catch (InterruptedException ix) {
                 System.err.println("Formatting interrupted.");
             } catch (IOException iox) {
@@ -198,19 +207,5 @@ public class FormatTool {
         System.err.println("             BedGraph)");
         System.err.println("    inFile   the unformatted input file (required)");
         System.err.println("    outFile  the output file (if omitted, will default to inFile.savant)");
-    }
-
-    private static class CommandLineProgressListener implements FormatProgressListener {
-
-        @Override
-        public void taskProgressUpdate(Integer progress, String status) {
-            if (status != null) {
-                System.out.println(status);
-            }
-        }
-
-        @Override
-        public void incrementOverallProgress() {
-        }
     }
 }
