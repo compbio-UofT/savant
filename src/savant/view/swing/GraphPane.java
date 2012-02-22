@@ -801,7 +801,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         } else {
             JScrollBar sb = getVerticalScrollBar();
             if (sb.isVisible()) {
-                sb.setValue(sb.getValue() + notches);
+                sb.setValue(sb.getValue() + notches * 15);
             }
         }
     }
