@@ -328,7 +328,7 @@ public class SavantFileFormatterUtils {
      */
     public static void promptUserToFormatFile(URI uri) {
         if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", NetworkUtils.getFileName(uri))) == DialogUtils.YES) {
-            new DataFormatForm(DialogUtils.getMainWindow(), uri).setVisible(true);
+            new DataFormatForm(DialogUtils.getMainWindow(), uri, true).setVisible(true);
         }
     }
 

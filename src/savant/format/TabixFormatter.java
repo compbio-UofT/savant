@@ -16,12 +16,7 @@
 
 package savant.format;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,15 +45,23 @@ public class TabixFormatter extends SavantFileFormatter {
     private Conf conf;
 
     private List<String> dictionary = new ArrayList<String>();
+    
+    private boolean needsTabHack = false;
+
+    /** Keeps track of progress during sorting. */
+    private long fileLength, bytesWritten, bytesRead;
+    private int sortProgress;
 
     /**
      * Convert a text-based interval file into a usable format.
      *
      * @param inFile input text file
      * @param outFile output .gz file (index will append .tbi to the name)
+     * @param needsTabs if true, file needs extra processing to convert whitespace to tabs
      */
-    public TabixFormatter(File inFile, File outFile, FileType inputFileType) throws IOException {
+    public TabixFormatter(File inFile, File outFile, FileType inputFileType, boolean needsTabs) throws IOException {
         super(inFile, outFile);
+        needsTabHack = needsTabs;
 
         int flags = 0;
         switch (inputFileType) {
@@ -110,7 +113,7 @@ public class TabixFormatter extends SavantFileFormatter {
         // If we're lucky, the file starts with a comment line with the field-names in it.
         // That's what UCSC puts there, as does Savant.  In some files (e.g. VCF), this
         // magical comment line may be preceded by a ton of metadata comment lines.
-        BufferedReader reader = new BufferedReader(new FileReader(inFile));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getInput()));
         String line = reader.readLine();
         while (line.charAt(0) == '#') {
             header = line;
@@ -130,35 +133,7 @@ public class TabixFormatter extends SavantFileFormatter {
             // Sort the input file.
             setProgress(0.0, "Sorting input file…");
             File sortedFile = File.createTempFile("savant", ".sorted");
-            new Sorter(inFile, sortedFile) {
-
-                @Override
-                public Parser getParser() throws IOException {
-                    return new Parser(mapping.chrom, mapping.start);
-                }
-
-                @Override
-                public String writeHeader(AsciiLineReader reader, PrintWriter writer) throws IOException {
-                    String nextLine = reader.readLine();
-                    while (nextLine.startsWith("#")) {
-                        writer.println(nextLine);
-                        nextLine = reader.readLine();
-                    }
-                    // We may have to truncate the header to remove optional columns (usually for Bed).
-                    int numColumns = nextLine.split("\\t").length;
-                    String[] headerColumns = header.split("\\t");
-                    if (headerColumns.length > numColumns) {
-                        header = headerColumns[0];
-                        for (int i = 1; i < numColumns; i++) {
-                            header += "\t" + headerColumns[i];
-                        }
-                    }
-                    writer.println("#" + header);
-                    // Readjust our mapping now that we know the actual number of columns.
-                    mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
-                    return nextLine;
-                }
-            }.run();
+            new TabixSorter(inFile, sortedFile).run();
 
             // Compress the text file.
             setProgress(0.25, "Compressing text file...");
@@ -210,6 +185,163 @@ public class TabixFormatter extends SavantFileFormatter {
             setProgress(1.0, null);
         } catch (Exception x) {
             throw new IOException(x);
+        }
+    }
+    
+    /**
+     * Called by ProgressiveInputStream and ProgressiveWriter to update our progress while sorting.
+     */
+    private void updateSortProgress() {
+        int newProg = (int)((bytesRead + bytesWritten) * 12.5 / fileLength);
+        if (newProg != sortProgress) {
+            sortProgress = newProg;
+            setProgress(sortProgress * 0.01, null);
+        }
+    }
+
+    /**
+     * Used by TabixSorter and by readHeaderLine() so that they both have the same treatment of whitespace.
+     */
+    public InputStream getInput() throws FileNotFoundException {
+        return needsTabHack ? new TabFixingInputStream(inFile) : new ProgressiveInputStream(inFile);
+    }
+
+    private class TabixSorter extends Sorter {
+        TabixSorter(File inFile, File sortedFile) {
+            super(inFile, sortedFile);
+        }
+
+        @Override
+        public Parser getParser() throws IOException {
+            return new Parser(mapping.chrom, mapping.start);
+        }
+
+        @Override
+        public String writeHeader(AsciiLineReader reader, PrintWriter writer) throws IOException {
+            String nextLine = reader.readLine();
+            while (nextLine.startsWith("#")) {
+                writer.println(nextLine);
+                nextLine = reader.readLine();
+            }
+            // We may have to truncate the header to remove optional columns (usually for Bed).
+            int numColumns = nextLine.split("\\t").length;
+            String[] headerColumns = header.split("\\t");
+            if (headerColumns.length > numColumns) {
+                header = headerColumns[0];
+                for (int i = 1; i < numColumns; i++) {
+                    header += "\t" + headerColumns[i];
+                }
+            }
+            writer.println("#" + header);
+            // Readjust our mapping now that we know the actual number of columns.
+            mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
+            return nextLine;
+        }
+        
+        @Override
+        public InputStream getInput() throws FileNotFoundException {
+            return TabixFormatter.this.getInput();
+        }
+        
+        @Override
+        public PrintWriter getOutput() throws IOException {
+            return new PrintWriter(new BufferedWriter(new ProgressiveWriter(outputFile)));
+        }
+    }
+
+    /**
+     * InputStream class which allows us to update progress during the sorting process.
+     */
+    private class ProgressiveInputStream extends FilterInputStream {
+
+        private ProgressiveInputStream(File f) throws FileNotFoundException {
+            super(new FileInputStream(f));
+            fileLength = f.length();
+            bytesRead = 0;
+        }
+        
+        @Override
+        public int read() throws IOException {
+            bytesRead++;
+            return super.read();
+        }
+        
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int n = super.read(b, off, len);
+            bytesRead += n;
+            updateSortProgress();
+            return n;
+        }
+    }
+    
+    /**
+     * InputStream class which allows us to update progress during the sorting process.
+     */
+    private class TabFixingInputStream extends ProgressiveInputStream {
+        private boolean trailingSpace;
+        private byte[] tempBuf = new byte[0];
+
+        private TabFixingInputStream(File f) throws FileNotFoundException {
+            super(f);
+        }
+        
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException("Not supported.");
+        }
+        
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (tempBuf.length < b.length) {
+                tempBuf = new byte[b.length];
+            }
+            int n = super.read(tempBuf, off, len);
+            int j = off;
+            for (int i = 0; i < n; i++) {
+                byte c = tempBuf[i + off];
+                if (c == ' ') {
+                    if (!trailingSpace) {
+                        // First space in a possible run.
+                        trailingSpace = true;
+                        b[j++] = '\t';
+                    }
+                } else {
+                    trailingSpace = false;
+                    b[j++] = c;
+                }
+            }
+            LOG.info("read(" + b.length + ", " + off + ", " + len +") returning " + (j - off) + " instead of " + n);
+            return j - off;
+        }
+    }
+    
+    /**
+     * Writer class which allows us to update progress during the sorting process.
+     */
+    private class ProgressiveWriter extends FileWriter {
+        ProgressiveWriter(File f) throws IOException {
+            super(f);
+            bytesWritten = 0;
+        }
+        
+        void write(char c) throws IOException {
+            bytesWritten++;
+            super.write(c);
+        }
+        
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            bytesWritten += len;
+            updateSortProgress();
+            super.write(cbuf, off, len);
+        }
+        
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            bytesWritten += len;
+            updateSortProgress();
+            super.write(str, off, len);
         }
     }
 }

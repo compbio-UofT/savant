@@ -33,8 +33,8 @@ import java.util.Comparator;
 public abstract class Sorter {
 
    static int MAX_RECORDS_IN_RAM = 500000;
-   File inputFile;
-   File outputFile;
+   protected File inputFile;
+   protected File outputFile;
    private int maxRecords = MAX_RECORDS_IN_RAM;
    private File tmpDir;
    static final String usageString = "igvtools sort <inputFile> [outputFile]";
@@ -73,12 +73,12 @@ public abstract class Sorter {
 
    public void run() throws IOException {
 
-      FileInputStream fis = null;
+      InputStream fis = null;
       PrintWriter writer = null;
 
       try {
-	 fis = new FileInputStream(inputFile);
-	 writer = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
+	 fis = getInput();
+	 writer = getOutput();
 
 	 SortableRecordCodec codec = new SortableRecordCodec();
 
@@ -163,5 +163,13 @@ public abstract class Sorter {
 
    public void setMaxRecords(int maxRecords) {
       this.maxRecords = maxRecords;
+   }
+   
+   public InputStream getInput() throws FileNotFoundException {
+       return new FileInputStream(inputFile);
+   }
+   
+   public PrintWriter getOutput() throws IOException {
+       return new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
    }
 }

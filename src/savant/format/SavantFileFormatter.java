@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.DialogUtils;
 import savant.file.FieldType;
 import savant.file.FileType;
 import savant.file.SavantROFile;
@@ -35,7 +36,7 @@ import savant.util.SavantFileUtils;
 
 
 public abstract class SavantFileFormatter extends Controller<FormatEvent> {
-    private static final Log LOG = LogFactory.getLog(SavantFileFormatter.class);
+    static final Log LOG = LogFactory.getLog(SavantFileFormatter.class);
 
     /** Input file. */
     protected final File inFile;
@@ -103,8 +104,13 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
                 case INTERVAL_KNOWNGENE:
                 case INTERVAL_REFGENE:
                 case INTERVAL_UNKNOWN:
-                    verifyTextFile(inFile, '#', true);
-                    return new TabixFormatter(inFile, outFile, inputFileType);
+                    if (!verifyTextFile(inFile, '#', true)) {
+                        if (DialogUtils.askYesNo("<html>This file does not appear to be tab-delimited. Do you wish to try processing this file by interpreting runs of spaces as tabs?<br><br><i>Warning: This may or may not work correctly.</i></html>") == DialogUtils.YES) {
+                            return new TabixFormatter(inFile, outFile, inputFileType, true);
+                        }
+                        return null;
+                    }
+                    return new TabixFormatter(inFile, outFile, inputFileType, false);
                 case CONTINUOUS_WIG:
                     verifyTextFile(inFile, '#', false);
                     return new TDFFormatter(inFile, outFile);
@@ -144,7 +150,7 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
      * @param f the file to be examined
      * @param lookingForTabs if true, we're looking for a tab-delimited file (false for .fasta and .wig)
      */
-    private static void verifyTextFile(File f, char commentChar, boolean lookingForTabs) throws IOException, SavantFileFormattingException {
+    private static boolean verifyTextFile(File f, char commentChar, boolean lookingForTabs) throws IOException, SavantFileFormattingException {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(f));
@@ -166,7 +172,7 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
             }
             // Got through a whole line without finding any suspicious characters.
             if (lookingForTabs && !tabFound) {
-                throw new SavantFileFormattingException(String.format("%s does not appear to be a tab-delimited file.", f.getName()));
+                return false;
             }
         } finally {
             if (reader != null) {
@@ -176,6 +182,7 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
                 }
             }
         }
+        return false;
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {

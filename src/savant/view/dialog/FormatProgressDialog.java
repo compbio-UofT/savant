@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
     final SavantFileFormatter formatter;
 
     /** Creates new form FormatFrame */
-    public FormatProgressDialog(Window parent, SavantFileFormatter sff) {
+    public FormatProgressDialog(DataFormatForm parent, SavantFileFormatter sff) {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         formatter = sff;
@@ -188,7 +188,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                 setVisible(false);
                 if (GenomeController.getInstance().isGenomeLoaded()) {
                     setVisible(false);
-                    if (DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
+                    if (((DataFormatForm)getParent()).loadingTrack || DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
                         try {
                             FrameController.getInstance().addTrackFromPath(formatter.getOutputFile().getAbsolutePath(), null, null);
                         } catch (Exception ex) {
@@ -200,57 +200,13 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                 break;
             case FAILED:
                 setVisible(false);
-                final Throwable e = event.getError();
-                if (e instanceof InterruptedException) {
-                    DialogUtils.displayMessage("Format cancelled.");
-                } else if (e instanceof SavantFileFormattingException) {
-                    // Not a Savant error.  They've just chosen the wrong kind of file.
-                    DialogUtils.displayMessage("Sorry", e.getMessage());
-                } else {
-                    JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                            + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-                    optionPane.setTitle("A problem was encountered while formatting.");
-                    optionPane.setOptions(new String[] {});
-                    JButton reportButton = new JButton("Report Issue");
-                    ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
-                    final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
-                    dialog.setModal(true);
-                    dialog.setResizable(true);
-                    optionPane.setDetails(MiscUtils.getStackTrace(e));
-                    //optionPane.setDetailsVisible(true);
-                    dialog.pack();
-
-                    reportButton.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e2) {
-                            String issue = "Hey Savant Developers,\n\n";
-                            issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
-
-                            issue += "=== TO BE COMPLETED BY USER ===\n";
-                            issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
-                            issue += "- TYPE: [e.g. BED]\n";
-                            issue += "- CONTENTS: [e.g. human genes]\n";
-                            issue += "- PATH: " + formatter.getInputFile().getAbsolutePath() + "\n";
-                            issue += "- ADDITIONAL COMMENTS:\n\n";
-
-                            issue += "=== ERROR DETAILS ===\n";
-                            issue += MiscUtils.getStackTrace(e);
-
-                            dialog.dispose();
-                            (new BugReportDialog(issue, formatter.getInputFile().getAbsolutePath())).setVisible(true);
-                        }
-
-                    });
-
-                    dialog.setVisible(true);
-                }
+                ((DataFormatForm)getParent()).handleFormattingError(event.getError());
                 break;
         }
     }
 
     private String shorten(String path) {
-        int maxLen = 50;
+        int maxLen = 80;
         if (path.length() > maxLen) {
             String file = new File(path).getName();
             do {

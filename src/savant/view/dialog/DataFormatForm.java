@@ -16,31 +16,40 @@
 
 package savant.view.dialog;
 
+import com.jidesoft.dialog.JideOptionPane;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 
+import javax.swing.JOptionPane;
 import savant.api.util.DialogUtils;
 import savant.file.FileType;
 import savant.format.SavantFileFormatter;
 import savant.format.SavantFileFormatterUtils;
+import savant.format.SavantFileFormattingException;
+import savant.util.MiscUtils;
 
 
 /**
  * @author mfiume, tarkvara
  */
 public final class DataFormatForm extends JDialog {
-    private boolean terminated = false;
+    boolean loadingTrack = false;
 
     /**
      * Construct new data format form.
      *
      * @param parent typically the Savant main window
      */
-    public DataFormatForm(Window parent, URI input) {
+    public DataFormatForm(Window parent, URI input, boolean asTrack) {
         super(parent, ModalityType.APPLICATION_MODAL);
+        loadingTrack = asTrack;
         initComponents();
 
         formatList.setListData(new FormatDef[] {
@@ -228,12 +237,15 @@ public final class DataFormatForm extends JDialog {
         FileType ft = ((FormatDef)formatList.getSelectedValue()).type;
         
         try {
-            final SavantFileFormatter sff = SavantFileFormatter.getFormatter(infile, outfile, ft);
-            FormatProgressDialog fpd = new FormatProgressDialog(this, sff);
-            fpd.setLocationRelativeTo(this);
-            fpd.setVisible(true);
-            setVisible(false);
+            SavantFileFormatter sff = SavantFileFormatter.getFormatter(infile, outfile, ft);
+            if (sff != null) {
+                FormatProgressDialog fpd = new FormatProgressDialog(this, sff);
+                fpd.setLocationRelativeTo(this);
+                fpd.setVisible(true);
+                setVisible(false);
+            }
         } catch (Exception x) {
+            handleFormattingError(x);
         }
     }//GEN-LAST:event_formatButtonActionPerformed
 
@@ -342,6 +354,53 @@ public final class DataFormatForm extends JDialog {
             }
         }
         return false;
+    }
+
+    void handleFormattingError(final Throwable e) {
+        if (e instanceof InterruptedException) {
+            DialogUtils.displayMessage("Format cancelled.");
+        } else if (e instanceof SavantFileFormattingException) {
+            // Not a Savant error.  They've just chosen the wrong kind of file.
+            DialogUtils.displayMessage("Sorry", e.getMessage());
+        } else {
+            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+            optionPane.setTitle("A problem was encountered while formatting.");
+            optionPane.setOptions(new String[] {});
+            JButton reportButton = new JButton("Report Issue");
+            ((JComponent)optionPane.getComponent(optionPane.getComponentCount() - 1)).add(reportButton);
+            final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+            dialog.setModal(true);
+            dialog.setResizable(true);
+            optionPane.setDetails(MiscUtils.getStackTrace(e));
+            //optionPane.setDetailsVisible(true);
+            dialog.pack();
+
+            reportButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e2) {
+                    String issue = "Hey Savant Developers,\n\n";
+                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
+
+                    issue += "=== TO BE COMPLETED BY USER ===\n";
+                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
+                    issue += "- TYPE: [e.g. BED]\n";
+                    issue += "- CONTENTS: [e.g. human genes]\n";
+                    issue += "- PATH: " + inputField.getText() + "\n";
+                    issue += "- ADDITIONAL COMMENTS:\n\n";
+
+                    issue += "=== ERROR DETAILS ===\n";
+                    issue += MiscUtils.getStackTrace(e);
+
+                    dialog.dispose();
+                    (new BugReportDialog(issue, inputField.getText())).setVisible(true);
+                }
+
+            });
+
+            dialog.setVisible(true);
+        }
     }
 
     /**
