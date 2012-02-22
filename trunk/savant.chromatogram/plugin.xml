@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.chromatogram" version="1.0.1" class="savant.chromatogram.ChromatogramPlugin">
+    <requires><import plugin-id="savant.core"/></requires>
+    <attributes><attribute id="sdk-version" value="2.0.0"/></attributes>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extensionCore">
+	<parameter id="class" value="savant.chromatogram.ChromatogramPlugin"/>
+	<parameter id="name" value="Chromatogram Plugin"/>
+    </extension>
+</plugin>
