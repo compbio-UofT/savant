@@ -54,7 +54,7 @@ public class BAMToCoverage extends TDFFormatter {
         setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file…");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, 1000000, new TDFProgressMonitor());
         try {
-            pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, "", null);
+            pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, null, null);
             pp.finish();
         } catch (PreprocessingException x) {
             throw new IOException(x);

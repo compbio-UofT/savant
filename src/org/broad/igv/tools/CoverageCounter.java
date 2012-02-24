@@ -351,13 +351,7 @@ public class CoverageCounter {
 		}
 
 	    }
-	}
-
-	catch (Exception e) {
-	    e.printStackTrace();
-	}
-
-	finally {
+	} finally {
 
 	    if (counter != null) {
 		counter.closeBucketsBefore(Integer.MAX_VALUE);

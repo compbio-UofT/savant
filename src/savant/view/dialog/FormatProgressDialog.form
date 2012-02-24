@@ -37,18 +37,18 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="srcLabel" pref="503" max="32767" attributes="0"/>
-                          <Component id="destLabel" alignment="0" pref="503" max="32767" attributes="0"/>
+                          <Component id="srcLabel" pref="600" max="32767" attributes="0"/>
+                          <Component id="destLabel" alignment="0" pref="600" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="statusCaption" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="statusLabel" pref="547" max="32767" attributes="0"/>
+                      <Component id="statusLabel" pref="644" max="32767" attributes="0"/>
                   </Group>
                   <Component id="cancelButton" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="progressBar" alignment="1" pref="602" max="32767" attributes="1"/>
-                  <Component id="jSeparator1" alignment="0" pref="602" max="32767" attributes="0"/>
+                  <Component id="progressBar" alignment="1" pref="699" max="32767" attributes="1"/>
+                  <Component id="jSeparator1" alignment="0" pref="699" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

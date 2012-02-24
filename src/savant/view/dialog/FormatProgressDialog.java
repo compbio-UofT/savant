@@ -16,25 +16,17 @@
 
 package savant.view.dialog;
 
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-
-import com.jidesoft.dialog.JideOptionPane;
 
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
+import savant.format.BAMToCoverage;
 import savant.format.FormatEvent;
 import savant.format.SavantFileFormatter;
-import savant.format.SavantFileFormattingException;
-import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
 
 
@@ -89,7 +81,6 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Formatting ...");
         setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
-        setPreferredSize(new java.awt.Dimension(660, 194));
         setResizable(false);
 
         destCaption.setText("Destination: ");
@@ -124,15 +115,15 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                             .addComponent(srcCaption))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(srcLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)
-                            .addComponent(destLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)))
+                            .addComponent(srcLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                            .addComponent(destLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(statusCaption)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE))
+                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 644, Short.MAX_VALUE))
                     .addComponent(cancelButton, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE))
+                    .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 699, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 699, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -187,15 +178,19 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
             case COMPLETED:
                 setVisible(false);
                 if (GenomeController.getInstance().isGenomeLoaded()) {
-                    setVisible(false);
-                    if (((DataFormatForm)getParent()).loadingTrack || DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
-                        try {
-                            FrameController.getInstance().addTrackFromPath(formatter.getOutputFile().getAbsolutePath(), null, null);
-                        } catch (Exception ex) {
+                    if (formatter instanceof BAMToCoverage) {
+                        // For coverage tracks, we report success, but don't offer to open the track.
+                        DialogUtils.displayMessage("Format Successful", String.format("<HTML>Format successful.<BR>Coverage will be available the next time you open <i>%s</i>.</HTML>", formatter.getInputFile().getName()));
+                    } else {
+                        if (((DataFormatForm)getParent()).loadingTrack || DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
+                            try {
+                                FrameController.getInstance().addTrackFromPath(formatter.getOutputFile().getAbsolutePath(), null, null);
+                            } catch (Exception ex) {
+                            }
                         }
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>", "Format Successful", JOptionPane.INFORMATION_MESSAGE);
+                    DialogUtils.displayMessage("Format Successful", "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>");
                 }
                 break;
             case FAILED:
@@ -212,7 +207,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
             do {
                 path = new File(path).getParent();
             } while (path.length() > 0 && path.length() + 2 + file.length() > maxLen);
-            return path + File.separator + "…" + file;
+            return path + "…" + File.separator + file;
         } else {
             return path;
         }

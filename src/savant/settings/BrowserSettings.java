@@ -57,7 +57,7 @@ public class BrowserSettings {
     public static final URL NEWS_URL = NetworkUtils.getKnownGoodURL(URL, "serve/start/news.xml");
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.0.1";
     public static String BUILD = "beta";
 
     /**
