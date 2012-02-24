@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.samtools.util.SeekableBufferedStream;
 import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
@@ -43,6 +44,7 @@ public class SavantROFile implements ROFile {
     private List<FieldType> fields;
     private long headerOffset;
     private URI uri;
+    private byte[] oneByteBuf = new byte[1];
 
     private long filePointer = 0;
 
@@ -59,10 +61,10 @@ public class SavantROFile implements ROFile {
      */
     public SavantROFile(File file) throws IOException, SavantFileNotFormattedException {
 
-        this.uri = file.toURI();
+        uri = file.toURI();
         LOG.debug("Adding RO File: " + file);
         LOG.debug("URI is: " + this.uri);
-        this.seekStream = new SeekableFileStream(file);
+        seekStream = new SeekableBufferedStream(new SeekableFileStream(file));
         init();
     }
 
@@ -216,10 +218,9 @@ public class SavantROFile implements ROFile {
 
     @Override
     public synchronized int read() throws IOException {
-        byte[] buf = new byte[1];
-        int bytesRead = seekStream.read(buf,0,1);
+        int bytesRead = seekStream.read(oneByteBuf, 0, 1);
         if (bytesRead  != -1) {
-            int result = buf[0];
+            int result = oneByteBuf[0];
             filePointer++;
             return result;
         }

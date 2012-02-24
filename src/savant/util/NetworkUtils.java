@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import net.sf.samtools.util.SeekableBufferedStream;
 import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
@@ -154,7 +155,7 @@ public class NetworkUtils {
         String proto = uri.getScheme().toLowerCase();
         SeekableStream result;
         if (proto.equals("file")) {
-            result = new SeekableFileStream(new File(uri));
+            result = new SeekableBufferedStream(new SeekableFileStream(new File(uri)));
         } else {
             if (proto.equals("http") || proto.equals("https")) {
                 result = new SeekableHTTPStream(uri.toURL());
@@ -166,6 +167,8 @@ public class NetworkUtils {
             if (allowCaching) {
                 //result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
                 result = new CachedSeekableStream(result, BrowserSettings.getRemoteBufferSize(), uri);
+            } else {
+                result = new SeekableBufferedStream(result);
             }
         }
         return result;
