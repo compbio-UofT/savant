@@ -182,7 +182,7 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
                 }
             }
         }
-        return false;
+        return true;
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
