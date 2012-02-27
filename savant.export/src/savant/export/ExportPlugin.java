@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,12 +44,12 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
+import savant.api.event.ExportEvent;
 import savant.api.util.BookmarkUtils;
+import savant.api.util.Listener;
 import savant.api.util.NavigationUtils;
 import savant.api.util.RangeUtils;
 import savant.controller.FrameController;
-import savant.data.event.ExportEvent;
-import savant.data.event.ExportEventListener;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.swing.PathField;
 import savant.view.swing.ExportImage;
@@ -235,7 +235,7 @@ public class ExportPlugin extends SavantPanelPlugin {
         closeIndex();
         for(int i = 0; i < FrameController.getInstance().getFrames().size(); i++) {
             Frame f = FrameController.getInstance().getFrames().get(i);
-            f.getGraphPane().removeExportListeners();
+            ((GraphPane)f.getGraphPane()).removeExportListeners();
         }
         endRun(false);
         exportCancelled = false;
@@ -277,12 +277,12 @@ public class ExportPlugin extends SavantPanelPlugin {
 
             //track info
             TrackAdapter t = frame.getTracks()[0];
-            final GraphPane gp = frame.getGraphPane();
+            final GraphPane gp = (GraphPane)frame.getGraphPane();
 
-            ExportEventListener eel = new ExportEventListener() {
+            Listener<ExportEvent> eel = new Listener<ExportEvent>() {
 
                 @Override
-                public void exportCompleted(ExportEvent evt) {
+                public void handleEvent(ExportEvent evt) {
                     if (evt.getRange().equals(range)) {
                         gp.removeExportListener(this);
                         nextBookmark();

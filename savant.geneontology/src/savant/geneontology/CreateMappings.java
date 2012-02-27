@@ -19,6 +19,7 @@ import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 
 
@@ -34,8 +35,7 @@ public class CreateMappings {
     /**
      * Location of the XML file which is to be parsed for location of files.
      */
-    public static final String LOCATION_XML = 
-            "http://genomesavant.com//nirvana/GOmap.xml";
+    public static final String LOCATION_XML = BrowserSettings.URL + "/nirvana/GOmap.xml";
     
     /**
      * Tries to open an input stream from the url given.
