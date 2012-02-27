@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="savant.sql" default="default" basedir=".">
+    <description>Builds, tests, and runs the project savant.data.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be
+    used for execution of your tasks. These targets are usually executed
+    before and after some main targets. They are:
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported
+    nbproject/build-impl.xml file.
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are:
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="savant.data-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on
+    the compile target as the regular run target does. Again, for a list of available
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file.
+
+    -->
+    <target name="-pre-jar">
+        <copy file="plugin.xml" todir="${build.classes.dir}">
+        </copy>
+    </target>
+
+    <target name="-post-jar">
+        <jar jarfile="${dist.jar}-all">
+            <zipfileset src="${dist.jar}" excludes="META-INF/*" />
+            <zipfileset src="lib/AppleJavaExtensions.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/MedSavantClient.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/MedSavantServerEngineAPI.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/MedSavantShared.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/common-util-1.0.4.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/derby.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jdom.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-action.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-beaninfo.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-charts_old.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-common.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-components.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-dashboard.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-data.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-designer.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-dialogs.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-diff.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-dock.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-editor.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-gantt.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-grids.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-pivot.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-plaf-jdk7.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-plaf.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-properties.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-rss.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-shortcut.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jide-treemap.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/lucene-core-2.4.1.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/mail.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/medsavant_lib_vcf.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/mysql-connector-java-5.1.17-bin.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/opencsv-2.3.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/org.apache.commons.logging_1.0.4.v201101211617.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/org.bridgedb.bio.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/org.bridgedb.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/org.bridgedb.rdb.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/org.bridgedb.webservice.bridgerest.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/pathvisio.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/pedviz_0.15.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/poi-3.7-20101029.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/poi-ooxml-3.7-20101029.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/resources.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/rmiio-2.0.0.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/sam-1.31.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/swing-layout-1.0.4.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/tabix.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/wikipathways-client.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/wikipathways.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/xmlbeans-2.3.0.jar" excludes="META-INF/*" />
+        </jar>
+        <delete dir="${dist.dir}/lib"/>
+        <move file="${dist.jar}-all" tofile="${dist.jar}"/>
+    </target>
+</project>
