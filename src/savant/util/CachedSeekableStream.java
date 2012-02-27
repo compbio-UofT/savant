@@ -98,6 +98,7 @@ public class CachedSeekableStream extends SeekableStream {
         FileInputStream cacheStream = new FileInputStream(cacheFile);
         try {
             cacheStream.skip(actualOffset);
+            bufferedStream.close();
             bufferedStream = new BufferedInputStream(cacheStream, bufferSize);
             bufferedStream.skip(positionOffset);
             positionInBuf = positionOffset;
@@ -128,6 +129,7 @@ public class CachedSeekableStream extends SeekableStream {
             // Not cached, seek to start of block
             positionInFile = pos - (pos % bufferSize);
             wrappedStream.seek(positionInFile);
+            bufferedStream.close();
             bufferedStream = new BufferedInputStream(wrappedStream, bufferSize);
 
             // Cache block
