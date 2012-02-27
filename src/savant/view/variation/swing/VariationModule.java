@@ -69,6 +69,18 @@ public class VariationModule extends JPanel {
             }
         }
     };
+    
+    /** Wheel listener shared by map and frequencyPlot. */
+    private MouseWheelListener wheelListener = new MouseWheelListener() {
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent mwe) {
+            int notches = mwe.getWheelRotation();
+            System.out.println("Notches:" + notches);
+            Range visRange = controller.getVisibleRange();
+            controller.setVisibleRange(visRange.getFrom() + visRange.getLength() * notches / 10);
+        }
+    };
 
     public VariationModule(VariationController vc) {
         super(new GridBagLayout());
@@ -149,6 +161,7 @@ public class VariationModule extends JPanel {
         mapScroller.addAdjustmentListener(scrollerListener);
 
         map = new VariantMap(controller);
+        map.addMouseWheelListener(wheelListener);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = 1;
@@ -169,6 +182,7 @@ public class VariationModule extends JPanel {
         frequencyScroller.addAdjustmentListener(scrollerListener);
 
         frequencyPlot = new AlleleFrequencyPlot(controller);
+        frequencyPlot.addMouseWheelListener(wheelListener);
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         frequencyPanel.add(frequencyPlot, gbc);
