@@ -76,7 +76,6 @@ public class VariationModule extends JPanel {
         @Override
         public void mouseWheelMoved(MouseWheelEvent mwe) {
             int notches = mwe.getWheelRotation();
-            System.out.println("Notches:" + notches);
             Range visRange = controller.getVisibleRange();
             controller.setVisibleRange(visRange.getFrom() + visRange.getLength() * notches / 10);
         }
