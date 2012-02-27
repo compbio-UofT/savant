@@ -17,6 +17,7 @@
 package savant.view.tracks;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
@@ -92,17 +93,17 @@ public class IntervalTrackRenderer extends TrackRenderer {
  
             double unitWidth = gp.getUnitWidth();
             double unitHeight = gp.getUnitHeight();
+            double y = gp.transformYPos(0.0);
 
             for (Record record: data) {
                 Interval inter = ((IntervalRecord)record).getInterval();
 
 
                 double x = gp.transformXPos(inter.getStart());
-                double y = 0;
                 double w = unitWidth*inter.getLength();
                 double h = unitHeight;
 
-                Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
+                Rectangle2D.Double rect = new Rectangle2D.Double(x, y - unitHeight, w, unitHeight);
 
                 g2.setColor(bgcolor);
                 g2.fill(rect);
@@ -153,8 +154,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
-        Color bgcolor = cs.getColor(ColourKey.OPAQUE_GRAPH);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
@@ -178,6 +177,11 @@ public class IntervalTrackRenderer extends TrackRenderer {
             if (gp.needsToResize()) return;
 
             double unitHeight = gp.getUnitHeight();
+            double unitWidth = gp.getUnitWidth();
+            int offset = gp.getOffset();
+            Color textColor = cs.getColor(ColourKey.INTERVAL_TEXT);
+            Color bgColor = cs.getColor(ColourKey.OPAQUE_GRAPH);
+            Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
 
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
@@ -188,20 +192,27 @@ public class IntervalTrackRenderer extends TrackRenderer {
                     Interval interval = intervalRecord.getInterval();
                     double x = gp.transformXPos(interval.getStart());
                     //double y = gp.transformYPos(k)-unitHeight;
-                    double y = gp.getHeight() - unitHeight * (k+1) - gp.getOffset();
-                    double w = interval.getLength() * gp.getUnitWidth();
+                    double y = gp.getHeight() - unitHeight * (k + 1) - offset;
+                    double w = interval.getLength() * unitWidth;
                     //if (w < 1) continue; // don't draw intervals less than one pixel wide
                     double h = unitHeight;
 
                     Rectangle2D.Double intervalRect = new Rectangle2D.Double(x, y, w, h);
 
-                    g2.setColor(bgcolor);
+                    g2.setColor(bgColor);
                     g2.fill(intervalRect);
                     recordToShapeMap.put(intervalRecord, intervalRect);
 
                     if (w > 5) {
-                        g2.setColor(linecolor);
+                        g2.setColor(lineColor);
                         g2.draw(intervalRect);
+                    }
+
+                    String geneName = intervalRecord.getName();
+                    if (geneName != null) {
+                        g2.setColor(textColor);
+                        FontMetrics fm = g2.getFontMetrics();
+                        drawFeatureLabel(g2, geneName, x, y + unitHeight * 0.5 + (fm.getHeight() - fm.getDescent()) * 0.5);
                     }
                 }
             }
