@@ -465,7 +465,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         LOG.debug("YMAX for ARC mode: " + ((AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE)).getYMax());
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
-        double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);
         int discordantMin = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MIN);
         int discordantMax = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MAX);
         //LOG.info("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);

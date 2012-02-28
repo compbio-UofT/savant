@@ -78,6 +78,18 @@ public class BAMTrack extends Track {
                                    DrawingMode.SNP, DrawingMode.STRAND_SNP };
     }
 
+    /**
+     * Set the current draw mode.  Switching to ARC_PAIRED mode requires us to modify our record filter.
+     *
+     * @param mode
+     */
+    @Override
+    public void setDrawingMode(DrawingMode mode) {
+        getFilter().setArcMode(mode == DrawingMode.ARC_PAIRED);
+        super.setDrawingMode(mode);
+    }
+
+
     @Override
     public void prepareForRendering(String ref, Range r) {
 
@@ -105,7 +117,6 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
         if (mode == DrawingMode.ARC_PAIRED) {
-            renderer.addInstruction(DrawingInstruction.ARC_MIN, getFilter().getArcLengthThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
         } else {
