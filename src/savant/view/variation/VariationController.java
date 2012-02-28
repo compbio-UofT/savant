@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.VariantDataSourceAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
@@ -40,7 +41,6 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.data.sources.TabixDataSource;
 import savant.settings.TrackResolutionSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -197,7 +197,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                             aggregateData.set(index, new MergedVariantRecord(oldRec, rec, n - oldRec.getParticipantCount()));
                         }
                     }
-                    names.addAll(Arrays.asList(((TabixDataSource)t.getDataSource()).getExtraColumns()));
+                    names.addAll(Arrays.asList(((VariantDataSourceAdapter)t.getDataSource()).getParticipants()));
                     n += t.getParticipantCount();
                 }
             }

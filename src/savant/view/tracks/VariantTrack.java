@@ -19,11 +19,11 @@ package savant.view.tracks;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
+import savant.api.adapter.VariantDataSourceAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
 import savant.api.util.Resolution;
-import savant.data.sources.TabixDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.TrackResolutionSettings;
 import savant.util.AxisRange;
@@ -80,7 +80,7 @@ public class VariantTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
-        String[] participants = ((TabixDataSource)getDataSource()).getExtraColumns();
+        String[] participants = ((VariantDataSourceAdapter)getDataSource()).getParticipants();
         renderer.addInstruction(DrawingInstruction.PARTICIPANTS, participants);
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, participants.length)));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
@@ -108,11 +108,11 @@ public class VariantTrack extends Track {
     }
 
     public int getParticipantCount() {
-        return ((TabixDataSource)getDataSource()).getExtraColumns().length;
+        return ((VariantDataSourceAdapter)getDataSource()).getParticipants().length;
     }
 
     public String[] getParticipantNames() {
-        return ((TabixDataSource)getDataSource()).getExtraColumns();
+        return ((VariantDataSourceAdapter)getDataSource()).getParticipants();
     }
 
     /**

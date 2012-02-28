@@ -34,7 +34,7 @@ import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
-import savant.api.data.Block;
+import savant.api.adapter.VariantDataSourceAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GTFIntervalRecord;
@@ -50,7 +50,7 @@ import savant.util.NetworkUtils;
  *
  * @author mfiume, tarkvara
  */
-public class TabixDataSource extends DataSource<TabixIntervalRecord> {
+public class TabixDataSource extends DataSource<TabixIntervalRecord> implements VariantDataSourceAdapter {
     private static final Log LOG = LogFactory.getLog(TabixDataSource.class);
 
     TabixReader reader;
@@ -251,10 +251,11 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
      * For VCF files, the extra columns contain participant IDs.
      * @return extra columns after the columns which were mapped by the format
      */
-    public String[] getExtraColumns() {
+    @Override
+    public String[] getParticipants() {
         return extraColumns;
     }
-    
+
     /**
      * Hack for Mike to make RefSeq files give preference to the alternate (gene) name.
      */
