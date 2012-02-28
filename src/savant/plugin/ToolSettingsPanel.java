@@ -104,21 +104,11 @@ class ToolSettingsPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridy = row;
-        JCheckBox enablerCheck = null;
-        if (!arg.required) {
-            enablerCheck = new JCheckBox();
-            gbc.gridx = 0;
-            add(enablerCheck, gbc);
-        }
         JComponent widget = null;
         if (arg.type == ToolArgument.Type.BOOL) {
             gbc.gridx = 2;
             gbc.anchor = GridBagConstraints.WEST;
-            widget = new BoolCheck(arg);
-            add(widget, gbc);
-            if (enablerCheck != null) {
-                enablerCheck.addActionListener(new EnablerCheckListener(arg, widget));
-            }
+            addWidget(arg, new BoolCheck(arg), gbc);
         } else {
             gbc.gridx = 1;
             gbc.anchor = GridBagConstraints.EAST;
@@ -135,52 +125,80 @@ class ToolSettingsPanel extends JPanel {
                     field = new JFormattedTextField();
                     ((JFormattedTextField)field).setValue(Integer.valueOf(arg.value != null ? arg.value : "0"));
                     field.setColumns(5);
+                    addField(arg, field, gbc);
                     break;
                 case FLOAT:
                     field = new JFormattedTextField();
                     ((JFormattedTextField)field).setValue(Double.valueOf(arg.value != null ? arg.value : "0.0"));
                     field.setColumns(10);
+                    addField(arg, field, gbc);
                     break;
                 case OUTPUT_FILE:
+                    gbc.gridwidth = 1;
                     gbc.fill = GridBagConstraints.HORIZONTAL;
                     field = new JTextField(arg.value);
+                    addField(arg, field, gbc);
+
+                    gbc.gridx = 3;
+                    gbc.gridwidth = GridBagConstraints.REMAINDER;
+                    gbc.weightx = 0.0;
+                    JCheckBox loadCheck = new JCheckBox("Load upon Completion", true);
+                    loadCheck.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            tool.loadUponCompletion = ((JCheckBox)ae.getSource()).isSelected();
+                        }
+                    });
+                    add(loadCheck, gbc);
                     break;
                 case RANGE:
                     field = new JTextField();
                     field.setColumns(25);
                     LocationController.getInstance().addListener(new RangeUpdater(field));
+                    addField(arg, field, gbc);
                     break;
                 case LIST:
-                    widget = new StringCombo(arg);
+                    addWidget(arg, new StringCombo(arg), gbc);
                     break;
                 case MULTI:
                     gbc.fill = GridBagConstraints.HORIZONTAL;
-                    widget = new MultiCheckGrid(arg);
+                    addWidget(arg, new MultiCheckGrid(arg), gbc);
                     break;
                 case BAM_INPUT_FILE:
-                    widget = new TrackCombo(arg, DataFormat.ALIGNMENT);
-                    TrackUtils.addTrackListener((TrackCombo)widget);
+                    TrackUtils.addTrackListener((TrackCombo)addWidget(arg, new TrackCombo(arg, DataFormat.ALIGNMENT), gbc));
                     break;
                 case FASTA_INPUT_FILE:
-                    widget = new TrackCombo(arg, DataFormat.SEQUENCE);
-                    TrackUtils.addTrackListener((TrackCombo)widget);
+                    TrackUtils.addTrackListener((TrackCombo)addWidget(arg, new TrackCombo(arg, DataFormat.SEQUENCE), gbc));
                     break;
-            }
-            if (field != null) {
-                field.addActionListener(executeListener);
-                field.getDocument().addDocumentListener(new EditListener(arg));
-                field.setMinimumSize(field.getPreferredSize());
-                widget = field;
-            }
-            if (widget != null) {
-                add(widget, gbc);
-                if (enablerCheck != null) {
-                    enablerCheck.addActionListener(new EnablerCheckListener(arg, nameLabel, widget));
-                }
             }
         }
     }
-    
+
+    private void addField(ToolArgument arg, JTextField field, GridBagConstraints gbc) {
+        field.addActionListener(executeListener);
+        field.getDocument().addDocumentListener(new EditListener(arg));
+        field.setMinimumSize(field.getPreferredSize());
+        addWidget(arg, field, gbc);
+    }
+
+    private JComponent addWidget(ToolArgument arg, JComponent widget, GridBagConstraints gbc) {
+        JCheckBox enablerCheck = null;
+        if (!arg.required) {
+            enablerCheck = new JCheckBox();
+            GridBagConstraints gbc2 = new GridBagConstraints();
+            gbc2.insets = new Insets(5, 5, 5, 5);
+            gbc2.gridy = gbc.gridy;
+            gbc2.gridx = 0;
+            add(enablerCheck, gbc2);
+        }
+        add(widget, gbc);
+        if (enablerCheck != null) {
+            enablerCheck.addActionListener(new EnablerCheckListener(arg, widget));
+        }
+
+        return widget;
+    }
+
     private class EnablerCheckListener implements ActionListener {
         private final ToolArgument argument;
         private final JComponent[] widgets;

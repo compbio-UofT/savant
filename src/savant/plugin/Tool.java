@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,10 +42,14 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.api.util.TrackUtils;
+import savant.file.FileType;
+import savant.format.SavantFileFormatter;
+import savant.format.SavantFileFormatterUtils;
 import savant.settings.DirectorySettings;
 import savant.util.*;
 import savant.util.export.FastaExporter;
 import savant.util.export.TrackExporter;
+import savant.view.dialog.FormatProgressDialog;
 
 
 /**
@@ -78,6 +82,7 @@ public class Tool extends SavantPanelPlugin {
     private String workingRef;
     private RangeAdapter workingRange;
     boolean useHomoRefs;
+    boolean loadUponCompletion = true;
     private Process toolProc;
 
     @Override
@@ -257,8 +262,10 @@ public class Tool extends SavantPanelPlugin {
                     try {
                         switch (a.type) {
                             case BAM_INPUT_FILE:
+                                commandLine.add(getLocalFile(a.value, true).getAbsolutePath());
+                                break;
                             case FASTA_INPUT_FILE:
-                                commandLine.add(getLocalFile(a.value, a.type == ToolArgument.Type.BAM_INPUT_FILE).getAbsolutePath());
+                                commandLine.add(getLocalFile(a.value, false).getAbsolutePath());
                                 break;
                             default:
                                 commandLine.add(getStringValue(a));
@@ -378,6 +385,7 @@ public class Tool extends SavantPanelPlugin {
         List<ToolArgument> missingFiles = new ArrayList<ToolArgument>();
         int inputIndex;
         private String errorMessage;
+        private File destFile;
 
         @Override
         protected void showProgress(double fraction) {
@@ -397,8 +405,21 @@ public class Tool extends SavantPanelPlugin {
             progressInfo.setText("Running tool…");
             runTool();
 
+            if (loadUponCompletion) {
+                String destPath = destFile.getAbsolutePath();
+                FileType guess = SavantFileFormatterUtils.guessFileTypeFromPath(destPath);
+                File formattedFile = SavantFileFormatterUtils.getFormattedFile(destPath, guess);
+
+                SavantFileFormatter sff = SavantFileFormatter.getFormatter(destFile, formattedFile, guess);
+                if (sff != null) {
+                    FormatProgressDialog fpd = new FormatProgressDialog(DialogUtils.getMainWindow(), sff, true);
+                    fpd.setLocationRelativeTo(DialogUtils.getMainWindow());
+                    fpd.setVisible(true);
+                }
+            }
+
             progressInfo.setText("");
-            return null;
+            return destFile;
         }
 
         @Override
@@ -427,9 +448,11 @@ public class Tool extends SavantPanelPlugin {
                             break;
                         case FASTA_INPUT_FILE:
                             // Remote URLs and formatted FASTA files will need to be downloaded.
-                            if (!NetworkUtils.getURIFromPath(a.value).getScheme().equals("file") || a.value.endsWith(".savant")) {
-                                missingFiles.add(a);
-                            }
+                            // Actually, all Fasta files will need to be downloaded, since GATK is so finicky about sequence dictionaries.
+                            missingFiles.add(a);
+                            break;
+                        case OUTPUT_FILE:
+                            destFile = new File(a.value);
                             break;
                     }
                 }
@@ -439,7 +462,7 @@ public class Tool extends SavantPanelPlugin {
             
             FastaExporter fastaExp = null;
             for (ToolArgument a: missingFiles) {
-                File f = getLocalFile(a.value, a.type == ToolArgument.Type.BAM_INPUT_FILE);
+                File f = getLocalFile(a.value, false);
                 if (!f.exists()) {
                     LOG.info(f + " not found, exporting.");
                     TrackExporter exp = TrackExporter.getExporter(a.value, f);
@@ -475,7 +498,7 @@ public class Tool extends SavantPanelPlugin {
             
             // If we did a fasta export, we have to create the index and dictionary based, not on the contents of the
             // FASTA file, but on the sequence dictionary from the header of the BAM file.
-            if (fastaExp != null && bamArg != null) {
+            if (bamArg != null && fastaExp != null) {
                 SAMSequenceDictionary samDict = ((BAMDataSourceAdapter)TrackUtils.getTrackDataSource(bamArg.value)).getHeader().getSequenceDictionary();
                 fastaExp.createFakeIndex(samDict, workingRef == null);
                 fastaExp.createFakeSequenceDictionary(samDict);

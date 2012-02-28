@@ -106,7 +106,6 @@ public class FastaExporter extends TrackExporter {
             fireEvent(new DownloadEvent((double)basesSoFar / totalBases));
         }
 
-        fireEvent(new DownloadEvent(-1.0));
         byte[] seq = ((SequenceTrack)track).getSequence(ref, r);
         if (seq == null) {
             // No data for this contig (often a problem if chrM is missing from the Fasta file).
@@ -123,7 +122,7 @@ public class FastaExporter extends TrackExporter {
             j = numBytes;
             linePos = 0;
         }
-        int lastProgress = basesSoFar;
+        long lastProgress = basesSoFar;
         while (j + LINE_SIZE < seq.length) {
             fastaOutput.write(seq, j, LINE_SIZE);
             fastaOutput.write('\n');

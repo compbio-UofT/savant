@@ -16,13 +16,20 @@
 
 package savant.format;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
+import com.jidesoft.dialog.JideOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,8 +38,10 @@ import savant.file.FieldType;
 import savant.file.FileType;
 import savant.file.SavantROFile;
 import savant.util.Controller;
+import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.SavantFileUtils;
+import savant.view.dialog.BugReportDialog;
 
 
 public abstract class SavantFileFormatter extends Controller<FormatEvent> {
@@ -183,6 +192,53 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
             }
         }
         return true;
+    }
+
+    public void reportFormattingError(final Throwable e, final File inputFile) {
+        if (e instanceof InterruptedException) {
+            DialogUtils.displayMessage("Format cancelled.");
+        } else if (e instanceof SavantFileFormattingException) {
+            // Not a Savant error.  They've just chosen the wrong kind of file.
+            DialogUtils.displayMessage("Sorry", e.getMessage());
+        } else {
+            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+            optionPane.setTitle("A problem was encountered while formatting.");
+            optionPane.setOptions(new String[] {});
+            JButton reportButton = new JButton("Report Issue");
+            ((JComponent)optionPane.getComponent(optionPane.getComponentCount() - 1)).add(reportButton);
+            final JDialog dialog = optionPane.createDialog(DialogUtils.getMainWindow(), "Format unsuccessful");
+            dialog.setModal(true);
+            dialog.setResizable(true);
+            optionPane.setDetails(MiscUtils.getStackTrace(e));
+            //optionPane.setDetailsVisible(true);
+            dialog.pack();
+
+            reportButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e2) {
+                    String issue = "Hey Savant Developers,\n\n";
+                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
+
+                    issue += "=== TO BE COMPLETED BY USER ===\n";
+                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
+                    issue += "- TYPE: [e.g. BED]\n";
+                    issue += "- CONTENTS: [e.g. human genes]\n";
+                    issue += "- PATH: " + inputFile.getAbsolutePath() + "\n";
+                    issue += "- ADDITIONAL COMMENTS:\n\n";
+
+                    issue += "=== ERROR DETAILS ===\n";
+                    issue += MiscUtils.getStackTrace(e);
+
+                    dialog.dispose();
+                    (new BugReportDialog(issue, inputFile.getAbsolutePath())).setVisible(true);
+                }
+
+            });
+
+            dialog.setVisible(true);
+        }
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {

@@ -16,9 +16,9 @@
 
 package savant.view.dialog;
 
+import java.awt.Window;
 import java.io.File;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
@@ -38,12 +38,14 @@ import savant.view.icon.SavantIconFactory;
 public class FormatProgressDialog extends JDialog implements Listener<FormatEvent> {
 
     final SavantFileFormatter formatter;
+    final boolean toLoadTrack;
 
     /** Creates new form FormatFrame */
-    public FormatProgressDialog(DataFormatForm parent, SavantFileFormatter sff) {
+    public FormatProgressDialog(Window parent, SavantFileFormatter sff, boolean toLoad) {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         formatter = sff;
+        toLoadTrack = toLoad;
         setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
 
         srcLabel.setText(shorten(formatter.getInputFile().getPath()));
@@ -182,7 +184,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                         // For coverage tracks, we report success, but don't offer to open the track.
                         DialogUtils.displayMessage("Format Successful", String.format("<HTML>Format successful.<BR>Coverage will be available the next time you open <i>%s</i>.</HTML>", formatter.getInputFile().getName()));
                     } else {
-                        if (((DataFormatForm)getParent()).loadingTrack || DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
+                        if (toLoadTrack || DialogUtils.askYesNo("Format Successful", "Format successful. Open track now?") == DialogUtils.YES) {
                             try {
                                 FrameController.getInstance().addTrackFromPath(formatter.getOutputFile().getAbsolutePath(), null, null);
                             } catch (Exception ex) {
@@ -195,7 +197,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                 break;
             case FAILED:
                 setVisible(false);
-                ((DataFormatForm)getParent()).handleFormattingError(event.getError());
+                DataFormatForm.reportFormattingError(event.getError(), formatter.getInputFile().getAbsolutePath());
                 break;
         }
     }

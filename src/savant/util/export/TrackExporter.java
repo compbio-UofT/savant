@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
     protected final TrackAdapter track;
 
     /** Bases exported so far (for calculating progress). */
-    protected int basesSoFar;
+    protected long basesSoFar;
 
     /** Total length to be exported (for calculating progress). */
-    protected int totalBases;
+    protected long totalBases;
 
     /** Destination file for output. */
     protected File destFile;
@@ -70,7 +70,7 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
             } else {
                 totalBases = LocationController.getInstance().getReferenceLength(ref);
                 if (r == null) {
-                    r = new Range(1, totalBases);
+                    r = new Range(1, (int)totalBases);
                 }
                 exportRange(ref, r);
             }

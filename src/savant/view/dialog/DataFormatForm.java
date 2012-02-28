@@ -232,20 +232,20 @@ public final class DataFormatForm extends JDialog {
 
     private void formatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatButtonActionPerformed
 
-        File infile = new File(inputField.getText());
-        File outfile = new File(outputField.getText());
+        File inFile = new File(inputField.getText());
+        File outFile = new File(outputField.getText());
         FileType ft = ((FormatDef)formatList.getSelectedValue()).type;
         
         try {
-            SavantFileFormatter sff = SavantFileFormatter.getFormatter(infile, outfile, ft);
+            SavantFileFormatter sff = SavantFileFormatter.getFormatter(inFile, outFile, ft);
             if (sff != null) {
-                FormatProgressDialog fpd = new FormatProgressDialog(this, sff);
+                FormatProgressDialog fpd = new FormatProgressDialog(this, sff, loadingTrack);
                 fpd.setLocationRelativeTo(this);
                 fpd.setVisible(true);
                 setVisible(false);
             }
         } catch (Exception x) {
-            handleFormattingError(x);
+            reportFormattingError(x, inFile.getAbsolutePath());
         }
     }//GEN-LAST:event_formatButtonActionPerformed
 
@@ -356,12 +356,12 @@ public final class DataFormatForm extends JDialog {
         return false;
     }
 
-    void handleFormattingError(final Throwable e) {
-        if (e instanceof InterruptedException) {
+    public static void reportFormattingError(final Throwable x, final String path) {
+        if (x instanceof InterruptedException) {
             DialogUtils.displayMessage("Format cancelled.");
-        } else if (e instanceof SavantFileFormattingException) {
+        } else if (x instanceof SavantFileFormattingException) {
             // Not a Savant error.  They've just chosen the wrong kind of file.
-            DialogUtils.displayMessage("Sorry", e.getMessage());
+            DialogUtils.displayMessage("Sorry", x.getMessage());
         } else {
             JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
                     + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
@@ -369,10 +369,10 @@ public final class DataFormatForm extends JDialog {
             optionPane.setOptions(new String[] {});
             JButton reportButton = new JButton("Report Issue");
             ((JComponent)optionPane.getComponent(optionPane.getComponentCount() - 1)).add(reportButton);
-            final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+            final JDialog dialog = optionPane.createDialog(DialogUtils.getMainWindow(), "Format unsuccessful");
             dialog.setModal(true);
             dialog.setResizable(true);
-            optionPane.setDetails(MiscUtils.getStackTrace(e));
+            optionPane.setDetails(MiscUtils.getStackTrace(x));
             //optionPane.setDetailsVisible(true);
             dialog.pack();
 
@@ -387,14 +387,14 @@ public final class DataFormatForm extends JDialog {
                     issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
                     issue += "- TYPE: [e.g. BED]\n";
                     issue += "- CONTENTS: [e.g. human genes]\n";
-                    issue += "- PATH: " + inputField.getText() + "\n";
+                    issue += "- PATH: " + path + "\n";
                     issue += "- ADDITIONAL COMMENTS:\n\n";
 
                     issue += "=== ERROR DETAILS ===\n";
-                    issue += MiscUtils.getStackTrace(e);
+                    issue += MiscUtils.getStackTrace(x);
 
                     dialog.dispose();
-                    (new BugReportDialog(issue, inputField.getText())).setVisible(true);
+                    (new BugReportDialog(issue, path)).setVisible(true);
                 }
 
             });

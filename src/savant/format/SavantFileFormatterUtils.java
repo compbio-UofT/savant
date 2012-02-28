@@ -109,6 +109,29 @@ public class SavantFileFormatterUtils {
         return null;
     }
     
+    public static File getFormattedFile(String inputPath, FileType ft) {
+        String outputPath = inputPath;
+        switch (ft) {
+            case CONTINUOUS_WIG:
+                outputPath += ".tdf";
+                break;
+            case INTERVAL_BED:
+            case INTERVAL_BED1:
+            case INTERVAL_GENERIC:
+            case INTERVAL_GFF:
+            case INTERVAL_GTF:
+            case INTERVAL_PSL:
+            case INTERVAL_VCF:
+            case INTERVAL_KNOWNGENE:
+            case INTERVAL_REFGENE:
+                outputPath += ".gz";
+                break;
+            default:
+                break;
+        }
+        return new File(outputPath);
+    }
+
     public static List<Object> readBinaryRecord(RandomAccessFile in, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());
@@ -331,5 +354,4 @@ public class SavantFileFormatterUtils {
             new DataFormatForm(DialogUtils.getMainWindow(), uri, true).setVisible(true);
         }
     }
-
 }
