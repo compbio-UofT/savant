@@ -376,7 +376,9 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             switch (operator) {
                 case D: // Deletion
-                    renderDeletion(g2, gp, opStart, level, operatorLength, unitHeight);
+                    if (opWidth > 0.0) {
+                        renderDeletion(g2, gp, opStart, level, operatorLength, unitHeight);
+                    }
                     break;
                 
                 case I: // Insertion
