@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="savant.sql" version="1.1.4" class="savant.sql.SQLDataSourcePlugin">
+<plugin id="savant.medsavant" version="1.0.0" class="savant.ms.MedSavantPlugin">
     <attributes><attribute id="sdk-version" value="2.0.0"/></attributes>
     <requires><import plugin-id="savant.core"/></requires>
 	<runtime>
@@ -8,7 +8,7 @@
 	</runtime>
 
     <extension plugin-id="savant.core" point-id="AuxData" id="extensionCore">
-	<parameter id="class" value="savant.sql.SQLDataSourcePlugin"/>
-	<parameter id="name" value="SQL Datasource"/>
+	<parameter id="class" value="savant.ms.MedSavantPlugin"/>
+	<parameter id="name" value="MedSavant"/>
     </extension>
 </plugin>
