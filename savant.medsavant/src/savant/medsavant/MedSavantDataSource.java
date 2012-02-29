@@ -42,6 +42,7 @@ import savant.api.data.VariantRecord;
 import savant.api.util.Resolution;
 import savant.view.tracks.Track;
 import savant.controller.TrackController;
+import savant.exception.RenderingException;
 import savant.util.DrawingInstruction;
 import savant.util.MiscUtils;
 
@@ -54,7 +55,7 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
     private boolean active = false;
     private Set<String> chromosomes = new HashSet<String>();
     private String[] participants = new String[0];
-    private static final int LIMIT = 10000;
+    private static final int LIMIT = 5000;
     
     public MedSavantDataSource(){
         MedSavantClient.main(null);
@@ -144,7 +145,7 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
                 if(filteredVariants.size() == LIMIT){
                     Track t = getTrack();
                     if(t != null){
-                        t.getRenderer().addInstruction(DrawingInstruction.ERROR, "Too many variants in range");
+                        t.getRenderer().addInstruction(DrawingInstruction.ERROR, new RenderingException("Too many variants to display", RenderingException.INFO_PRIORITY));
                     }
                     return records;
                 }
