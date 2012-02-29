@@ -55,7 +55,7 @@ public class WelcomePage extends JPanel {
     private static final Color TEXT_COLOR = Color.BLACK;
     private static final Font TITLE_FONT = new Font("Arial",Font.BOLD,13);
     private static final Font DATE_FONT = new Font("Arial",Font.ITALIC,12);
-    private static final Border INFO_BORDER = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY, 1), BorderFactory.createEmptyBorder(10,10,10,10));
+    private static final Border INFO_BORDER = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY, 1), BorderFactory.createLineBorder(Color.WHITE, 10));
 
     public WelcomePage() {
         setLayout(new BorderLayout());
@@ -198,8 +198,6 @@ public class WelcomePage extends JPanel {
     private JComponent getNewsInnerPanel() {
 
         JPanel p = new JPanel();
-        p.setBorder(INFO_BORDER);
-        p.setBackground(Color.WHITE);
 
         try {
             File newsFile = NetworkUtils.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory(), null);
@@ -211,9 +209,7 @@ public class WelcomePage extends JPanel {
         }
 
         JScrollPane scroll = new JScrollPane(p);
-        scroll.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.gray, 1),
-                    BorderFactory.createEmptyBorder(10,10,10,10)));
+        scroll.setBorder(INFO_BORDER);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         return scroll;
@@ -225,7 +221,8 @@ public class WelcomePage extends JPanel {
 
         try {
             p = new JPanel();
-            p.setOpaque(false);
+            p.setBackground(Color.WHITE);
+            p.setOpaque(true);
             //p.setBackground(Color.red);
             BoxLayout bl = new BoxLayout(p,BoxLayout.Y_AXIS);
             p.setLayout(bl);
