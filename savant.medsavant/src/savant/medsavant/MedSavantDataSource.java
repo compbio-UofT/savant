@@ -42,6 +42,7 @@ import savant.api.data.VariantRecord;
 import savant.api.util.Resolution;
 import savant.view.tracks.Track;
 import savant.controller.TrackController;
+import savant.util.DrawingInstruction;
 import savant.util.MiscUtils;
 
 /**
@@ -53,6 +54,7 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
     private boolean active = false;
     private Set<String> chromosomes = new HashSet<String>();
     private String[] participants = new String[0];
+    private static final int LIMIT = 10000;
     
     public MedSavantDataSource(){
         MedSavantClient.main(null);
@@ -86,7 +88,7 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
     }
     
     private void refresh() {
-        Track t = TrackController.getInstance().getTrack(getName());
+        Track t = getTrack();
         if(t != null){
             t.getFrame().forceRedraw();
         }
@@ -135,9 +137,18 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
                             ReferenceController.getInstance().getCurrentReferenceId(),
                             conditions,
                             0,
-                            10000); //TODO enforce a limit...
+                            LIMIT);
 
                 List<VariantRecord> records = new ArrayList<VariantRecord>();
+                
+                if(filteredVariants.size() == LIMIT){
+                    Track t = getTrack();
+                    if(t != null){
+                        t.getRenderer().addInstruction(DrawingInstruction.ERROR, "Too many variants in range");
+                    }
+                    return records;
+                }
+                
                 for (Object[] arr : filteredVariants) {
                     String dnaId = (String)arr[DefaultVariantTableSchema.INDEX_OF_DNA_ID];
                     records.add(new MedSavantVariantRecord(arr, getIndexOfParticipant(dnaId))); 
@@ -228,5 +239,8 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
         return participants;
     }
 
+    private Track getTrack(){
+        return TrackController.getInstance().getTrack(getName());
+    }
     
 }

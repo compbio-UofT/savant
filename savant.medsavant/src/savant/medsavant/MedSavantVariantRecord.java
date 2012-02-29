@@ -22,6 +22,7 @@ public class MedSavantVariantRecord implements VariantRecord {
     private String alt;    
     private org.ut.biolab.medsavant.vcf.VariantRecord.VariantType type;
     private int index;
+    private String genotype;
 
     public MedSavantVariantRecord(Object[] arr, int index) {
         this.chrom = (String)arr[DefaultVariantTableSchema.INDEX_OF_CHROM];
@@ -29,6 +30,7 @@ public class MedSavantVariantRecord implements VariantRecord {
         this.ref = (String)arr[DefaultVariantTableSchema.INDEX_OF_REF];
         this.alt = (String)arr[DefaultVariantTableSchema.INDEX_OF_ALT];
         this.type = org.ut.biolab.medsavant.vcf.VariantRecord.VariantType.valueOf((String)arr[DefaultVariantTableSchema.INDEX_OF_VARIANT_TYPE]);
+        this.genotype = (String)arr[DefaultVariantTableSchema.INDEX_OF_GT];
         this.index = index;
     }
     
@@ -77,13 +79,27 @@ public class MedSavantVariantRecord implements VariantRecord {
         if(index == this.index){
             return new VariantType[]{getVariantType()};
         } else {
-            return null;
+            return new VariantType[]{VariantType.NONE};
         }
     }
 
     @Override
     public int[] getAllelesForParticipant(int index) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(index == this.index){
+            String[] gt = genotype.split("/|\\\\|\\|");
+            if(gt.length != 2){
+                return new int[]{0};
+            }
+            int a = Integer.parseInt(gt[0]);
+            int b = Integer.parseInt(gt[1]);
+            if(a == b){
+                return new int[]{a};
+            } else {
+                return new int[]{a,b};
+            }
+        } else {
+            return new int[]{0};
+        }
     }
 
     @Override
