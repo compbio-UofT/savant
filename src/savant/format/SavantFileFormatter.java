@@ -166,17 +166,19 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
             String line = reader.readLine();
             do {
                 line = reader.readLine();
-            } while (line.charAt(0) == commentChar);
+            } while (line != null && line.charAt(0) == commentChar);
 
-            // Found a "line" which doesn't have a comment character.
-            // Look for tabs and unprintable characters.
             boolean tabFound = false;
-            for (int i = 0; i < line.length(); i++) {
-                char c = line.charAt(i);
-                if (c == '\t') {
-                    tabFound = true;
-                } else if (c < ' ' || c > '~') {
-                    throw new SavantFileFormattingException(String.format("%s does not appear to be a text file.", f.getName()));
+            if (line != null) {
+                // Found a "line" which doesn't have a comment character.
+                // Look for tabs and unprintable characters.
+                for (int i = 0; i < line.length(); i++) {
+                    char c = line.charAt(i);
+                    if (c == '\t') {
+                        tabFound = true;
+                    } else if (c < ' ' || c > '~') {
+                        throw new SavantFileFormattingException(String.format("%s does not appear to be a text file.", f.getName()));
+                    }
                 }
             }
             // Got through a whole line without finding any suspicious characters.
