@@ -150,10 +150,12 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                         break;
                     case COMPLETED:
                         if (evt.getData() != null) {
-                            LOG.trace("Received " + evt.getData().size() + " records for " + evt.getTrack() + "; recalculating.");
                             rawData.set(index, (List)evt.getData());
-                            recalculate();
+                        } else {
+                            rawData.set(index, new ArrayList<VariantRecord>(0));
                         }
+                        LOG.trace("Received " + rawData.get(index).size() + " records for " + evt.getTrack() + "; recalculating.");
+                        recalculate();
                         break;
                     case FAILED:
                         LOG.info("Received " + evt.getError() + " error for " + evt.getTrack());
