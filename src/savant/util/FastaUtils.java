@@ -55,7 +55,6 @@ public class FastaUtils {
             while ((s = IOUtils.readLine(input)) != null) {
                 if (s.charAt(0) == '>') {
                     if (ref != null) {
-                        faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", ref, numBases, refStart, lineLen, lineLen + 1).getBytes());
                         entries.add(new IndexEntry(ref, numBases, refStart, lineLen));
                     }
                     refStart = readPos + s.length() + 1;
@@ -75,10 +74,13 @@ public class FastaUtils {
             }
             // Write the entry for the last chromosome.
             if (ref != null) {
-                faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", ref, numBases, refStart, lineLen, lineLen + 1).getBytes());
                 entries.add(new IndexEntry(ref, numBases, refStart, lineLen));
             }
-            return sortEntries(entries);
+            Map<String, IndexEntry> sortedEntryMap = sortEntries(entries);
+            for(IndexEntry entry : entries){
+                faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", entry.reference, entry.length, entry.offset, entry.lineLength, entry.lineLength + 1).getBytes());
+            }
+            return sortedEntryMap;
         } finally {
             if (input != null) {
                 input.close();
