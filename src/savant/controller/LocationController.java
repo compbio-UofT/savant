@@ -127,19 +127,14 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      * Set the reference. Always check isValidAndNewReference before doing this.
      */
     private void setReference(String ref) {
-        try {
-            currentReference = ref;
-            Genome loadedGenome = GenomeController.getInstance().getGenome();
-            setMaxRange(new Range(1, loadedGenome.getLength()));
-            setRange(1, Math.min(1000, loadedGenome.getLength()));
-        } catch (IllegalArgumentException x) {
-            if (Character.isDefined(ref.charAt(0))) {
-                // It started with a number.  Give it a second kick with a "chr" prefix.
-                setReference("chr" + ref);
-            } else {
-                throw x;
-            }
+        Set<String> allRefs = getAllReferenceNames();
+        if (!allRefs.contains(ref) && allRefs.contains("chr" + ref)) {
+            ref = "chr" + ref;
         }
+        currentReference = ref;
+        Genome loadedGenome = GenomeController.getInstance().getGenome();
+        setMaxRange(new Range(1, loadedGenome.getLength()));
+        setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
 
     /**
@@ -149,11 +144,12 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      * @return True iff reference can be changed
      */
     private boolean isValidAndNewReference(String ref) {
-        if (getAllReferenceNames().contains(ref)) {
+        Set<String> allRefs = getAllReferenceNames();
+        if (allRefs.contains(ref)) {
             if (!ref.equals(currentReference)) {
                 return true;
             }
-        } else if (Character.isDigit(ref.charAt(0))) {
+        } else if (allRefs.contains("chr" + ref)) {
             // Looks like a number.  Let's try slapping on "chr" and see if it works.
             return isValidAndNewReference("chr" + ref);
         } else {
