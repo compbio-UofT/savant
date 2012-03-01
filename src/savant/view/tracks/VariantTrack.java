@@ -55,7 +55,7 @@ public class VariantTrack extends Track {
 
     @Override
     public DrawingMode[] getValidDrawingModes() {
-        return new DrawingMode[] { DrawingMode.MATRIX };
+        return new DrawingMode[] { DrawingMode.MATRIX, DrawingMode.FREQUENCY };
     }
 
     /**
@@ -82,7 +82,11 @@ public class VariantTrack extends Track {
 
         String[] participants = ((VariantDataSourceAdapter)getDataSource()).getParticipants();
         renderer.addInstruction(DrawingInstruction.PARTICIPANTS, participants);
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, participants.length)));
+        if (getDrawingMode() == DrawingMode.MATRIX) {
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, participants.length)));
+        } else {
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));            
+        }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         
@@ -104,7 +108,7 @@ public class VariantTrack extends Track {
 
     @Override
     public AxisType getYAxisType(Resolution ignored) {
-        return AxisType.INTEGER;
+        return getDrawingMode() == DrawingMode.MATRIX ? AxisType.INTEGER : AxisType.REAL;
     }
 
     public int getParticipantCount() {

@@ -57,8 +57,13 @@ public class VariantTrackRenderer extends TrackRenderer {
 
         if (gp.needsToResize()) return;
 
-        // Right now the only mode is matrix.
-        renderMatrixMode(g2, gp);
+        switch (mode) {
+            case MATRIX:
+                renderMatrixMode(g2, gp);
+                break;
+            case FREQUENCY:
+                renderFrequencyMode(g2, gp);
+        }
     }
     
     /**
@@ -129,4 +134,58 @@ public class VariantTrackRenderer extends TrackRenderer {
             }
         }
     }
+    
+    /**
+     * Render the data as an allele frequency plot.
+     *
+     * @param g2 the AWT graphics object to be rendered onto
+     * @param gp the GraphPane which we're drawing into
+     * @throws RenderingException 
+     */
+    private void renderFrequencyMode(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
+
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        ColourAccumulator accumulator = new ColourAccumulator(cs);
+
+        double unitHeight = gp.getUnitHeight() / (((VariantRecord)data.get(0)).getParticipantCount() * 2.0);
+        double unitWidth = gp.getUnitWidth();
+        
+        for (int i = 0; i < data.size(); i++) {
+            VariantRecord varRec = (VariantRecord)data.get(i);
+            Pileup pile = calculatePileup(varRec);
+
+            double bottom = gp.transformYPos(0);
+            double x = gp.transformXPos(varRec.getPosition());
+            recordToShapeMap.put(varRec, new Rectangle2D.Double(x, 0.0, unitWidth, gp.getHeight()));
+
+            VariantType snpNuc;
+            while ((snpNuc = pile.getLargestVariantType(VariantType.NONE)) != null) {
+                double h = pile.getCoverage(snpNuc, null) * unitHeight;
+                Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
+                accumulator.addShape(cs.getVariantColor(snpNuc), rect);
+                bottom -= h;
+                pile.clearVariantType(snpNuc);
+            }
+        }
+
+        accumulator.fill(g2);
+    }
+    
+    /**
+     * Simplified version calculation from AlleleFrequencyPlot, without the case/control distinction.
+     */
+    private Pileup calculatePileup(VariantRecord varRec) {
+        Pileup pile = new Pileup(varRec.getPosition());
+        for (int j = 0; j < varRec.getParticipantCount(); j++) {
+            VariantType[] jVariants = varRec.getVariantsForParticipant(j);
+            if (jVariants.length == 1) {
+                pile.pileOn(jVariants[0], 1.0, null);
+                pile.pileOn(jVariants[0], 1.0, null);
+            } else {
+                pile.pileOn(jVariants[0], 1.0, null);
+                pile.pileOn(jVariants[1], 1.0, null);
+            }
+        }
+        return pile;
+    }            
 }

@@ -25,7 +25,8 @@ public enum DrawingMode {
     STRAND_SNP,
     
     // Variant modes
-    MATRIX;
+    MATRIX,
+    FREQUENCY;
 
     public String getDescription() {
         switch (this) {
@@ -50,7 +51,9 @@ public enum DrawingMode {
             case STRAND_SNP:
                 return "Strand SNP";
             case MATRIX:
-                return "Participant Matrix";
+                return "Participants";
+            case FREQUENCY:
+                return "Frequency";
         }
         return null;
     }
