@@ -23,6 +23,7 @@ public class MedSavantVariantRecord implements VariantRecord {
     private org.ut.biolab.medsavant.vcf.VariantRecord.VariantType type;
     private int index;
     private String genotype;
+    private String name;
 
     public MedSavantVariantRecord(Object[] arr, int index) {
         this.chrom = (String)arr[DefaultVariantTableSchema.INDEX_OF_CHROM];
@@ -31,6 +32,7 @@ public class MedSavantVariantRecord implements VariantRecord {
         this.alt = (String)arr[DefaultVariantTableSchema.INDEX_OF_ALT];
         this.type = org.ut.biolab.medsavant.vcf.VariantRecord.VariantType.valueOf((String)arr[DefaultVariantTableSchema.INDEX_OF_VARIANT_TYPE]);
         this.genotype = (String)arr[DefaultVariantTableSchema.INDEX_OF_GT];
+        this.name = (String)arr[DefaultVariantTableSchema.INDEX_OF_DBSNP_ID];
         this.index = index;
     }
     
@@ -109,7 +111,7 @@ public class MedSavantVariantRecord implements VariantRecord {
 
     @Override
     public String getName() {
-        return chrom + ":" + position;
+        return name;
     }
 
     @Override
