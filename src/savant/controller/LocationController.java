@@ -127,10 +127,19 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      * Set the reference. Always check isValidAndNewReference before doing this.
      */
     private void setReference(String ref) {
-        currentReference = ref;
-        Genome loadedGenome = GenomeController.getInstance().getGenome();
-        setMaxRange(new Range(1, loadedGenome.getLength()));
-        setRange(1, Math.min(1000, loadedGenome.getLength()));
+        try {
+            currentReference = ref;
+            Genome loadedGenome = GenomeController.getInstance().getGenome();
+            setMaxRange(new Range(1, loadedGenome.getLength()));
+            setRange(1, Math.min(1000, loadedGenome.getLength()));
+        } catch (IllegalArgumentException x) {
+            if (Character.isDefined(ref.charAt(0))) {
+                // It started with a number.  Give it a second kick with a "chr" prefix.
+                setReference("chr" + ref);
+            } else {
+                throw x;
+            }
+        }
     }
 
     /**
@@ -144,6 +153,9 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
             if (!ref.equals(currentReference)) {
                 return true;
             }
+        } else if (Character.isDigit(ref.charAt(0))) {
+            // Looks like a number.  Let's try slapping on "chr" and see if it works.
+            return isValidAndNewReference("chr" + ref);
         } else {
             if (TrackController.getInstance().getTracks().size() > 0) {
                 DialogUtils.displayMessage(String.format("<html>Reference <i>%s</i> not found in loaded tracks.</html>", ref));
