@@ -309,10 +309,10 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * @return list of databases on the server
      * @throws SQLException
      */
-    synchronized List<Database> getDatabases() throws SQLException {
+    public synchronized List<Database> getDatabases() throws SQLException {
         if (databases == null) {
             databases = new ArrayList<Database>();
-            LOG.info("Calling SHOW DATABASES...");
+            LOG.trace("Calling SHOW DATABASES...");
             PreparedStatement ps = connection.prepareStatement("SHOW DATABASES");
             ResultSet rs = ps.executeQuery();
             int numDBs = 0;
@@ -321,7 +321,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
                 if (!name.equals("information_schema")) {
                     databases.add(new Database(name, uri, userName, password));
                     numDBs++;
-                    LOG.info(numDBs + ": " + name);
+                    LOG.trace(numDBs + ": " + name);
                 }
             }
             LOG.info("Retrieved " + numDBs + " databases.");

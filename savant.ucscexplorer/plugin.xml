@@ -1,2 +1,2 @@
 <?xml version="1.0" ?>
-<plugin id="savant.ucscexplorer" version="1.0.0" class="savant.ucscexplorer.UCSCExplorerPlugin" sdk-version="2.0.0" name="UCSC Explorer"/>
+<plugin id="savant.ucscexplorer" version="1.0.1" class="savant.ucscexplorer.UCSCExplorerPlugin" sdk-version="2.0.0" name="UCSC Explorer"/>

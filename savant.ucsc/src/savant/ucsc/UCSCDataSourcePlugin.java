@@ -302,6 +302,22 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         return genomes.get(0);
     }
 
+    
+    private boolean isKnownDatabase(String name) {
+        try {
+            List<Database> databases = getDatabases();
+            for (Database db: databases) {
+                if (db.getName().equals(name)) {
+                    return true;
+                }
+            }
+            LOG.info(name + " was not a known UCSC database.");
+        } catch (SQLException sqlx) {
+            LOG.error("Unable to retrieve database list.", sqlx);
+        }
+        return false;
+    }
+
     /**
      * Select the current genome database based on the given table.  If the table is null,
      * use the current genome.  If the genome is null, look for "GENOME" in the settings.
@@ -319,6 +335,9 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
                 int extPos = genomeName.indexOf(".fa");
                 if (extPos > 0) {
                     genomeName = genomeName.substring(0, extPos);
+                }
+                if (!isKnownDatabase(genomeName)) {
+                    genomeName = null;
                 }
             }
             if (genomeName == null) {
