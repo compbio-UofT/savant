@@ -77,8 +77,9 @@ public class FastaDataSource extends DataSource<SequenceRecord> implements Seque
         if (entry != null) {
             byte[] sequence = new byte[r.getLength()];
             int i = 0;
-            int lineNum = r.getFrom() / entry.lineLength;
-            stream.seek(entry.offset + lineNum * (entry.lineLength + 1) + r.getFrom() % entry.lineLength - 1);
+            int lineNum = (r.getFrom() - 1) / entry.lineLength;
+            long offset = entry.offset + lineNum * (entry.lineLength + 1) + (r.getFrom() - 1) % entry.lineLength;
+            stream.seek(offset);
             
             int c;
             while ((c = stream.read()) >= 0 && i < sequence.length) {
