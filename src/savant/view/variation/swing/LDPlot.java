@@ -73,7 +73,8 @@ public class LDPlot extends VariationPlot {
                     VariantType varI = recI.getVariantType();
                     int n1 = 0;
                     for (int k = 0; k < participantCount; k++) {
-                        if (recI.getVariantsForParticipant(k)[0] == varI) {
+                        VariantType[] participantTypes = recI.getVariantsForParticipant(k);
+                        if (containsVariant(participantTypes, varI)) {
                             n1++;
                         }
                     }
@@ -88,9 +89,11 @@ public class LDPlot extends VariationPlot {
                             n1 = 0;
                             int n11 = 0;
                             for (int k = 0; k < participantCount; k++) {
-                                if (recJ.getVariantsForParticipant(k)[0] == varJ) {
+                                VariantType[] participantTypesJ = recJ.getVariantsForParticipant(k);
+                                if (containsVariant(participantTypesJ, varJ)) {
                                     n1++;
-                                    if (recI.getVariantsForParticipant(k)[0] == varI) {
+                                    VariantType[] participantTypesI = recI.getVariantsForParticipant(k);
+                                    if (containsVariant(participantTypesI, varI)) {
                                         n11++;
                                     }
                                 }
@@ -100,6 +103,7 @@ public class LDPlot extends VariationPlot {
                             if (q1 > 0.0 && q1 < 1.0) {
                                 double x11 = n11 / (double)participantCount;
                                 double d = x11 - p1 * q1;
+                                //TODO: something is wrong when x11 is 0, a possible solution ->    double d = x11 == 0 ? 0 : x11 - p1 * q1;
 
                                 // D'
                                 double dMax = d < 0.0 ? -Math.min(p1 * q1, p2 * q2) : Math.min(p1 * q2, p2 * q1);
@@ -117,6 +121,15 @@ public class LDPlot extends VariationPlot {
                 }
             }
         }
+    }
+    
+    private boolean containsVariant(VariantType[] types, VariantType type){
+        for(int i = 0; i < types.length; i++){
+            if(type == types[i]){
+                return true;
+            }
+        }
+        return false;
     }
     
     void recalculate() {
