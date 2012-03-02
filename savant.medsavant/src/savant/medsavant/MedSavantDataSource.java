@@ -7,13 +7,16 @@ package savant.medsavant;
 import com.healthmarketscience.sqlbuilder.BinaryCondition;
 import com.healthmarketscience.sqlbuilder.ComboCondition;
 import com.healthmarketscience.sqlbuilder.Condition;
+import com.healthmarketscience.sqlbuilder.dbspec.Column;
 import java.io.IOException;
 import java.net.URI;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +58,16 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
     private boolean active = false;
     private Set<String> chromosomes = new HashSet<String>();
     private String[] participants = new String[0];
-    private static final int LIMIT = 5000;
+    private static final int LIMIT = 100000;
+    
+    public static final int RECORD_INDEX_DNA_ID = 0;
+    public static final int RECORD_INDEX_DBSNP_ID = 1;
+    public static final int RECORD_INDEX_CHROM = 2;
+    public static final int RECORD_INDEX_POSITION = 3;
+    public static final int RECORD_INDEX_REF = 4;
+    public static final int RECORD_INDEX_ALT = 5;
+    public static final int RECORD_INDEX_GT = 6;
+    public static final int RECORD_INDEX_VARIANT_TYPE = 7;
     
     public MedSavantDataSource(){
         MedSavantClient.main(null);
@@ -131,6 +143,16 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
                         conditions[i][1] = ComboCondition.and(filterConditions[i]);
                     }
                 }
+                
+                Column[] columns = new Column[8];
+                columns[RECORD_INDEX_DNA_ID] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_DNA_ID);
+                columns[RECORD_INDEX_DBSNP_ID] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_DBSNP_ID); 
+                columns[RECORD_INDEX_CHROM] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_CHROM); 
+                columns[RECORD_INDEX_POSITION] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_POSITION);
+                columns[RECORD_INDEX_REF] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_REF);
+                columns[RECORD_INDEX_ALT] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_ALT);
+                columns[RECORD_INDEX_GT] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_GT);
+                columns[RECORD_INDEX_VARIANT_TYPE] = table.getDBColumn(DefaultVariantTableSchema.COLUMNNAME_OF_VARIANT_TYPE); 
 
                 List<Object[]> filteredVariants = MedSavantClient.VariantQueryUtilAdapter.getVariants(
                             LoginController.sessionId,
@@ -138,26 +160,42 @@ public class MedSavantDataSource implements DataSourceAdapter<VariantRecord>, Va
                             ReferenceController.getInstance().getCurrentReferenceId(),
                             conditions,
                             0,
-                            LIMIT);
+                            LIMIT,
+                            null,
+                            columns);
 
-                List<VariantRecord> records = new ArrayList<VariantRecord>();
+                Map<String, MergedMedSavantVariantRecord> recordMap = new HashMap<String, MergedMedSavantVariantRecord>();
                 
                 if(filteredVariants.size() == LIMIT){
                     Track t = getTrack();
                     if(t != null){
                         t.getRenderer().addInstruction(DrawingInstruction.ERROR, new RenderingException("Too many variants to display", RenderingException.INFO_PRIORITY));
                     }
-                    return records;
+                    return new ArrayList<VariantRecord>();
                 }
                 
                 for (Object[] arr : filteredVariants) {
-                    String dnaId = (String)arr[DefaultVariantTableSchema.INDEX_OF_DNA_ID];
-                    records.add(new MedSavantVariantRecord(arr, getIndexOfParticipant(dnaId))); 
+                    Integer position = (Integer)arr[RECORD_INDEX_POSITION];
+                    String refString = (String)arr[RECORD_INDEX_REF];
+                    String key = position.toString() + refString;
+                    MergedMedSavantVariantRecord m = recordMap.get(key);
+                    if(m == null){
+                        m = new MergedMedSavantVariantRecord(arr, participants.length);
+                        recordMap.put(key, m);
+                    } 
+                    m.addRecord(arr, getIndexOfParticipant((String)arr[RECORD_INDEX_DNA_ID]));
+
+                }
+                
+                List<VariantRecord> records = new ArrayList<VariantRecord>();
+                for(String key : recordMap.keySet()){
+                    records.add(recordMap.get(key));
                 }
 
                 return records;
 
             } catch (Exception ex) {
+                ex.printStackTrace();
                 throw new IOException(ex.getMessage());
             }
         } else {
