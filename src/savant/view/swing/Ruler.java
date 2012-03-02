@@ -94,11 +94,9 @@ public class Ruler extends JPanel {
         super.paintComponent(g);
 
         if (graphPaneController.isPanning()) {
-            int fromx = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getFrom(), getWidth(), locationController.getRange());
-            int tox = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getTo(), getWidth(), locationController.getRange());
-
-            double shiftamount = tox-fromx;
-            g.translate((int) shiftamount, 0);
+            int fromX = MiscUtils.transformPositionToPixel(graphPaneController.getMouseClickPosition(), getWidth(), locationController.getRange());
+            int toX = MiscUtils.transformPositionToPixel(graphPaneController.getMouseReleasePosition(), getWidth(), locationController.getRange());
+            g.translate(toX - fromX, 0);
         }
 
         renderBackground(g);

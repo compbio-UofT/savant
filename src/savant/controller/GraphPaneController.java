@@ -23,7 +23,6 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.util.NavigationUtils;
 import savant.controller.event.GraphPaneEvent;
 import savant.util.Controller;
-import savant.util.Range;
 
 
 /**
@@ -184,23 +183,17 @@ public class GraphPaneController extends Controller {
         }
     }
 
-    public Range getMouseDragRange() {
-        return new Range(mouseClickPosition, mouseReleasePosition);
-    }
-
-    public void setMouseDragRange(Range r) {
-        setMouseDragRange(r.getFrom(),r.getTo());
-    }
-
-    public void setMouseDragRange(int fromPosition, int toPosition) {
-        mouseClickPosition = fromPosition;
-        mouseReleasePosition = toPosition;
-        askForRefresh();
+    public int getMouseClickPosition() {
+        return mouseClickPosition;
     }
 
     public void setMouseClickPosition(int position) {
         mouseClickPosition = position;
         askForRefresh();
+    }
+
+    public int getMouseReleasePosition() {
+        return mouseReleasePosition;
     }
 
     public void setMouseReleasePosition(int position) {

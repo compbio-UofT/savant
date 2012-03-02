@@ -196,9 +196,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         if (gpc.isPanning() && !isLocked()) {
 
-            double fromX = transformXPos(gpc.getMouseDragRange().getFrom());
-            double toX = transformXPos(gpc.getMouseDragRange().getTo());
-
+            double fromX = transformXPos(gpc.getMouseClickPosition());
+            double toX = transformXPos(gpc.getMouseReleasePosition());
             g2.translate(toX - fromX, 0);
         }
 
@@ -517,8 +516,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             g2.drawString(target, mouseX + 5, mouseY - 5);
         }
 
-        double x1 = transformXPos(gpc.getMouseDragRange().getFrom());
-        double x2 = transformXPos(gpc.getMouseDragRange().getTo());
+        double x1 = transformXPos(gpc.getMouseClickPosition());
+        double x2 = transformXPos(gpc.getMouseReleasePosition());
 
         double width = x1 - x2;
 
@@ -873,15 +872,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         resetCursor();
 
-        double x1 = transformXPos(gpc.getMouseDragRange().getFrom());
+        double x1 = transformXPos(gpc.getMouseClickPosition());
 
         if (gpc.isPanning()) {
 
             if (!panVert) {
                 Range r = lc.getRange();
-                int shiftVal = (int) (Math.round((x1-x2) / getUnitWidth()));
-
-                Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
+                int shiftVal = gpc.getMouseClickPosition() - transformXPixel(x2);
+                Range newr = new Range(r.getFrom() + shiftVal, r.getTo() + shiftVal);
                 lc.setLocation(newr);
             }
         } else if (gpc.isZooming()) {
