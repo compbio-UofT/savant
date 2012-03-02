@@ -176,11 +176,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      *
      * @param g2 the Graphics object into which to draw.
      */
-    public void render(Graphics2D g2) {
-        render(g2, new Range(xMin, xMax), null);
+    public boolean render(Graphics2D g2) {
+        return render(g2, new Range(xMin, xMax), null);
     }
 
-    public void render(Graphics2D g2, Range xRange, Range yRange) {
+    public boolean render(Graphics2D g2, Range xRange, Range yRange) {
         LOG.trace("GraphPane.render(g2, " + xRange + ", " + yRange + ")");
         double oldUnitHeight = unitHeight;
         int oldYMax = yMax;
@@ -205,14 +205,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         // Deal with the progress-bar.
         if (tracks == null) {
             parentFrame.updateProgress();
-            return;
+            return false;
         } else {
             for (Track t: tracks) {
                 if (t.getRenderer().isWaitingForData()) {
                     String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
                     setPreferredSize(new Dimension(getWidth(), 0));
                     showProgress(progressMsg, -1.0);
-                    return;
+                    return false;
                 }
             }
         }
@@ -363,7 +363,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                     // where looks wrong is when we have a continuous track with negative values.
                     scroller.setValue(scroller.getMaximum());
                     repaint();
-                    return;
+                    return false;
                 }
             } else if (oldViewHeight != -1 && oldViewHeight != getViewportHeight()) {
                 int newViewHeight = getViewportHeight();
@@ -379,6 +379,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             
             renderCurrentSelected(g2);
         }
+        return true;
     }
 
     /**
@@ -493,7 +494,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
-        render(g2);
+        boolean trueRender = render(g2);
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         int h = getHeight();
@@ -573,8 +574,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         if (isLocked()) {
             drawMessage((Graphics2D)g, "Locked");
         }
-
-        gpc.delistRenderingGraphpane(this);
+        if (trueRender) {
+            gpc.delistRenderingGraphpane(this);
+        }
     }
 
     /**
@@ -1231,6 +1233,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     public void fireExportEvent(Range range, BufferedImage image) {
+        LOG.info("Firing export event");
         int size = exportListeners.size();
         for (int i = 0; i < size; i++) {
             exportListeners.get(i).handleEvent(new ExportEvent(range, image));
