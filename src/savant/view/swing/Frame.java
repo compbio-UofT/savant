@@ -396,6 +396,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             t.getRenderer().clearInstructions();
             t.prepareForRendering(reference, range);
         }
+        graphPane.repaint();
     }
 
     /**
