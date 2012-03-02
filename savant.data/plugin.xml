@@ -1,2 +1,2 @@
 <?xml version="1.0" ?>
-<plugin id="savant.data" version="1.2.5" class="savant.data.DataTab"  sdk-version="2.0.0" name="Data Table"/>
+<plugin id="savant.data" version="1.2.7" class="savant.data.DataTab"  sdk-version="2.0.0" name="Data Table"/>
