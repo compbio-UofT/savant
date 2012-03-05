@@ -135,7 +135,7 @@ public class PathwaysBrowser extends JPanel{
             public void run() {
                 try {
                     WSSearchResult[] search = null;
-                    if(organismString == null || organismString.equals("") || organismString.equals("All")){
+                    if(organismString == null || organismString.equals("") || organismString.equals("All") || Organism.fromLatinName(organismString) == null){
                         search = wpclient.findPathwaysByText(query);
                     } else {
                         search = wpclient.findPathwaysByText(query, Organism.fromLatinName(organismString));
@@ -188,7 +188,7 @@ public class PathwaysBrowser extends JPanel{
                 try {
                     if(organism.equals(ALL_ORGANISMS)){
                         pathways = wpclient.listPathways();
-                    } else {
+                    } else if (Organism.fromLatinName(organism) != null) {
                         pathways = wpclient.listPathways(Organism.fromLatinName(organism));
                     }
                     table.setModel(new PathwayTableModel(pathways, true));

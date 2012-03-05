@@ -43,7 +43,13 @@ public class OrganismTableModel extends AbstractTableModel {
             case 1:
                 if(s == null) return "..";
                 else if (s.equals(PathwaysBrowser.ALL_ORGANISMS)) return "";
-                else return Organism.fromLatinName(s).shortName();
+                else {
+                    try {
+                        return Organism.fromLatinName(s).shortName();
+                    } catch (NullPointerException e){
+                        return ""; //Fixes bug where server sends a name that isn't in current organism library. May need to update jars. 
+                    }
+                }
         }
         return null;
     }
