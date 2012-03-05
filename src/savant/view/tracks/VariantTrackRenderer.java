@@ -17,6 +17,7 @@
 package savant.view.tracks;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
@@ -27,6 +28,7 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
+import savant.api.util.Resolution;
 import savant.exception.RenderingException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -187,5 +189,30 @@ public class VariantTrackRenderer extends TrackRenderer {
             }
         }
         return pile;
-    }            
+    }
+    
+    @Override
+    public Dimension getLegendSize(DrawingMode ignored) {
+        Resolution res = (Resolution)getInstruction(DrawingInstruction.RESOLUTION);
+        return res == Resolution.HIGH ? new Dimension(168, LEGEND_LINE_HEIGHT * 3 + 6) : null;
+    }
+    
+    @Override
+    public void drawLegend(Graphics2D g2, DrawingMode ignored) {
+        int x = 6, y = 17;
+        drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
+
+        y += LEGEND_LINE_HEIGHT;
+        g2.setColor(Color.BLACK);
+        g2.fillRect(x, y - SWATCH_SIZE.height + 2, SWATCH_SIZE.width, SWATCH_SIZE.height);
+        g2.setColor(Color.BLACK);
+        g2.drawString("Deletion", x + SWATCH_SIZE.width + 3, y);
+        x += 66;
+        g2.setColor(Color.MAGENTA);
+        g2.fillRect(x, y - SWATCH_SIZE.height + 2, SWATCH_SIZE.width, SWATCH_SIZE.height);
+        g2.setColor(Color.BLACK);
+        g2.drawString("Insertion", x + 12, y);
+        y += LEGEND_LINE_HEIGHT;
+        g2.drawString("Translucent = Heterozygous", 6, y);
+    }
 }
