@@ -21,14 +21,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.text.NumberFormat;
-import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
+import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JCheckBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 import savant.controller.FrameController;
@@ -49,6 +43,7 @@ public class InterfaceSection extends Section {
     private JFormattedTextField otherIntervalHeightField;
     private JCheckBox disablePopupsCheck;
     private JCheckBox disableLegendsCheck;
+    private JCheckBox wheelZoomsCheck;
 
     @Override
     public String getTitle() {
@@ -69,9 +64,13 @@ public class InterfaceSection extends Section {
         disableLegendsCheck = new JCheckBox("Disable Track Legends");
         disableLegendsCheck.setSelected(InterfaceSettings.areLegendsDisabled());
         disableLegendsCheck.addActionListener(enablingActionListener);
-        gbc.weighty = 1.0;
         add(disableLegendsCheck, gbc);
-    }
+
+        wheelZoomsCheck = new JCheckBox("Mouse Wheel Zooms (Instead of Scrolling)");
+        wheelZoomsCheck.setSelected(InterfaceSettings.doesWheelZoom());
+        wheelZoomsCheck.addActionListener(enablingActionListener);
+        gbc.weighty = 1.0;
+        add(wheelZoomsCheck, gbc);    }
 
 
     @Override
@@ -82,6 +81,7 @@ public class InterfaceSection extends Section {
             InterfaceSettings.setGenericIntervalHeight(Integer.parseInt(otherIntervalHeightField.getText().replaceAll(",", "")));
             InterfaceSettings.setPopupsDisabled(disablePopupsCheck.isSelected());
             InterfaceSettings.setLegendsDisabled(disableLegendsCheck.isSelected());
+            InterfaceSettings.setWheelZooms(wheelZoomsCheck.isSelected());
 
             try {
                 PersistentSettings.getInstance().store();

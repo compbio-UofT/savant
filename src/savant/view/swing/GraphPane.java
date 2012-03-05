@@ -45,6 +45,7 @@ import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
+import savant.settings.InterfaceSettings;
 import savant.util.swing.ProgressPanel;
 import savant.util.*;
 import savant.view.tracks.BAMTrack;
@@ -788,21 +789,27 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
 
-        //this.setMouseWheel(true);
         int notches = e.getWheelRotation();
+        LocationController lc = LocationController.getInstance();
 
         if (MiscUtils.MAC && e.isMetaDown() || e.isControlDown()) {
             if (notches < 0) {
-                LocationController lc = LocationController.getInstance();
                 lc.shiftRangeLeft();
             } else {
-                LocationController lc = LocationController.getInstance();
                 lc.shiftRangeRight();
             }
         } else {
-            JScrollBar sb = getVerticalScrollBar();
-            if (sb.isVisible()) {
-                sb.setValue(sb.getValue() + notches * 15);
+            if (InterfaceSettings.doesWheelZoom()) {
+                if (notches < 0) {
+                    lc.zoomInOnMouse();
+               } else {
+                    lc.zoomOutFromMouse();
+               }
+            } else {
+                JScrollBar sb = getVerticalScrollBar();
+                if (sb.isVisible()) {
+                    sb.setValue(sb.getValue() + notches * 15);
+                }
             }
         }
     }
@@ -1231,7 +1238,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     public void fireExportEvent(Range range, BufferedImage image) {
-        LOG.info("Firing export event");
         int size = exportListeners.size();
         for (int i = 0; i < size; i++) {
             exportListeners.get(i).handleEvent(new ExportEvent(range, image));
@@ -1275,6 +1281,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
+    @Override
     public boolean isScaledToFit() {
         return scaledToFit;
     }

@@ -20,7 +20,8 @@ import savant.api.data.DataFormat;
 
 
 /**
- *
+ * Settings relevant to the Savant user interface.
+ * 
  * @author AndrewBrook
  */
 public class InterfaceSettings {
@@ -37,6 +38,7 @@ public class InterfaceSettings {
     private static final String GENERIC_INTERVAL_HEIGHT_KEY = "GenericIntervalHeight";
     private static final String POPUPS_DISABLED_KEY = "PopupsDisabled";
     private static final String LEGENDS_DISABLED_KEY = "LegendsDisabled";
+    private static final String WHEEL_ZOOMS_KEY = "WheelZooms";
 
     public static int getBamIntervalHeight() {
         return SETTINGS.getInt(BAM_INTERVAL_HEIGHT_KEY, BAM_INTERVAL_HEIGHT);
@@ -87,5 +89,13 @@ public class InterfaceSettings {
 
     public static void setPopupsDisabled(boolean value) {
         SETTINGS.setBoolean(POPUPS_DISABLED_KEY, value);
+    }
+    
+    public static boolean doesWheelZoom() {
+        return SETTINGS.getBoolean(WHEEL_ZOOMS_KEY, true);
+    }
+    
+    public static void setWheelZooms(boolean value) {
+        SETTINGS.setBoolean(WHEEL_ZOOMS_KEY, value);
     }
 }
