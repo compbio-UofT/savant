@@ -17,6 +17,8 @@ package savant.pathways;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
@@ -32,6 +34,7 @@ public class PathwayTableModel extends AbstractTableModel {
     PathwayTableModel(WSPathwayInfo[] pathways, boolean hasParent){
         if(hasParent) this.pathways.add(null);
         this.pathways.addAll(Arrays.asList(pathways));
+        Collections.sort(this.pathways, PATHWAY_COMPARATOR);
     }
 
     @Override
@@ -70,4 +73,20 @@ public class PathwayTableModel extends AbstractTableModel {
     public WSPathwayInfo getEntry(int row){
         return pathways.get(row);
     }
+    
+    private static final Comparator<WSPathwayInfo> PATHWAY_COMPARATOR = new Comparator<WSPathwayInfo>() {
+        @Override
+        public int compare(WSPathwayInfo t, WSPathwayInfo t1) {
+            if(t == null) return -1;
+            if(t1 == null) return 1;
+            if(t.getId().toLowerCase().startsWith("wp") && t1.getId().toLowerCase().startsWith("wp")){
+                try {
+                    Integer a = Integer.parseInt(t.getId().substring(2));
+                    Integer b = Integer.parseInt(t1.getId().substring(2));
+                    return a.compareTo(b);
+                } catch (NumberFormatException e){}
+            } 
+            return t.getId().compareTo(t1.getId());
+        }
+    };
 }
