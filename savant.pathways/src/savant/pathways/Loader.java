@@ -69,8 +69,8 @@ public class Loader extends JPanel {
         setMessage(ERROR_MESSAGE);
     }
 
-    public void setMessageGeneInfo(){
-        setMessage(GENEINFO_MESSAGE);
+    public void setMessageGeneInfo(float progress){
+        setMessage(GENEINFO_MESSAGE + "  " + (int)(progress * 100) + "%");
     }
 
 }

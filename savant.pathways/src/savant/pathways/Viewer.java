@@ -273,13 +273,15 @@ public class Viewer extends javax.swing.JPanel {
      */
     private void getGeneInfo(){
 
-        loader.setMessageGeneInfo();
+        loader.setMessageGeneInfo(0);
         
         ArrayList<DataNode> entrezNodes = new ArrayList<DataNode>();
 
         //determine url
         String urlString = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=";
-        for(DataNode n : dataNodes){
+        for(int i = 0; i < dataNodes.size(); i++){
+            loader.setMessageGeneInfo((float)i / dataNodes.size());
+            DataNode n = dataNodes.get(i);
             String db = n.getAttribute("Xref", "Database");
             String id = n.getAttribute("Xref", "ID");
             if(db == null || id == null) continue;
@@ -304,7 +306,9 @@ public class Viewer extends javax.swing.JPanel {
                         httpConnection.setInstanceFollowRedirects(false);
                         httpConnection.connect();
                         String header = httpConnection.getHeaderField("Location");
-                        if(header.contains(";r=")){
+                        if (header == null) {
+                           retries = 0; 
+                        } else if (header.contains(";r=")){
                             success = true;
                             rangeString = header.substring(header.indexOf(";r=")+3);
                             if(rangeString.contains(";")){
@@ -324,6 +328,8 @@ public class Viewer extends javax.swing.JPanel {
                     } catch (MalformedURLException ex) {
                         Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex){
+                        Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (NullPointerException ex){
                         Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     retries--;
