@@ -54,7 +54,7 @@ import savant.util.*;
 
 /**
  * Class to perform all the rendering of a BAM Track in all its modes.
- * 
+ *
  * @author vwilliams
  */
 public class BAMTrackRenderer extends TrackRenderer {
@@ -121,7 +121,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     // We're switching to coverage.  Initially scaled by default.
                     gp.setScaledToFit(true);
                 }
-                lastResolution = res;                
+                lastResolution = res;
             }
         } else {
             // Arc mode and the SNP modes are always initially scaled to fit.
@@ -201,7 +201,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //resize frame if necessary
         if (gp.needsToResize()) return;
-        
+
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
@@ -329,10 +329,10 @@ public class BAMTrackRenderer extends TrackRenderer {
     private void renderBases(Graphics2D g2, GraphPaneAdapter gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
-        
+
         boolean baseQualityEnabled = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
         boolean drawingAllBases = lastMode == DrawingMode.SEQUENCE || baseQualityEnabled;
-        
+
         double unitWidth = gp.getUnitWidth();
         int offset = gp.getOffset();
 
@@ -380,11 +380,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                         renderDeletion(g2, gp, opStart, level, operatorLength, unitHeight);
                     }
                     break;
-                
+
                 case I: // Insertion
                     insertions.add(new Rectangle2D.Double(gp.transformXPos(sequenceCursor), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), unitWidth, unitHeight));
                     break;
-                    
+
                 case M: // Match or mismatch
                     // some SAM files do not contain the read bases
                     if (sequenceSaved) {
@@ -396,7 +396,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                             if (refIndex >= 0 && refSeq != null && refIndex < refSeq.length) {
                                 mismatched = refSeq[refIndex] != readBases[readIndex];
                             }
-                                
+
                             if (mismatched || drawingAllBases) {
                                 Color col;
                                 if ((mismatched && lastMode != DrawingMode.STANDARD) || lastMode == DrawingMode.SEQUENCE) {
@@ -427,7 +427,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         }
                     }
                     break;
-               
+
                 case N: // Skipped
                     opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level+1)*unitHeight) - offset, opWidth, unitHeight);
                     g2.setColor(cs.getColor(ColourKey.SKIPPED));
@@ -444,7 +444,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
     }
-    
+
     /**
      * Render the black rectangle which indicates a deletion.
      */
@@ -456,6 +456,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         Rectangle2D opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0) - (level + 1) * unitHeight - gp.getOffset(), width, unitHeight);
         g2.setColor(Color.BLACK);
         g2.fill(opRect);
+    }
+
+    private Color makeTransparent(Color c) {
+        return new Color(c.getRed(),c.getGreen(),c.getBlue(),90);
     }
 
     private void renderArcPairedMode(Graphics2D g2, GraphPaneAdapter gp) {
@@ -470,11 +474,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         //LOG.info("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
-        Color normalArcColor = cs.getColor(ColourKey.CONCORDANT_LENGTH);
-        Color invertedReadColor = cs.getColor(ColourKey.ONE_READ_INVERTED);
-        Color evertedPairColor = cs.getColor(ColourKey.EVERTED_PAIR);
-        Color discordantLengthColor = cs.getColor(ColourKey.DISCORDANT_LENGTH);
-        Color unmappedMateColor = cs.getColor(ColourKey.UNMAPPED_MATE);
+        Color normalArcColor = makeTransparent(cs.getColor(ColourKey.CONCORDANT_LENGTH));
+        Color invertedReadColor = makeTransparent(cs.getColor(ColourKey.ONE_READ_INVERTED));
+        Color evertedPairColor = makeTransparent(cs.getColor(ColourKey.EVERTED_PAIR));
+        Color discordantLengthColor = makeTransparent(cs.getColor(ColourKey.DISCORDANT_LENGTH));
+        Color unmappedMateColor = makeTransparent(cs.getColor(ColourKey.UNMAPPED_MATE));
 
         // set graph pane's range parameters
         gp.setXRange(axisRange.getXRange());
@@ -645,7 +649,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
             }
         }
-        
+
         accumulator.fill(g2);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
@@ -758,7 +762,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     private void updatePileupsFromSAMRecord(List<Pileup> pileups, SAMRecord samRecord, int startPosition) {
-        
+
         // the read sequence
         byte[] readBases = samRecord.getReadBases();
 
@@ -768,7 +772,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         Strand strand = samRecord.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD;
-        
+
         int alignmentStart = samRecord.getAlignmentStart();
 
         // the reference sequence
@@ -836,9 +840,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
     }
-    
+
     public void renderReadsFromArc(Graphics2D g2, GraphPaneAdapter gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range) {
-        
+
         int readHeight = gp.getParentFrame().getIntervalHeight();
 
         renderRead(g2, gp, rec1, 0, range, readHeight);
@@ -861,7 +865,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         Map<Integer, ArrayList<BAMIntervalRecord>> mateQueue = new HashMap<Integer, ArrayList<BAMIntervalRecord>>();
         ArrayList<ArrayList<Interval>> levels = new ArrayList<ArrayList<Interval>>();
-        levels.add(new ArrayList<Interval>()); 
+        levels.add(new ArrayList<Interval>());
         ArrayList<DrawStore> savedDraws = new ArrayList<DrawStore>();
 
         for (int i = 0; i < data.size(); i++) {
@@ -874,7 +878,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
             //discard unmapped reads
-            if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() 
+            if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag()
                     || samRecord.getMateUnmappedFlag() || type == null
                     || arcLength == 0) { // this read is unmapped, don't visualize it
                 recordToShapeMap.put(bamRecord, null);
@@ -891,7 +895,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             //check if mate has already been found
             BAMIntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
             if (mate != null) {
-                int level = computePiledIntervalLevel(levels, 
+                int level = computePiledIntervalLevel(levels,
                         Interval.valueOf(Math.min(interval.getStart(), mate.getInterval().getStart()),
                         Math.max(interval.getEnd(), mate.getInterval().getEnd())));
                 savedDraws.add(new DrawStore(bamRecord, level, null, null));
@@ -905,7 +909,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (mateQueue.get(interval.getStart()) == null) {
                 mateQueue.put(interval.getStart(), new ArrayList<BAMIntervalRecord>());
             }
-            mateQueue.get(interval.getStart()).add(bamRecord);          
+            mateQueue.get(interval.getStart()).add(bamRecord);
         }
 
         //if there are records remaining without a mate, they are probably off screen to the left
@@ -952,7 +956,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     /**
-     * Connect intervals i1 and i2 with a dashed line to show mates. 
+     * Connect intervals i1 and i2 with a dashed line to show mates.
      */
     private void connectPiledInterval(Graphics2D g2, GraphPaneAdapter gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2) {
         Interval mateInterval = computeMateInterval(i1, i2);
@@ -1016,7 +1020,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         levels.get(levels.size()-1).add(interval);
         return levels.size()-1;
     }
-    
+
     /**
      * Store information for drawing a read so that it can be done later.
      * Used for piled interval mode
@@ -1035,7 +1039,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             this.mateIntervalRecord = mateIntervalRecord;
         }
     }
-    
+
     @Override
     public Dimension getLegendSize(DrawingMode mode) {
         switch (mode) {
@@ -1092,7 +1096,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 break;
         }
     }
-    
+
     /**
      * Draw two read-shapes: one for forward and one for reverse.
      */
@@ -1103,13 +1107,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         g2.fill(pointyBar);
         g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
         g2.draw(pointyBar);
-        
+
         pointyBar = getPointyBar(true, x, y - 12 + LEGEND_LINE_HEIGHT, 36.0, 12.0);
         g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
         g2.fill(pointyBar);
         g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
         g2.draw(pointyBar);
-        
+
         g2.setColor(Color.BLACK);
         g2.setFont(LEGEND_FONT);
         g2.drawString(ColourKey.FORWARD_STRAND.getName(), x + 45, y);
