@@ -92,7 +92,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution res = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (res == Resolution.HIGH) {
-            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.STANDARD_PAIRED) {
+            if (lastMode != DrawingMode.STANDARD && lastMode != DrawingMode.SEQUENCE) {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if (genome.isSequenceSet()) {
