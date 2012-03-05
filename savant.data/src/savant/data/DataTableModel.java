@@ -46,7 +46,7 @@ public class DataTableModel extends AbstractTableModel {
     private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
     private static final Class[] ALIGNMENT_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
-    private static final Class[] VARIANT_COLUMN_CLASSES = { String.class, String.class, Integer.class, String.class, String.class };
+    private static final Class[] VARIANT_COLUMN_CLASSES = { String.class, Integer.class, String.class, String.class, String.class, String.class };
 
     private final DataSourceAdapter dataSource;
     private String[] columnNames;
@@ -87,7 +87,7 @@ public class DataTableModel extends AbstractTableModel {
                 break;
             case VARIANT:
                 columnClasses = VARIANT_COLUMN_CLASSES;
-                columnNames = new String[] { "Name", "Type", "Position", "Ref", "Alt" };
+                columnNames = new String[] { "Chrom", "Position", "Name", "Type", "Ref", "Alt" };
                 break;
             case RICH_INTERVAL:
                 // Special treatment for Tabix data, which may have some suppressed fields indicated by nulls in the column list.
@@ -196,14 +196,16 @@ public class DataTableModel extends AbstractTableModel {
                     VariantRecord varRec = (VariantRecord)datum;
                     switch (column) {
                         case 0:
-                            return varRec.getName();
+                            return varRec.getReference();
                         case 1:
-                            return varRec.getVariantType().getDescription();
-                        case 2:
                             return varRec.getPosition();
+                        case 2:
+                            return varRec.getName();
                         case 3:
-                            return varRec.getRefBases();
+                            return varRec.getVariantType().getDescription();
                         case 4:
+                            return varRec.getRefBases();
+                        case 5:
                             return StringUtils.join(varRec.getAltAlleles(), ',');
                     }
                 case RICH_INTERVAL:
@@ -297,7 +299,7 @@ public class DataTableModel extends AbstractTableModel {
             case GENERIC_INTERVAL:
             case VARIANT:
             case RICH_INTERVAL:
-                exportWriter.println("# Savant Data Table Plugin 1.2.5");
+                exportWriter.println("# Savant Data Table Plugin 1.2.7");
                 exportWriter.printf("#%s", columnNames[0]);
                 for (int i = 1; i < columnNames.length; i++) {
                     exportWriter.printf("\t%s", columnNames[i]);
@@ -347,7 +349,8 @@ public class DataTableModel extends AbstractTableModel {
                 break;
             case VARIANT:
                 VariantRecord varRec = (VariantRecord)datum;
-                exportWriter.printf("%s\t%d\t%s\t%s\t%s", datum.getReference(), varRec.getPosition(), varRec.getVariantType(), varRec.getRefBases(), StringUtils.join(varRec.getAltAlleles(), ',')).println();
+                String name = varRec.getName();
+                exportWriter.printf("%s\t%d\t%s\t%s\t%s\t%s", datum.getReference(), varRec.getPosition(), (name != null ? name : ""), varRec.getVariantType().getDescription(), varRec.getRefBases(), StringUtils.join(varRec.getAltAlleles(), ',')).println();
                 break;
             case RICH_INTERVAL:
                 String[] values = ((TabixIntervalRecord)datum).getValues();
