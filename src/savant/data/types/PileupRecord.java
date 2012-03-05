@@ -28,8 +28,8 @@ import savant.util.Pileup;
  * @author tarkvara
  */
 public class PileupRecord implements Record {
-    /** Names to be displayed in popup.  Must be in same order as enum values in VariantTYpe. */
-    public static final String[] NUCLEOTIDE_NAMES = { "A", "C", "G", "T", "Insertion", "Deletion", "Other" };
+    /** Names to be displayed in popup.  Must be in same order as enum values in VariantType. */
+    public static final String[] NUCLEOTIDE_NAMES = { "A", "C", "G", "T", "Deletion", "Insertion", "Other" };
 
     int position;
     int coverage[][];
