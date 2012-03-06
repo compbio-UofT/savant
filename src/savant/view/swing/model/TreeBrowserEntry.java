@@ -37,13 +37,13 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
 
     static FileSystemView _fileSystemView;
 
-    private boolean isLeaf;
-    private List<TreeBrowserEntry> children;
-    private String name;
-    private String type;
-    private String description;
-    private URL url;
-    private String size;
+    protected boolean isLeaf;
+    protected List<TreeBrowserEntry> children;
+    protected String name;
+    protected String type;
+    protected String description;
+    protected URL url;
+    protected String size;
 
     public TreeBrowserEntry(String name, List<TreeBrowserEntry> r) {
         this.name = name;

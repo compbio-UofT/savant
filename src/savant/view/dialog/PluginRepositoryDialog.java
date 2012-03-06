@@ -15,8 +15,6 @@
  */
 package savant.view.dialog;
 
-import savant.view.swing.model.TreeBrowserEntry;
-import savant.view.swing.model.TreeBrowserModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,8 +29,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
+import com.jidesoft.grid.CellStyle;
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
 import org.apache.commons.logging.Log;
@@ -44,6 +42,8 @@ import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
 import savant.api.util.PluginUtils;
+import savant.view.swing.model.TreeBrowserEntry;
+import savant.view.swing.model.TreeBrowserModel;
 import savant.util.MiscUtils;
 
 
@@ -53,7 +53,6 @@ import savant.util.MiscUtils;
  */
 public class PluginRepositoryDialog extends JDialog {
     private static final Log LOG = LogFactory.getLog(PluginRepositoryDialog.class);
-    private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
     private TreeTable table;
 
@@ -85,7 +84,6 @@ public class PluginRepositoryDialog extends JDialog {
         bottomBar.add(cancelButton);
 
         JButton installButton = new JButton(buttonText);
-        installButton.putClientProperty( "JButton.buttonType", "default" );
         installButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,11 +94,12 @@ public class PluginRepositoryDialog extends JDialog {
 
         add(bottomBar, BorderLayout.SOUTH);
 
-        setPreferredSize(new Dimension(800, 500));
+        setPreferredSize(new Dimension(1000, 500));
         pack();
 
-        setLocationRelativeTo(parent);
+        getRootPane().setDefaultButton(installButton);
         MiscUtils.registerCancelButton(cancelButton);
+        setLocationRelativeTo(parent);
     }
 
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
@@ -128,28 +127,12 @@ public class PluginRepositoryDialog extends JDialog {
             return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
             try {
-                return new TreeBrowserEntry(root.getAttributeValue("name"), root.getChildText("type"), root.getChildText("description"), new URL(root.getChildText("url")), root.getChildText("size"));
+                return new PluginBrowserEntry(root, root.getAttributeValue("website"));
             } catch (MalformedURLException ex) {
                 LOG.error(ex);
             }
         }
         return null;
-    }
-
-    public static class FileRowCellRenderer extends DefaultTableCellRenderer {
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof TreeBrowserEntry) {
-                TreeBrowserEntry fileRow = (TreeBrowserEntry) value;
-                JLabel label = (JLabel) super.getTableCellRendererComponent(table,
-                        fileRow.getName(),
-                        isSelected, hasFocus, row, column);
-                label.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
-                return label;
-            }
-            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        }
     }
 
     private static List<TreeBrowserEntry> getDownloadTreeRows(File f) throws JDOMException, IOException {
@@ -165,10 +148,15 @@ public class PluginRepositoryDialog extends JDialog {
         table = new TreeTable(new TreeBrowserModel(roots) {
             @Override
             public String[] getColumnNames() {
-                return new String[] { "Name" };
+                return new String[] { "Name", "Description", "Web Site" };
+            }
+
+            @Override
+            public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
+                return null;
             }
         });
-        table.setSortable(true);
+        table.setSortable(true); 
         table.setRespectRenderPreferredHeight(true);
 
         // configure the TreeTable
@@ -184,6 +172,19 @@ public class PluginRepositoryDialog extends JDialog {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                int col = table.columnAtPoint(e.getPoint());
+                if (col == 2) {
+                    Object o = table.getModel().getValueAt(table.rowAtPoint(e.getPoint()), col);
+                    if (o != null && (o instanceof URL)) {
+                        System.out.println(o.toString());
+                        try {
+                            Desktop.getDesktop().browse(((URL)o).toURI());
+                        } catch (Exception x) {
+                            LOG.error("Unable to open link for " + o, x);
+                        }
+                        return;
+                    }
+                }
                 if (e.getClickCount() == 2) {
                     downloadSelectedItem(true);
                 }
@@ -194,12 +195,11 @@ public class PluginRepositoryDialog extends JDialog {
         table.setSelectRowWhenToggling(false);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
-        //table.getColumnModel().getColumn(1).setPreferredWidth(300);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        //table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        //table.getColumnModel().getColumn(4).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(520);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
 
-        table.getColumnModel().getColumn(0).setCellRenderer(FILE_RENDERER);
+        table.getColumnModel().getColumn(0).setCellRenderer(new FileRowCellRenderer());
+        table.getColumnModel().getColumn(2).setCellRenderer(new WebLinkRenderer());
 
         // add searchable feature
         TableSearchable searchable = new TableSearchable(table) {
@@ -215,11 +215,63 @@ public class PluginRepositoryDialog extends JDialog {
         searchable.setMainIndex(0); // only search for name column
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
 
         JPanel panel = new JPanel(new BorderLayout(6, 6));
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.setPreferredSize(new Dimension(800, 500));
         return panel;
+    }
+    
+    private static class FileRowCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component result;
+            if (value instanceof TreeBrowserEntry) {
+                TreeBrowserEntry fileRow = (TreeBrowserEntry) value;
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table,
+                        fileRow.getName(),
+                        isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
+                result = label;
+            } else {
+                result = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+            return result;
+        }
+    }
+
+    private static class PluginBrowserEntry extends TreeBrowserEntry {
+        private PluginBrowserEntry(Element elem, String webSite) throws MalformedURLException {
+            super(elem.getAttributeValue("name"), null, elem.getChildText("description"), webSite != null ? new URL(webSite) : null, null);
+        }
+        
+        @Override
+        public Object getValueAt(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return this;
+                case 1:
+                    return description;
+                case 2:
+                    return isLeaf ? url : null;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    /**
+     * Do we even need this class?  Maybe there's an easier way to do this with CellStyles or something.
+     */
+    private static class WebLinkRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            if (value != null && value instanceof URL) {
+                URL url = (URL)value;
+                value = String.format("<html><a href=\"%s\">%s</a></html>", url, url.getHost());
+            }
+            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+        }
     }
 }
