@@ -15,11 +15,14 @@
  */
 package savant.ucscexplorer;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -54,7 +57,7 @@ import savant.util.NetworkUtils;
  * @author tarkvara
  */
 public class UCSCExplorerPlugin extends SavantPanelPlugin {
-    private static final Log LOG = LogFactory.getLog(UCSCExplorerPlugin.class);
+    static final Log LOG = LogFactory.getLog(UCSCExplorerPlugin.class);
 
     /** Hard-coded ID of UCSC DataSource plugin. */
     private static final String UCSC_PLUGIN_ID = "savant.ucsc";
@@ -206,13 +209,15 @@ public class UCSCExplorerPlugin extends SavantPanelPlugin {
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             topLevelPanel.add(loadButton, gbc);
 
-            groupsPanel = new JPanel();
+            groupsPanel = new GroupsPanel();
             groupsPanel.setLayout(new GridBagLayout());
 
             JScrollPane groupsScroller = new JScrollPane(groupsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             gbc.fill = GridBagConstraints.BOTH;
+            groupsScroller.setBackground(Color.ORANGE);
+            groupsScroller.getViewport().setBackground(Color.PINK);
             topLevelPanel.add(groupsScroller, gbc);
 
             buildProgressUI();
@@ -357,6 +362,33 @@ public class UCSCExplorerPlugin extends SavantPanelPlugin {
             if (c instanceof GroupPanel) {
                 ((GroupPanel)c).clearSelectedTracks();
             }
+        }
+    }
+    
+    private class GroupsPanel extends JPanel implements Scrollable {
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            return null;
+        }
+
+        @Override
+        public int getScrollableUnitIncrement(Rectangle rctngl, int i, int i1) {
+            return 1;
+        }
+
+        @Override
+        public int getScrollableBlockIncrement(Rectangle rctngl, int i, int i1) {
+            return 10;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
+            return getPreferredSize().height < getParent().getHeight();
         }
     }
 }

@@ -49,7 +49,7 @@ import savant.util.NetworkUtils;
  *
  * @author tarkvara
  */
-class ToolSettingsPanel extends JPanel {
+class ToolSettingsPanel extends JPanel implements Scrollable {
     private final Tool tool;
     private JLabel commandLine;
     
@@ -197,6 +197,46 @@ class ToolSettingsPanel extends JPanel {
         }
 
         return widget;
+    }
+
+    /**
+     * Scrollable implementation so that we get resized when containing JScrollPane resizes.
+     */
+    @Override
+    public Dimension getPreferredScrollableViewportSize() {
+        return null;
+    }
+
+    /**
+     * Scrollable implementation so that we get resized when containing JScrollPane resizes.
+     */
+    @Override
+    public int getScrollableUnitIncrement(Rectangle rctngl, int i, int i1) {
+        return 1;
+    }
+
+    /**
+     * Scrollable implementation so that we get resized when containing JScrollPane resizes.
+     */
+    @Override
+    public int getScrollableBlockIncrement(Rectangle rctngl, int i, int i1) {
+        return 10;
+    }
+
+    /**
+     * Scrollable implementation so that we get resized when containing JScrollPane resizes.
+     */
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return true;
+    }
+
+    /**
+     * Scrollable implementation so that we get resized when containing JScrollPane resizes.
+     */
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+        return false;
     }
 
     private class EnablerCheckListener implements ActionListener {

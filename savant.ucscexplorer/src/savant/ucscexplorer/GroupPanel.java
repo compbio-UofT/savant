@@ -23,6 +23,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -45,6 +48,19 @@ public class GroupPanel extends JPanel {
     private JLabel titleLabel;
     private JPanel expansion;
     private int widestCheck;
+    private ComponentListener widthListener = new ComponentAdapter() {
+        @Override
+        public void componentResized(ComponentEvent ce) {
+            UCSCExplorerPlugin.LOG.info("componentResized(" + getWidth() + "/" + expansion.getWidth() + ")");
+            GridLayout expansionLayout = (GridLayout)expansion.getLayout();
+            int cols = Math.max(1, expansion.getWidth() / widestCheck);
+            if (cols != expansionLayout.getColumns()) {
+                expansionLayout.setColumns(cols);
+                expansion.validate();
+            }
+        }
+    };
+
 
     /**
      * Updates the title to reflect the number of selected tracks.
@@ -82,10 +98,12 @@ public class GroupPanel extends JPanel {
             public void actionPerformed(ActionEvent ae) {
                 if (expansion.isVisible()) {
                     revealButton.setText("+");
+                    expansion.removeComponentListener(widthListener);
                     expansion.setVisible(false);
                 } else {
                     revealButton.setText("-");
                     ((GridLayout)expansion.getLayout()).setColumns(getWidth() / widestCheck);
+                    expansion.addComponentListener(widthListener);
                     expansion.setVisible(true);
                 }
                 validate();
@@ -102,7 +120,8 @@ public class GroupPanel extends JPanel {
         expansion.setLayout(new GridLayout(0, 1, 5, 5));
         expansion.setVisible(false);
         gbc.gridwidth = 2;
-        gbc.weightx = 0.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
         add(expansion, gbc);
         
         widestCheck = 1;
