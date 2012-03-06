@@ -51,7 +51,6 @@ public class GroupPanel extends JPanel {
     private ComponentListener widthListener = new ComponentAdapter() {
         @Override
         public void componentResized(ComponentEvent ce) {
-            UCSCExplorerPlugin.LOG.info("componentResized(" + getWidth() + "/" + expansion.getWidth() + ")");
             GridLayout expansionLayout = (GridLayout)expansion.getLayout();
             int cols = Math.max(1, expansion.getWidth() / widestCheck);
             if (cols != expansionLayout.getColumns()) {

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class UCSCExplorerPlugin extends SavantPanelPlugin {
     private static final String UCSC_PLUGIN_ID = "savant.ucsc";
 
     /** Hard-coded URL of UCSC DataSource plugin. */
-    private static final URL UCSC_PLUGIN_URL = NetworkUtils.getKnownGoodURL("http://www.savantbrowser.com/plugins/esmith/savant.ucsc-1.1.4.jar");
+    private static final URL UCSC_PLUGIN_URL = NetworkUtils.getKnownGoodURL("http://www.savantbrowser.com/plugins/esmith/savant.ucsc-1.1.6.jar");
 
     /** Top-level panel provided by Savant. */
     JPanel topLevelPanel;
@@ -216,8 +216,6 @@ public class UCSCExplorerPlugin extends SavantPanelPlugin {
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             gbc.fill = GridBagConstraints.BOTH;
-            groupsScroller.setBackground(Color.ORANGE);
-            groupsScroller.getViewport().setBackground(Color.PINK);
             topLevelPanel.add(groupsScroller, gbc);
 
             buildProgressUI();

@@ -224,12 +224,32 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         try {
             return super.getTableByName(tableName, dbName, trackName);
         } catch (SQLException sqlx) {
-            // Must be one of our fake composite tables (e.g. "intronEst" when the actual MySQL tables are "chr1_intronEst" et al).
-            // Substitute in an actual table (which one doesn't matter) so we can get column names and such.
-            Database db = getDatabase(dbName);
-            Table t = new Table(getReferences(db).iterator().next() + "_" + tableName, db);
-            return new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns(), true), trackName);
+            // It's either a renamed table (e.g. "all_est") or one of UCSC's fake composite tables (e.g. "intronEst" when the actual MySQL tables
+            // are "chr1_intronEst" et al). Substitute in an actual table (which one doesn't matter) so we can get column names and such.
+            Table t = findTable(tableName);
+            boolean oneTablePerChromosome = !t.getName().startsWith("all_");
+            return new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns(), oneTablePerChromosome), trackName);
         }
+    }
+
+    /**
+     * Look through the database's tables for one representing this track.  It can be:
+     * 1) an exact match for the track name
+     * 2) equal to "all_" plus the track name
+     * 3) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
+     *
+     * Intererstingly enough, since the initial development of this plugin, UCSC seems to have replaced all occurrences of case 3) with case 2).
+     * Nonetheless, the code for case 3) remains here just in case UCSC missed a few tracks.
+     */
+    public Table findTable(String track) throws SQLException {
+        Table t = genomeDB.findTable(track);
+        if (t == null) {
+            t = genomeDB.findTable("all_" + track);
+            if (t == null) {
+                t = genomeDB.findTable(getReferences(genomeDB).iterator().next() + "_" + track);
+            }
+        }
+        return t;
     }
 
     /**

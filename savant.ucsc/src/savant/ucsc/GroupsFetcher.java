@@ -65,18 +65,8 @@ public abstract class GroupsFetcher extends SQLWorker<List<GroupDef>> {
             // Look through the database's tables for one representing this track.  It can be:
             // 1) an exact match for the track name
             // 2) equal to "all_" plus the track name
-            // 2) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
-            Table t = plugin.genomeDB.findTable(track);
-            if (t == null) {
-                t = plugin.genomeDB.findTable("all_" + track);
-                if (t == null) {
-                    if (references == null) {
-                       // The table here is irrelevant, since the actual query to fetch references will be against the chromInfo table.
-                        references = plugin.getReferences(plugin.genomeDB);
-                    }
-                    t = plugin.genomeDB.findTable(references.iterator().next() + "_" + track);
-                }
-            }
+            // 3) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
+            Table t = plugin.findTable(track);
             if (t != null) {
                 if (UCSCDataSourcePlugin.getStandardMapping(type) != null) {
                     def = new TrackDef(track, t.getName(), label, type);
