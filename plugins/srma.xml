@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<plugin id="savant.srma" version="1.0.0" class="savant.plugin.Tool" sdk-version="2.0.0" name="SRMA (Short Read Micro re-Aligner)">
+    <tool>java -Xmx4096m -jar srma-0.1.15.jar CREATE_INDEX=true</tool>
+    <arg name="Reference Sequence" flag="R=" type="FASTA_INPUT_FILE" required="true"/>
+    <arg name="BAM Track" flag="I=" type="BAM_INPUT_FILE" required="true"/>
+    <arg name="Output File" flag="O=" type="OUTPUT_FILE" required="true"/>
+    <arg name="Range" flag="RANGE=" type="RANGE"/>
+    <arg name="Alignment Offset" flag="OFFSET=" type="INT" default="20"/>
+    <arg name="Min Mapping Quality" flag="MIN_MAPQ=" type="INT" default="0"/>
+    <arg name="Min Allele Probability" flag="MINIMUM_ALLELE_PROBABILITY=" type="FLOAT" default="0.1"/>
+    <arg name="Min Haploid Coverage" flag="MINIMUM_ALLELE_COVERAGE=" type="INT" default="3"/>
+    <arg name="Max Total Coverage" flag="MAXIMUM_TOTAL_COVERAGE" type="INT" default="100"/>
+    <arg name="Correct Bases" flag="CORRECT_BASES=" type="BOOL" default="true"/>
+    <arg name="Use Sequence Qualities" flag="USE_SEQUENCE_QUALITIES=" type="BOOL" default="true"/>
+<!--INSERT_SIZE_RANGE=String      Only align read pairs within this range (ex. -1000:1000); read #1 is assumed to be 5' of 
+                              read #2  Default value: null.-->
+
+    <arg name="Maximum Number of Heap Nodes" flag="MAX_HEAP_SIZE=" type="INT" default="8192"/>
+    <arg name="Maximum Number of SAM Records in Queue" flag="MAX_QUEUE_SIZE" type="INT" default="65536"/>
+    <arg name="Use Aggressive Graph Pruning" flag="GRAPH_PRUNING" type="BOOL" default="false"/>
+    <arg name="Validation Stringency" flag="VALIDATION_STRINGENCY=" type="LIST" choices="LENIENT,SILENT,STRICT" default="SILENT" required="true"/>
+    <arg name="Number of Threads" flag="NUM_THREADS=" type="INT" default="1"/>
+</plugin>
