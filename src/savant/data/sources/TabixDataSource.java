@@ -154,9 +154,14 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
             } else if (mapping == ColumnMapping.VCF) {
                 // For VCF files, save off the participant IDs stored in the extra columns.
                 String[] allColumns = lastCommentLine.substring(1).split("\\t");
-                extraColumns = new String[allColumns.length - columnNames.length];
-                for (int i = columnNames.length; i < allColumns.length; i++) {
-                    extraColumns[i - columnNames.length] = allColumns[i];
+                if (allColumns.length > columnNames.length) {
+                    extraColumns = new String[allColumns.length - columnNames.length];
+                    for (int i = columnNames.length; i < allColumns.length; i++) {
+                        extraColumns[i - columnNames.length] = allColumns[i];
+                    }
+                } else {
+                    // A defective VCF file with no participants.
+                    extraColumns = new String[0];
                 }
             }
         }

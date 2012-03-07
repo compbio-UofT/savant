@@ -68,28 +68,31 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
             }
         }
 
-        participants0 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
-        participants1 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
-        for (int i = 0; i < participants0.length; i++) {
-            String info = values[FIRST_PARTICIPANT_COLUMN + i];
-            if (info.equals(".")) {
-                // Missing value for this participant.  Not sure if this is legal, but
-                // MedSavant produces VCF files with missing values for some participants.
+        if (values.length > FIRST_PARTICIPANT_COLUMN) {
+            participants0 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
+            participants1 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
+            for (int i = 0; i < participants0.length; i++) {
+                String info = values[FIRST_PARTICIPANT_COLUMN + i];
                 participants0[i] = MISSING;
                 participants1[i] = MISSING;
-            } else {
-                int colonPos = info.indexOf(':');
-                if (colonPos >= 0) {
-                    info = info.substring(0, colonPos);
-                }
-                String[] alleleIndices = info.split("[|/]");
-                participants0[i] = Byte.parseByte(alleleIndices[0]);
-                if (alleleIndices.length > 1) {
-                    participants1[i] = Byte.parseByte(alleleIndices[1]);
-                } else {
-                    participants1[i] = MISSING;    // Haploid
+                if (!info.equals(".")) {
+                    int colonPos = info.indexOf(':');
+                    if (colonPos >= 0) {
+                        info = info.substring(0, colonPos);
+                    }
+                    String[] alleleIndices = info.split("[|/]");
+                    if (!alleleIndices[0].equals(".")) {
+                        participants0[i] =  Byte.parseByte(alleleIndices[0]);
+                    }
+                    if (alleleIndices.length > 1 && !alleleIndices[1].equals(".")) {
+                        participants1[i] = Byte.parseByte(alleleIndices[1]);
+                    }
                 }
             }
+        } else {
+            // A defective VCF with no participants.
+            participants0 = new byte[0];
+            participants1 = new byte[0];
         }
 
         values = null;
