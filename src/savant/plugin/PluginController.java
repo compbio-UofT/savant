@@ -17,7 +17,6 @@ package savant.plugin;
 
 import java.awt.BorderLayout;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -36,7 +35,7 @@ import savant.util.Controller;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.view.dialog.DownloadDialog;
+
 
 /**
  *

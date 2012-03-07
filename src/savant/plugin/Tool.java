@@ -42,6 +42,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.api.util.TrackUtils;
+import savant.controller.FrameController;
 import savant.file.FileType;
 import savant.format.SavantFileFormatter;
 import savant.format.SavantFileFormatterUtils;
@@ -408,13 +409,18 @@ public class Tool extends SavantPanelPlugin {
             if (loadUponCompletion) {
                 String destPath = destFile.getAbsolutePath();
                 FileType guess = SavantFileFormatterUtils.guessFileTypeFromPath(destPath);
-                File formattedFile = SavantFileFormatterUtils.getFormattedFile(destPath, guess);
+                if (guess == FileType.INTERVAL_BAM) {
+                    // BAM files we open directly, without having to format.
+                    FrameController.getInstance().addTrackFromPath(destPath, null, null);
+                } else {
+                    File formattedFile = SavantFileFormatterUtils.getFormattedFile(destPath, guess);
 
-                SavantFileFormatter sff = SavantFileFormatter.getFormatter(destFile, formattedFile, guess);
-                if (sff != null) {
-                    FormatProgressDialog fpd = new FormatProgressDialog(DialogUtils.getMainWindow(), sff, true);
-                    fpd.setLocationRelativeTo(DialogUtils.getMainWindow());
-                    fpd.setVisible(true);
+                    SavantFileFormatter sff = SavantFileFormatter.getFormatter(destFile, formattedFile, guess);
+                    if (sff != null) {
+                        FormatProgressDialog fpd = new FormatProgressDialog(DialogUtils.getMainWindow(), sff, true);
+                        fpd.setLocationRelativeTo(DialogUtils.getMainWindow());
+                        fpd.setVisible(true);
+                    }
                 }
             }
 
