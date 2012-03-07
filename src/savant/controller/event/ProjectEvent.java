@@ -30,7 +30,7 @@ public class ProjectEvent {
 
     public ProjectEvent(Type type, File f) {
         this.type = type;
-        this.path = f.getAbsolutePath();
+        this.path = f.getPath();
     }
 
     public Type getType() {

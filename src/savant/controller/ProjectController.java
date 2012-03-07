@@ -39,7 +39,6 @@ import savant.file.Project;
 import savant.settings.DirectorySettings;
 import savant.util.Controller;
 import savant.util.FileExtensionFilter;
-import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
 
@@ -51,7 +50,7 @@ public class ProjectController extends Controller {
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
 
     private static final FileFilter PROJECT_FILTER = new FileExtensionFilter("Savant project files", "svp");
-    private static final File UNTITLED_PROJECT_FILE = new File(DirectorySettings.getProjectsDirectory(), "UntitledProject.svp");
+    private static final File UNTITLED_PROJECT_FILE = new File("Untitled Project.svp");
 
     private static ProjectController instance;
 
@@ -171,7 +170,7 @@ public class ProjectController extends Controller {
         if (currentProjectFile == null) {
             return promptToSaveProjectAs();
         }
-        return saveProjectAs(getCurrentFile());
+        return saveProjectAs(currentProjectFile);
     }
 
 
