@@ -60,7 +60,7 @@ public class VariantPopper extends Hoverer implements PopupHostingAdapter {
                 VariantType[] partVars = ((ParticipantRecord)rec).getVariants();
 
                 // Only display a popup if this participant actually has variation here.
-                if (partVars[0] != VariantType.NONE || (partVars.length > 1 && partVars[1] != VariantType.NONE)) {
+                if (partVars != null && partVars[0] != VariantType.NONE || (partVars.length > 1 && partVars[1] != VariantType.NONE)) {
                     PopupPanel.showPopup(this, globalPos, VariationController.getInstance().getTracks()[0], rec);
                 }
             } else {

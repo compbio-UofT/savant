@@ -124,9 +124,11 @@ public class LDPlot extends VariationPlot {
     }
     
     private boolean containsVariant(VariantType[] types, VariantType type){
-        for(int i = 0; i < types.length; i++){
-            if(type == types[i]){
-                return true;
+        if (types != null) {
+            for (int i = 0; i < types.length; i++) {
+                if (type == types[i]) {
+                    return true;
+                }
             }
         }
         return false;

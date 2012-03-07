@@ -180,12 +180,14 @@ public class VariantTrackRenderer extends TrackRenderer {
         Pileup pile = new Pileup(varRec.getPosition());
         for (int j = 0; j < varRec.getParticipantCount(); j++) {
             VariantType[] jVariants = varRec.getVariantsForParticipant(j);
-            if (jVariants.length == 1) {
-                pile.pileOn(jVariants[0], 1.0, null);
-                pile.pileOn(jVariants[0], 1.0, null);
-            } else {
-                pile.pileOn(jVariants[0], 1.0, null);
-                pile.pileOn(jVariants[1], 1.0, null);
+            if (jVariants != null) {
+                if (jVariants.length == 1) {
+                    pile.pileOn(jVariants[0], 1.0, null);
+                    pile.pileOn(jVariants[0], 1.0, null);
+                } else {
+                    pile.pileOn(jVariants[0], 1.0, null);
+                    pile.pileOn(jVariants[1], 1.0, null);
+                }
             }
         }
         return pile;

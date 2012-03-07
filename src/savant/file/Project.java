@@ -259,12 +259,16 @@ public class Project {
         writer.writeEndElement();
 
         for (FrameAdapter fr: FrameController.getInstance().getOrderedFrames()) {
-            TrackAdapter t0 = fr.getTracks()[0];
-            URI uri = t0.getDataSource().getURI();
-            if (uri != null) {
-                writeEmptyElement(XMLElement.track, "  ");
-                writeAttribute(XMLAttribute.uri, NetworkUtils.getNeatPathFromURI(uri));
-                writeAttribute(XMLAttribute.mode, t0.getDrawingMode().toString());
+            // Frame may have zero-length track array  if user saves while the "Creating track… progress-bar is up.
+            TrackAdapter[] tracks = fr.getTracks();
+            if (tracks.length > 0) {
+                TrackAdapter t0 = tracks[0];
+                URI uri = t0.getDataSource().getURI();
+                if (uri != null) {
+                    writeEmptyElement(XMLElement.track, "  ");
+                    writeAttribute(XMLAttribute.uri, NetworkUtils.getNeatPathFromURI(uri));
+                    writeAttribute(XMLAttribute.mode, t0.getDrawingMode().toString());
+                }
             }
         }
 

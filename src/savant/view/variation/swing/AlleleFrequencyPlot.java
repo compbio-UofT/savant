@@ -89,16 +89,18 @@ public class AlleleFrequencyPlot extends VariationPlot {
                 
                 for (int j = 0; j < varRec.getParticipantCount(); j++) {
                     VariantType[] jVariants = varRec.getVariantsForParticipant(j);
-                    Pileup pile = casePile;
-                    if (numControls > 0 && controller.isAControl(participants[j])) {
-                        pile = controlPile;
-                    }
-                    if (jVariants.length == 1) {
-                        pile.pileOn(jVariants[0], 1.0, null);
-                        pile.pileOn(jVariants[0], 1.0, null);
-                    } else {
-                        pile.pileOn(jVariants[0], 1.0, null);
-                        pile.pileOn(jVariants[1], 1.0, null);
+                    if (jVariants != null) {
+                        Pileup pile = casePile;
+                        if (numControls > 0 && controller.isAControl(participants[j])) {
+                            pile = controlPile;
+                        }
+                        if (jVariants.length == 1) {
+                            pile.pileOn(jVariants[0], 1.0, null);
+                            pile.pileOn(jVariants[0], 1.0, null);
+                        } else {
+                            pile.pileOn(jVariants[0], 1.0, null);
+                            pile.pileOn(jVariants[1], 1.0, null);
+                        }
                     }
                 }
             }
