@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
-<plugin id="savant.gatk" version="1.0.0" class="savant.plugin.Tool" sdk-version="2.0.0" name="GATK Genotyper">
+<plugin id="savant.gatk" version="1.0.1" class="savant.plugin.Tool" sdk-version="2.0.0" name="GATK Genotyper">
     <tool>java -Xmx4096m -jar GenomeAnalysisTK.jar -T UnifiedGenotyper</tool>
+    <download>http://savantbrowser.com/plugins/tools/GenomeAnalysisTK.jar</download>
     <progress>INFO.*TraversalEngine.*\s(\d+.\d+)%</progress>
     <error>ERROR.*MESSAGE: (.*)$</error>
     <arg name="Reference Sequence" flag="-R" type="FASTA_INPUT_FILE" required="true"/>

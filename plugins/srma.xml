@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
-<plugin id="savant.srma" version="1.0.0" class="savant.plugin.Tool" sdk-version="2.0.0" name="SRMA (Short Read Micro re-Aligner)">
+<plugin id="savant.srma" version="1.0.1" class="savant.plugin.Tool" sdk-version="2.0.0" name="SRMA (Short Read Micro re-Aligner)">
     <tool>java -Xmx4096m -jar srma-0.1.15.jar CREATE_INDEX=true</tool>
+    <download>http://savantbrowser.com/plugins/tools/srma-0.1.15.jar</download>
     <arg name="Reference Sequence" flag="R=" type="FASTA_INPUT_FILE" required="true"/>
     <arg name="BAM Track" flag="I=" type="BAM_INPUT_FILE" required="true"/>
     <arg name="Output File" flag="O=" type="OUTPUT_FILE" required="true"/>

@@ -36,6 +36,7 @@ import savant.util.Controller;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
+import savant.view.dialog.DownloadDialog;
 
 /**
  *
@@ -137,7 +138,9 @@ public class PluginController extends Controller {
                 if (!pluginErrors.containsKey(desc.getID())) {
                     jarURLs.addAll(Arrays.asList(desc.getJars()));
                 }
-            } catch (MalformedURLException ignored) {
+            } catch (Exception x) {
+                // Most likely a harmless MalformedURLException or URISyntaxException.
+                LOG.warn("Error while accumulating URLs for plugin JARs.", x);
             }
         }
         if (jarURLs.size() > 0) {
@@ -264,7 +267,7 @@ public class PluginController extends Controller {
     }
 
     private void copyBuiltInPlugins() {
-        File destDir = DirectorySettings.getPluginsDirectory();
+/*        File destDir = DirectorySettings.getPluginsDirectory();
         File srcDir = null;
         FilenameFilter pluginFilter = new PluginFileFilter();
         if (MiscUtils.MAC) {
@@ -283,7 +286,7 @@ public class PluginController extends Controller {
             IOUtils.copyDir(srcDir, destDir, pluginFilter);
         } catch (Exception x) {
             LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
-        }
+        }*/
     }
 
 
@@ -340,6 +343,8 @@ public class PluginController extends Controller {
         IOUtils.copyFile(selectedFile, pluginFile);
         PluginDescriptor desc = addPlugin(pluginFile);
         if (desc != null) {
+            // Download any required auxiliary files.
+            desc.downloadExtras();
             if (pluginLoader == null) {
                 pluginLoader = new PluginLoader(desc.getJars(), getClass().getClassLoader());
             } else {

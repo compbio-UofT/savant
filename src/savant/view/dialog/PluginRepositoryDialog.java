@@ -127,7 +127,7 @@ public class PluginRepositoryDialog extends JDialog {
             return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
             try {
-                return new PluginBrowserEntry(root, root.getAttributeValue("website"));
+                return new PluginBrowserEntry(root);
             } catch (MalformedURLException ex) {
                 LOG.error(ex);
             }
@@ -242,10 +242,16 @@ public class PluginRepositoryDialog extends JDialog {
     }
 
     private static class PluginBrowserEntry extends TreeBrowserEntry {
-        private PluginBrowserEntry(Element elem, String webSite) throws MalformedURLException {
-            super(elem.getAttributeValue("name"), null, elem.getChildText("description"), webSite != null ? new URL(webSite) : null, null);
+        private URL webSite;
+
+        private PluginBrowserEntry(Element elem) throws MalformedURLException {
+            super(elem.getAttributeValue("name"), null, elem.getChildText("description"), new URL(elem.getChildText("url")), null);
+            String webSiteName = elem.getAttributeValue("website");
+            if (webSiteName != null) {
+                webSite = new URL(webSiteName);
+            }
         }
-        
+            
         @Override
         public Object getValueAt(int columnIndex) {
             switch (columnIndex) {
@@ -254,7 +260,7 @@ public class PluginRepositoryDialog extends JDialog {
                 case 1:
                     return description;
                 case 2:
-                    return isLeaf ? url : null;
+                    return isLeaf ? webSite : null;
                 default:
                     return null;
             }

@@ -28,6 +28,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import savant.api.util.DialogUtils;
+import savant.settings.DirectorySettings;
+import savant.view.dialog.DownloadDialog;
 
 
 /**
@@ -45,6 +48,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         ATTRIBUTE,
         PARAMETER,
         LIB,
+        DOWNLOAD,
         IGNORED
     };
 
@@ -69,10 +73,11 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
     final String sdkVersion;
     final File file;
     final File[] libs;
+    final URL[] downloads;
 
     private static XMLStreamReader reader;
 
-    private PluginDescriptor(String className, String id, String version, String name, String sdkVersion, File file, File[] libs) {
+    private PluginDescriptor(String className, String id, String version, String name, String sdkVersion, File file, File[] libs, URL[] downloads) {
         if (className == null || id == null || version == null || name == null || file == null) {
             throw new IllegalArgumentException("Null argument passed to PluginDescriptor constructor.");
         }
@@ -83,6 +88,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         this.sdkVersion = sdkVersion != null ? sdkVersion : "1.4.2 or earlier";
         this.file = file;
         this.libs = libs;
+        this.downloads = downloads;
     }
 
     @Override
@@ -135,6 +141,17 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         return urls.toArray(new URL[0]);
     }
 
+    /**
+     * Retrieve an array of all downloadable files required by this plugin.  Similar to getJars, but
+     * intended for tool plugins.
+     */
+    public void downloadExtras() throws MalformedURLException {
+        for (URL u: downloads) {
+            DownloadDialog dd = new DownloadDialog(DialogUtils.getMainWindow(), true);
+            dd.downloadFile(u, DirectorySettings.getPluginsDirectory(), null);
+        }
+    }
+
     @Override
     public int compareTo(PluginDescriptor t) {
         return (id + version).compareTo(t.id + t.version);
@@ -151,7 +168,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
     /**
      * Parse the given input stream to get the plugin attributes.
      */
-    private static PluginDescriptor fromStream(InputStream input, File f) throws XMLStreamException {
+    private static PluginDescriptor fromStream(InputStream input, File f) throws XMLStreamException, MalformedURLException {
         reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
         String className = null;
         String id = null;
@@ -159,6 +176,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         String sdkVersion = null;
         String name = null;
         List<File> libs = new ArrayList<File>();
+        List<URL> downloads = new ArrayList<URL>();
         do {
             switch (reader.next()) {
                 case XMLStreamConstants.START_ELEMENT:
@@ -184,6 +202,9 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
                         case LIB:
                             libs.add(new File(reader.getElementText()));
                             break;
+                        case DOWNLOAD:
+                            downloads.add(new URL(reader.getElementText()));
+                            break;
                     }
                     break;
                 case XMLStreamConstants.END_DOCUMENT:
@@ -194,7 +215,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         } while (reader != null);
 
         // Will throw an IllegalArgumentException if one of our required attributes has not been set.
-        return new PluginDescriptor(className, id, version, name, sdkVersion, f, libs.toArray(new File[0]));
+        return new PluginDescriptor(className, id, version, name, sdkVersion, f, libs.toArray(new File[0]), downloads.toArray(new URL[0]));
     }
  
     /**
