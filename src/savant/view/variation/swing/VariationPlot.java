@@ -100,12 +100,15 @@ public abstract class VariationPlot extends JPanel {
                 double y = index * unitHeight;
                 ys[i] = y;
 
-                String s = Integer.toString(t);
-                Rectangle2D labelRect = fm.getStringBounds(s, g2);
-                double baseline = y + fm.getAscent() - fm.getHeight() * 0.5;
-                g2.drawString(s, labelX + 4.0F, (float)baseline);
-                clipArea.subtract(new Area(new Rectangle2D.Double(labelX + 3.0, baseline - labelRect.getHeight() - 1.0, labelRect.getWidth() + 2.0, labelRect.getHeight() + 2.0)));
-                labelX += labelRect.getWidth() + 2.0F;
+                // Labels at the very top and very bottom are suppressed because they would only be half drawn.
+                if (index > 0 && index < data.size() - 1) {
+                    String s = Integer.toString(t);
+                    Rectangle2D labelRect = fm.getStringBounds(s, g2);
+                    double baseline = y + fm.getAscent() - fm.getHeight() * 0.5;
+                    g2.drawString(s, labelX + 4.0F, (float)baseline);
+                    clipArea.subtract(new Area(new Rectangle2D.Double(labelX + 3.0, baseline - labelRect.getHeight() - 1.0, labelRect.getWidth() + 2.0, labelRect.getHeight() + 2.0)));
+                    labelX += labelRect.getWidth() + 2.0F;
+                }
             }
             g2.setClip(clipArea);
             for (int i = 0; i < ticks.length; i++) {
