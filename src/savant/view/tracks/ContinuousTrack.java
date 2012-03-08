@@ -24,7 +24,7 @@ import savant.api.data.ContinuousRecord;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.*;
 
 
@@ -61,7 +61,7 @@ import savant.util.*;
      */
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return range.getLength() > TrackResolutionSettings.getContinuousLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getContinuousLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

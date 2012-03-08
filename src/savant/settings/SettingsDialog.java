@@ -73,7 +73,7 @@ public class SettingsDialog extends MultiplePageDialog {
      * @throws HeadlessException
      */
     public SettingsDialog(Window parent) throws HeadlessException {
-        this(parent, "Preferences", new ColourSchemeSettingsSection(), new GeneralSettingsSection(), new InterfaceSection(), new RemoteFilesSettingsSection(), new ResolutionSettingsSection());
+        this(parent, "Preferences", new ColourSettingsSection(), new GeneralSettingsSection(), new InterfaceSection(), new RemoteFilesSettingsSection(), new ResolutionSettingsSection());
     }
 
     private static Border createSeparatorBorder() {

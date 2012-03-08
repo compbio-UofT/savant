@@ -25,7 +25,7 @@ import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.AxisRange;
 import savant.util.AxisType;
 import savant.util.ColourKey;
@@ -94,7 +94,7 @@ public class VariantTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return range.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getVariantLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     /**

@@ -44,6 +44,7 @@ public class ResolutionSettingsSection extends Section {
     private JFormattedTextField bamArcModeThresholdField;
     private JFormattedTextField continuousThresholdField;
     private JFormattedTextField variantThresholdField;
+    private JFormattedTextField ldMaxLociField;
 
     @Override
     public String getTitle() {
@@ -70,12 +71,13 @@ public class ResolutionSettingsSection extends Section {
     @Override
     public void applyChanges() {
         if (bamArcModeThresholdField != null) {
-            TrackResolutionSettings.setBAMArcModeLowToHighThreshold(Integer.parseInt(bamArcModeThresholdField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setBAMLowToHighThreshold(Integer.parseInt(bamThresholdField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setIntervalLowToHighThreshold(Integer.parseInt(intervalThresholdField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setSequenceLowToHighThreshold(Integer.parseInt(sequenceThresholdField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setContinuousLowToHighThreshold(Integer.parseInt(continuousThresholdField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setVariantLowToHighThreshold(Integer.parseInt(variantThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setBAMArcModeLowToHighThreshold(Integer.parseInt(bamArcModeThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setBAMLowToHighThreshold(Integer.parseInt(bamThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setIntervalLowToHighThreshold(Integer.parseInt(intervalThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setSequenceLowToHighThreshold(Integer.parseInt(sequenceThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setContinuousLowToHighThreshold(Integer.parseInt(continuousThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setVariantLowToHighThreshold(Integer.parseInt(variantThresholdField.getText().replaceAll(",", "")));
+            ResolutionSettings.setLDMaxLoci(Integer.parseInt(ldMaxLociField.getText().replaceAll(",", "")));
             
             //redraw all tracks
             for(Frame f : FrameController.getInstance().getFrames()){
@@ -92,7 +94,7 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getSequencePanel() {
 
-        sequenceThresholdField = getFormattedTextField(TrackResolutionSettings.getSequenceLowToHighThreshold());
+        sequenceThresholdField = getFormattedTextField(ResolutionSettings.getSequenceLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Sequence Tracks (FASTA)"));
@@ -110,7 +112,7 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getIntervalPanel() {
 
-        intervalThresholdField = getFormattedTextField(TrackResolutionSettings.getIntervalLowToHighThreshold());
+        intervalThresholdField = getFormattedTextField(ResolutionSettings.getIntervalLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Interval Tracks (BED, GFF, etc.)"));
@@ -128,8 +130,8 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getBAMPanel() {
 
-        bamThresholdField = getFormattedTextField(TrackResolutionSettings.getBAMLowToHighThreshold());
-        bamArcModeThresholdField = getFormattedTextField(TrackResolutionSettings.getBAMArcModeLowToHighThreshold());
+        bamThresholdField = getFormattedTextField(ResolutionSettings.getBAMLowToHighThreshold());
+        bamArcModeThresholdField = getFormattedTextField(ResolutionSettings.getBAMArcModeLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Read alignment tracks (BAM)"));
@@ -158,7 +160,7 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getContinuousPanel() {
 
-        continuousThresholdField = getFormattedTextField(TrackResolutionSettings.getContinuousLowToHighThreshold());
+        continuousThresholdField = getFormattedTextField(ResolutionSettings.getContinuousLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc. from external datasources)"));
@@ -177,7 +179,8 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getVariantPanel() {
 
-        variantThresholdField = getFormattedTextField(TrackResolutionSettings.getVariantLowToHighThreshold());
+        variantThresholdField = getFormattedTextField(ResolutionSettings.getVariantLowToHighThreshold());
+        ldMaxLociField = getFormattedTextField(ResolutionSettings.getLDMaxLoci());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Variant Tracks (VCF)"));
@@ -188,8 +191,16 @@ public class ResolutionSettingsSection extends Section {
         panel.add(new JLabel("Don't show variants for ranges larger than"), gbc);
         panel.add(variantThresholdField, gbc);
         gbc.weightx = 1.0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(new JLabel("bp"), gbc);
 
+        gbc.weightx = 0.0;
+        gbc.gridwidth = 1;
+        panel.add(new JLabel("Don't generate LD plots for more than"), gbc);
+        panel.add(ldMaxLociField, gbc);
+        gbc.weightx = 1.0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        panel.add(new JLabel("loci"), gbc);
         return panel;
     }
 

@@ -24,7 +24,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.data.SequenceRecord;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.*;
 
 
@@ -45,7 +45,7 @@ public class SequenceTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return range.getLength() > TrackResolutionSettings.getSequenceLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getSequenceLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

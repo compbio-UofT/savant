@@ -19,7 +19,7 @@ package savant.view.swing;
 import savant.view.tracks.Track;
 import java.awt.Color;
 
-import savant.settings.ColourSchemeSettingsSection;
+import savant.settings.ColourSettingsSection;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 
@@ -29,7 +29,7 @@ import savant.util.ColourScheme;
  *
  * @author tarkvara
  */
-public class TrackColourSchemePanel extends ColourSchemeSettingsSection {
+public class TrackColourSchemePanel extends ColourSettingsSection {
     private final Track track;
 
     public TrackColourSchemePanel(Track t) {

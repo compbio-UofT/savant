@@ -27,7 +27,7 @@ import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.*;
 
 
@@ -79,15 +79,15 @@ public class IntervalTrack extends Track {
     }
 
     public static Resolution getDefaultModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public static Resolution getArcModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public static Resolution getSquishModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > ResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

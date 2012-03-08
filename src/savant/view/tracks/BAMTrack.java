@@ -30,7 +30,7 @@ import savant.data.filters.BAMRecordFilter;
 import savant.data.types.BAMIntervalRecord;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.*;
 import savant.util.SAMReadUtils.PairedSequencingProtocol;
 
@@ -157,9 +157,9 @@ public class BAMTrack extends Track {
     public Resolution getResolution(RangeAdapter range) {
         switch (getDrawingMode()) {
             case ARC_PAIRED:
-                return range.getLength() > TrackResolutionSettings.getBAMArcModeLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > ResolutionSettings.getBAMArcModeLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
             default:
-                return range.getLength() > TrackResolutionSettings.getBAMLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > ResolutionSettings.getBAMLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
         }
     }
 

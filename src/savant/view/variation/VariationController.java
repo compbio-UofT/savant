@@ -41,7 +41,7 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.tracks.VariantTrack;
@@ -146,7 +146,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 switch (evt.getType()) {
                     case STARTED:
                         rawData.set(index, null);
-                        module.showProgress("Retrieving variant data…");
+                        module.showProgress("Retrieving variant data…", -1.0);
                         break;
                     case COMPLETED:
                         if (evt.getData() != null) {
@@ -260,7 +260,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
         if (!r.equals(visibleRange)) {
             visibleRange = r;
             module.visibleRangeChanged(visibleRef, r);
-            if (r.getLength() <= TrackResolutionSettings.getVariantLowToHighThreshold()) {
+            if (r.getLength() <= ResolutionSettings.getVariantLowToHighThreshold()) {
                 for (VariantTrack t: tracks) {
                     t.requestData(visibleRef, visibleRange);
                 }
@@ -365,7 +365,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 return;
             }
         }
-        module.showProgress("Aggregating variant data…");
+        module.showProgress("Aggregating variant data…", -1.0);
         aggregateData = null;
         module.recalculated(getData());
     }
@@ -378,7 +378,9 @@ public class VariationController implements Listener<DataRetrievalEvent> {
     }
 
     public VariationModule getModule() {
-        module = new VariationModule(this);
+        if (module == null) {
+            module = new VariationModule(this);
+        }
         return module;
     }
     

@@ -23,7 +23,7 @@ package savant.settings;
  *
  * @author mfiume
  */
-public class TrackResolutionSettings {
+public class ResolutionSettings {
     private static final PersistentSettings SETTINGS = PersistentSettings.getInstance();
 
     // The defaults
@@ -33,6 +33,7 @@ public class TrackResolutionSettings {
     private static final int BAM_ARC_LOW_TO_HIGH_DEFAULT = 100000;
     private static final int CONTINUOUS_LOW_TO_HIGH_DEFAULT = 10000;
     private static final int VARIANT_LOW_TO_HIGH_DEFAULT = 1000000;
+    private static final int LD_MAX_LOCI_DEFAULT = 500;
 
     // The property keys.
     private static final String SEQUENCE_LOW_TO_HIGH_KEY = "SequenceLowToHigh";
@@ -41,6 +42,7 @@ public class TrackResolutionSettings {
     private static final String BAM_ARC_LOW_TO_HIGH_KEY = "BAMArcLowToHigh";
     private static final String CONSERVATION_LOW_TO_HIGH_KEY = "ConservationLowToHigh";
     private static final String VARIANT_LOW_TO_HIGH_KEY = "VariantLowToHigh";
+    private static final String LD_MAX_LOCI_KEY = "LDMaxLoci";
 
     public static int getBAMArcModeLowToHighThreshold() {
         return SETTINGS.getInt(BAM_ARC_LOW_TO_HIGH_KEY, BAM_ARC_LOW_TO_HIGH_DEFAULT);
@@ -88,5 +90,13 @@ public class TrackResolutionSettings {
 
     public static void setVariantLowToHighThreshold(int value) {
         SETTINGS.setInt(VARIANT_LOW_TO_HIGH_KEY, value);
+    }
+
+    public static int getLDMaxLoci() {
+        return SETTINGS.getInt(LD_MAX_LOCI_KEY, LD_MAX_LOCI_DEFAULT);
+    }
+
+    public static void setLDMaxLoci(int value) {
+        SETTINGS.setInt(LD_MAX_LOCI_KEY, value);
     }
 }

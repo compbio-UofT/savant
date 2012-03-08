@@ -89,7 +89,7 @@ public class ProgressPanel extends JPanel {
             bar.setIndeterminate(true);
         } else {
             bar.setIndeterminate(false);
-            bar.setValue((int)(fract * 100.0));
+            bar.setValue((int)Math.round(fract * 100.0));
         }
     }
 }

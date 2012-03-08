@@ -38,7 +38,7 @@ import savant.view.tracks.Track;
  *
  * @author mfiume
  */
-public class ColourSchemeSettingsSection extends Section {
+public class ColourSettingsSection extends Section {
 
     protected PropertyPane pane;
     protected PropertyTableModel model;

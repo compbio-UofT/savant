@@ -21,10 +21,12 @@ import java.text.ParseException;
 import java.util.List;
 import javax.swing.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.api.data.VariantRecord;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -40,7 +42,9 @@ import savant.view.variation.VariationController;
  * @author tarkvara
  */
 public class VariationModule extends JPanel {
+    static final Log LOG = LogFactory.getLog(VariationModule.class);
     private static final String ZOOM_MESSAGE = MiscUtils.MAC ? "<html><center>Zoom in to see data<br><small>To view data at this range, change Preferences > Track Resolutions</small></center></html>" : "<html><center>Zoom in to see data<br><small>To view data at this range, change Edit > Preferences > Track Resolutions</small></center></html>";
+    static final Font MESSAGE_FONT = new Font("Sans-Serif", Font.PLAIN, 24);
 
     private VariationController controller;
 
@@ -196,7 +200,6 @@ public class VariationModule extends JPanel {
         ActionListener redrawForcer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                ldPlot.recalculate();
                 ldPlot.repaint();
             }
         };
@@ -233,7 +236,7 @@ public class VariationModule extends JPanel {
 
         // Create the informative cards, but don't use them.
         messageLabel = new JLabel();
-        messageLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 24));
+        messageLabel.setFont(MESSAGE_FONT);
         messageLabel.setAlignmentX(0.5f);
         progressPanel = new ProgressPanel(new ActionListener() {
             @Override
@@ -280,16 +283,21 @@ public class VariationModule extends JPanel {
         }
     }
     
+    public void showTabs() {
+        showCard(tabs, null);
+    }
+
     public void showMessage(String message) {
         showCard(messageLabel, message);
     }
     
-    public void showProgress(String message) {
+    public void showProgress(String message, double fract) {
         showCard(progressPanel, message);
+        progressPanel.setFraction(fract);
     }
     
     public void visibleRangeChanged(String ref, Range r) {
-        if (r.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold()) {
+        if (r.getLength() > ResolutionSettings.getVariantLowToHighThreshold()) {
             showMessage(ZOOM_MESSAGE);
         } else {
             try {
@@ -322,7 +330,6 @@ public class VariationModule extends JPanel {
             showCard(tabs, null);
             map.repaint();
             ldPlot.recalculate();
-            ldPlot.repaint();
         } else {
             showMessage("No data in range");
         }

@@ -20,7 +20,7 @@ import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.TrackResolutionSettings;
+import savant.settings.ResolutionSettings;
 import savant.util.*;
 
 
@@ -58,9 +58,9 @@ public class BAMCoverageTrack extends Track {
     public Resolution getResolution(RangeAdapter range) {
         switch (getDrawingMode()) {
             case ARC_PAIRED:
-                return range.getLength() > TrackResolutionSettings.getBAMArcModeLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > ResolutionSettings.getBAMArcModeLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
             default:
-                return range.getLength() > TrackResolutionSettings.getBAMLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > ResolutionSettings.getBAMLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
         }
     }
 
