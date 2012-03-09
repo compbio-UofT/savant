@@ -99,6 +99,11 @@ public class PaddedVariantRecord implements VariantRecord, AggregateRecord<Varia
     public String getReference() {
         return original.getReference();
     }
+    
+    @Override
+    public boolean isPhased() {
+        return original.isPhased();
+    }
 
     @Override
     public int compareTo(Object t) {

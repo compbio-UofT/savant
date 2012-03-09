@@ -168,6 +168,11 @@ public class MergedVariantRecord implements VariantRecord, AggregateRecord<Varia
     public String getReference() {
         return original1.getReference();
     }
+        
+    @Override
+    public boolean isPhased() {
+        return original1.isPhased() && original2.isPhased();
+    }
 
     @Override
     public int compareTo(Object t) {

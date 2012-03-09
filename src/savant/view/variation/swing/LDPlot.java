@@ -20,19 +20,21 @@ import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
-import savant.api.data.VariantType;
 import savant.settings.ColourSettings;
 import savant.settings.ResolutionSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.MiscUtils;
+import savant.view.variation.LDCalculator;
 import savant.view.variation.LDRecord;
 import savant.view.variation.VariationController;
 
@@ -50,10 +52,11 @@ public class LDPlot extends VariationPlot {
     private static final double LEGEND_WIDTH = 15.0;
     private static final float TICK_LENGTH = 3.0f;
     private static final String OUT_OF_MEMORY_ERROR = "Zoom in to see data";
+    private static final String UNPHASED_ERROR = "D′ not calculated for unphased data";
 
     private static final Color[] HEATMAP_COLORS = { ColourSettings.getColor(ColourKey.HEATMAP_LOW), ColourSettings.getColor(ColourKey.HEATMAP_MEDIUM), ColourSettings.getColor(ColourKey.HEATMAP_HIGH) };
 
-    private CalculationWorker calculator;
+    private LDCalculator calculator;
     private float[][] dPrimes;
     private float[][] rSquareds;
     private double x0, y0;
@@ -77,14 +80,46 @@ public class LDPlot extends VariationPlot {
         }
         try {
             memoryOK = true;
-            int n = controller.getData().size();
+            List<VariantRecord> data = controller.getData();
+            int n = data.size();
             if (n < ResolutionSettings.getLDMaxLoci()) {
-                calculator = new CalculationWorker(controller.getData().size());
+                boolean phased = true;
+                for (int i = 0; i < n && phased; i++) {
+                    phased &= data.get(i).isPhased();
+                }
+                calculator = new LDCalculator(controller, phased) {
+                    @Override
+                    protected Object doInBackground() throws Exception {
+                        controller.getModule().showProgress("Calculating Linkage Disequilibrium…", 0.0);
+                        return super.doInBackground();
+                    }
+
+                    @Override
+                    public void done() {          
+                        controller.getModule().showTabs();
+                        LDPlot.this.dPrimes = dPrimes;
+                        LDPlot.this.rSquareds = rSquareds;
+                        repaint();
+                        calculator = null;
+                    }
+                    
+                    @Override
+                    public void showProgress(final double fract) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                controller.getModule().showProgress("Calculating Linkage Disequilibrium…", fract);
+                            }
+                        });
+
+                    }
+                };
                 calculator.execute();
             } else {
                 memoryOK = false;
             }
         } catch (OutOfMemoryError x) {
+            VariationModule.LOG.error("Out of memory calculating LD.");
             memoryOK = false;
         }
     }
@@ -99,7 +134,7 @@ public class LDPlot extends VariationPlot {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if (memoryOK) {
-            if (dPrimes != null) {
+            if (rSquareds != null) {
                 // The LD calculation has been made, so we can just draw.
                 float[][] ldData = controller.isDPrimeSelected() ? dPrimes : rSquareds;
 
@@ -121,10 +156,7 @@ public class LDPlot extends VariationPlot {
                             if (Float.isNaN(ldData[i][j])) {
                                 accumulator.addShape(transparent, diamond);
                             } else {
-                                Color blend = createBlend(ldData[i][j]);
-                                accumulator.addShape(blend, diamond);
-                                g2.setColor(blend);
-                                g2.fill(diamond);
+                                accumulator.addShape(createBlend(ldData[i][j]), diamond);
                                 addToZone(diamond, zonePaths, i);
                                 addToZone(diamond, zonePaths, j);
                             }
@@ -146,6 +178,11 @@ public class LDPlot extends VariationPlot {
                             zones[i] = new Area();
                         }
                     }
+                } else {
+                    // User selected D′ for unphased data which has no D′ calculation.
+                    g2.setColor(Color.BLACK);
+                    g2.setFont(VariationModule.MESSAGE_FONT.deriveFont(18.0f));
+                    MiscUtils.drawMessage(g2, UNPHASED_ERROR, new Rectangle2D.Float(0.0f, 0.0f, getWidth(), 40.0f));
                 }
             }
         } else {
@@ -307,107 +344,31 @@ public class LDPlot extends VariationPlot {
         }
         return result;
     }
-    
-    private static boolean containsVariant(VariantType[] types, VariantType type){
-        if (types != null) {
-            for (int i = 0; i < types.length; i++) {
-                if (type == types[i]) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
 
-    private class CalculationWorker extends SwingWorker {
-        private final float[][] localDPrimes;
-        private final float[][] localRSquareds;
-        private double fract;
-
-        CalculationWorker(int n) throws OutOfMemoryError {
-            localDPrimes = new float[n][n];
-            localRSquareds = new float[n][n];
-        }
-
-        @Override
-        protected Object doInBackground() throws Exception {
-            List<VariantRecord> data = controller.getData();
-            int participantCount = controller.getParticipantCount();
-            controller.getModule().showProgress("Calculating Linkage Disequilibrium…", 0.0);
+    /**
+     * Not currently used.  THis allows us to dump out our LD calculations in a format identical to VCFTools.
+     *
+     * @param output output file
+     * @param phased if true, output D′ as well as r²
+     * @throws IOException 
+     */
+    private void dumpLD(Writer output, boolean phased) throws IOException {
+        List<VariantRecord> data = controller.getData();
+        if (phased) {
+            output.write("CHR\tPOS1\tPOS2\tN_CHR\tR^2\tD\tDprime\n");
             for (int i = 0; i < data.size(); i++) {
-                VariantRecord recI = (VariantRecord)data.get(i);
-                VariantType varI = recI.getVariantType();
-                int n1 = 0;
-                for (int k = 0; k < participantCount; k++) {
-                    VariantType[] participantTypes = recI.getVariantsForParticipant(k);
-                    if (containsVariant(participantTypes, varI)) {
-                        n1++;
-                    }
-                }
-                double p1 = n1 / (double)participantCount;
-                double p2 = 1.0 - p1;
-
                 for (int j = i + 1; j < data.size(); j++) {
-                    if (p1 > 0.0 && p1 < 1.0) {
-                        VariantRecord recJ = (VariantRecord)data.get(j);
-                        VariantType varJ = recJ.getVariantType();
-
-                        n1 = 0;
-                        int n11 = 0;
-                        for (int k = 0; k < participantCount; k++) {
-                            VariantType[] participantTypesJ = recJ.getVariantsForParticipant(k);
-                            if (containsVariant(participantTypesJ, varJ)) {
-                                n1++;
-                                VariantType[] participantTypesI = recI.getVariantsForParticipant(k);
-                                if (containsVariant(participantTypesI, varI)) {
-                                    n11++;
-                                }
-                            }
-                        }
-                        double q1 = n1 / (double)participantCount;
-                        double q2 = 1.0 - q1;
-                        if (q1 > 0.0 && q1 < 1.0) {
-                            double x11 = n11 / (double)participantCount;
-                            double d = x11 - p1 * q1;
-                            //TODO: something is wrong when x11 is 0, a possible solution ->    double d = x11 == 0 ? 0 : x11 - p1 * q1;
-
-                            // D'
-                            double dMax = d < 0.0 ? -Math.min(p1 * q1, p2 * q2) : Math.min(p1 * q2, p2 * q1);
-                            localDPrimes[i][j] = (float)(d / dMax);
-                            localRSquareds[i][j] = (float)(d * d / (p1 * p2 * q1 * q2));
-                        } else {
-                            localDPrimes[i][j] = Float.NaN;
-                            localRSquareds[i][j] = Float.NaN;
-                        }
-                    } else {
-                        localDPrimes[i][j] = Float.NaN;
-                        localRSquareds[i][j] = Float.NaN;
-                    }
+                    output.write(String.format("%s\t%d\t%d\t%d\t%f\t0\t%f\n", controller.getReference(), data.get(i).getPosition(), data.get(j).getPosition(), controller.getParticipantCount(), rSquareds[i][j], dPrimes[i][j]));
                 }
-                fract = (double)i / data.size();
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        controller.getModule().showProgress("Calculating Linkage Disequilibrium…", fract);
-                    }
-                });
             }
-            return null;
-        }
-
-        @Override
-        public void done() {          
-            controller.getModule().showTabs();
-            if (memoryOK) {
-                dPrimes = localDPrimes;
-                rSquareds = localRSquareds;
-            } else {
-                dPrimes = null;
-                rSquareds = null;
+        } else {
+            output.write("CHR\tPOS1\tPOS2\tN_INDV\tR^2\n");
+            for (int i = 0; i < data.size(); i++) {
+                for (int j = i + 1; j < data.size(); j++) {
+                    output.write(String.format("%s\t%d\t%d\t%d\t%f\n", controller.getReference(), data.get(i).getPosition(), data.get(j).getPosition(), controller.getParticipantCount(), rSquareds[i][j]));
+                }
             }
-            repaint();
-            calculator = null;
         }
+        output.close();
     }
 }

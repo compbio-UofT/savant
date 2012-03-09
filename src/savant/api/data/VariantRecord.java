@@ -64,4 +64,9 @@ public interface VariantRecord extends PointRecord {
      * @return one or two 1-based indices of the participants allele within <code>getAltAlleles()</code>; 0 indicates reference
      */
     public int[] getAllelesForParticipant(int index);
+    
+    /**
+     * Are the alleles in this record phased or not?
+     */
+    public boolean isPhased();
 }

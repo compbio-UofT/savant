@@ -45,6 +45,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     private final String[] altBases;
     private final byte[] participants0;
     private final byte[] participants1;
+    private boolean phased = true;
 
     /**
      * Constructor not be be called directly, but rather through TabixIntervalRecord.valueOf.
@@ -80,6 +81,8 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
                     if (colonPos >= 0) {
                         info = info.substring(0, colonPos);
                     }
+                    
+                    phased &= info.indexOf('/') < 0;
                     String[] alleleIndices = info.split("[|/]");
                     if (!alleleIndices[0].equals(".")) {
                         participants0[i] =  Byte.parseByte(alleleIndices[0]);
@@ -216,6 +219,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     @Override
     public VariantType getVariantType() {
         return getVariantType(altBases[0]);
+    }
+
+    @Override
+    public boolean isPhased() {
+        return phased;
     }
 
     /**
