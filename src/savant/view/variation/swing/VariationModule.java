@@ -141,6 +141,7 @@ public class VariationModule extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (controller.getTracks().length > 0) {
                     new CaseControlDialog(controller).setVisible(true);
+                    frequencyPlot.repaint();
                 } else {
                     Toolkit.getDefaultToolkit().beep();
                 }

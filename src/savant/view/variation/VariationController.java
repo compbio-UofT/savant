@@ -343,7 +343,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 int pos = ((VariantRecord)rec).getPosition();
                 r = new Range(pos, pos);
             }
-            LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(r));
+            LocationController.getInstance().setLocation(visibleRef, (Range)RangeUtils.addMargin(r));
         }
     }
     
