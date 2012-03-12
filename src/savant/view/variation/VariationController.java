@@ -192,7 +192,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
 
                                 LOG.debug("Inserting " + rec + " after " + before + " and before " + after);
                             }
-                            aggregateData.add(insertionPos, n > 0 ? new PaddedVariantRecord(rec, n) : rec);
+                            aggregateData.add(insertionPos, new PaddedVariantRecord(rec, n));
                         } else {
                             VariantRecord oldRec = aggregateData.get(index);
                             LOG.debug("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));

@@ -93,8 +93,10 @@ public class ColourScheme {
                 return getColor(ColourKey.INSERTED_BASE);
             case DELETION:
                 return getColor(ColourKey.DELETED_BASE);
-            default:
+            case OTHER:
                 return getColor(ColourKey.N);
+            default:
+                return null;
         }
     }
 

@@ -89,7 +89,7 @@ public class VariantTrackRenderer extends TrackRenderer {
             VariantRecord varRec = (VariantRecord)rec;
             double x = gp.transformXPos(varRec.getPosition());
             double y = (participantCount - 1) * unitHeight;
-            double w = unitWidth;
+            double w = Math.max(1.0, unitWidth);
 
             for (int j = 0; j < participantCount; j++) {
                 accumulateZygoteShapes(varRec.getVariantsForParticipant(j), accumulator, new Rectangle2D.Double(x, y, w, unitHeight));
