@@ -20,7 +20,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -108,7 +107,10 @@ public class LDPlot extends VariationPlot {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                controller.getModule().showProgress("Calculating Linkage Disequilibrium…", fract);
+                                // In some cases, invokeLater gets around to this point AFTER done() has been called.
+                                if (!isDone()) {
+                                    controller.getModule().showProgress("Calculating Linkage Disequilibrium…", fract);
+                                }
                             }
                         });
 

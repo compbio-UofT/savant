@@ -18,11 +18,13 @@ package savant.view.variation.swing;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.data.VariantRecord;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
@@ -45,12 +47,14 @@ public class VariationModule extends JPanel {
     static final Log LOG = LogFactory.getLog(VariationModule.class);
     private static final String ZOOM_MESSAGE = MiscUtils.MAC ? "<html><center>Zoom in to see data<br><small>To view data at this range, change Preferences > Track Resolutions</small></center></html>" : "<html><center>Zoom in to see data<br><small>To view data at this range, change Edit > Preferences > Track Resolutions</small></center></html>";
     static final Font MESSAGE_FONT = new Font("Sans-Serif", Font.PLAIN, 24);
+    private static final Insets MESSAGE_INSETS = new Insets(20, 20, 20, 20);
+
 
     private VariationController controller;
 
     // The cards we can show.
     private JTabbedPane tabs;
-    private JLabel messageLabel;
+    private JPanel messagePanel;
     private ProgressPanel progressPanel;
     private JComponent currentCard;
 
@@ -60,9 +64,9 @@ public class VariationModule extends JPanel {
     private LDPlot ldPlot;
     
     private JTextField rangeField;
-    private JScrollBar mapScroller;
-    private JScrollBar frequencyScroller;
+    private List<JScrollBar> scrollers = new ArrayList<JScrollBar>();
     private ButtonGroup methodGroup;
+    private JLabel messageLabel;
 
     /** Listener shared by mapScroller and frequencyScroller. */
     private AdjustmentListener scrollerListener = new AdjustmentListener() {
@@ -156,42 +160,14 @@ public class VariationModule extends JPanel {
         });
         tabs.addTab("Table", new JScrollPane(table));
 
-        JPanel mapPanel = new JPanel();
-        mapPanel.setLayout(new GridBagLayout());
-        
-        mapScroller = new JScrollBar();
-        mapScroller.setMinimum(1);
-        mapScroller.addAdjustmentListener(scrollerListener);
-
         map = new VariantMap(controller);
         map.addMouseWheelListener(wheelListener);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        mapPanel.add(map, gbc);
-        gbc.weightx = 0.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        mapPanel.add(mapScroller, gbc);
+        JPanel mapPanel = populatePanel(map);
         tabs.addTab("Map", mapPanel);
-
-        JPanel frequencyPanel = new JPanel();
-        frequencyPanel.setLayout(new GridBagLayout());
-        
-        frequencyScroller = new JScrollBar();
-        frequencyScroller.setMinimum(1);
-        frequencyScroller.addAdjustmentListener(scrollerListener);
 
         frequencyPlot = new AlleleFrequencyPlot(controller);
         frequencyPlot.addMouseWheelListener(wheelListener);
-        gbc.gridwidth = 1;
-        gbc.weightx = 1.0;
-        frequencyPanel.add(frequencyPlot, gbc);
-        gbc.weightx = 0.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        frequencyPanel.add(frequencyScroller, gbc);
+        JPanel frequencyPanel = populatePanel(frequencyPlot);
         tabs.addTab("Allele Frequency", frequencyPanel);
         
         JPanel ldPanel = new JPanel();
@@ -218,26 +194,28 @@ public class VariationModule extends JPanel {
         methodPanel.add(rSquaredButton);
         methodGroup.add(rSquaredButton);
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.weighty = 0.0;
         gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
         ldPanel.add(methodPanel, gbc);
 
         ldPlot = new LDPlot(controller);
+        JPanel lowerLDPanel = populatePanel(ldPlot);
         gbc.weighty = 1.0;
-        ldPanel.add(ldPlot, gbc);
+        ldPanel.add(lowerLDPanel, gbc);
 
         tabs.addTab("LD Plot", ldPanel);
 
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         add(tools, gbc);
 
         // Create the informative cards, but don't use them.
         messageLabel = new JLabel();
         messageLabel.setFont(MESSAGE_FONT);
-        messageLabel.setAlignmentX(0.5f);
+        messagePanel = populatePanel(messageLabel);
+
         progressPanel = new ProgressPanel(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -246,6 +224,40 @@ public class VariationModule extends JPanel {
         });
         
         showCard(tabs, null);
+    }
+
+    /**
+     * Three of our panels consist of a component next to a scroll-bar
+     */
+    private JPanel populatePanel(JComponent content) {
+        JScrollBar scroller = new JScrollBar();
+        scroller.setMinimum(1);
+        scroller.addAdjustmentListener(scrollerListener);
+        scrollers.add(scroller);
+
+        JPanel container = new JPanel();
+        container.setLayout(new GridBagLayout());
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        if (content instanceof JLabel) {
+            gbc.anchor = GridBagConstraints.NORTH;
+            gbc.insets = MESSAGE_INSETS;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+        } else {
+            gbc.weighty = 1.0;
+            gbc.fill = GridBagConstraints.BOTH;
+        }
+        container.add(content, gbc);
+
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 0.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        container.add(scroller, gbc);
+
+        return container;
     }
 
     public boolean isDPrimeSelected() {
@@ -262,18 +274,15 @@ public class VariationModule extends JPanel {
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             
-            if (card == tabs) {
-                gbc.fill = GridBagConstraints.BOTH;
-            } else {
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                gbc.insets = new Insets(20, 20, 20, 20);
-                gbc.anchor = GridBagConstraints.NORTH;
-                if (message != null) {
-                    if (card == messageLabel) {
-                        messageLabel.setText(message);
-                    } else {
-                        progressPanel.setMessage(message);
-                    }
+            gbc.fill = GridBagConstraints.BOTH;
+            gbc.anchor = GridBagConstraints.NORTH;
+            if (message != null) {
+                if (card == messagePanel) {
+                    messageLabel.setText(message);
+                } else {
+                    gbc.insets = new Insets(20, 20, 20, 20);
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
+                    progressPanel.setMessage(message);
                 }
             }
             add(card, gbc);
@@ -288,7 +297,7 @@ public class VariationModule extends JPanel {
     }
 
     public void showMessage(String message) {
-        showCard(messageLabel, message);
+        showCard(messagePanel, message);
     }
     
     public void showProgress(String message, double fract) {
@@ -302,23 +311,22 @@ public class VariationModule extends JPanel {
         } else {
             try {
                 // Detach the adjustment listeners so that setting the maximum doesn't fire an event.
-                mapScroller.removeAdjustmentListener(scrollerListener);
-                frequencyScroller.removeAdjustmentListener(scrollerListener);
-                
-                mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
-                mapScroller.setValue(r.getFrom());
-                mapScroller.setVisibleAmount(r.getLength());
-                mapScroller.setBlockIncrement(r.getLength());
-                mapScroller.repaint();
-                frequencyScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
-                frequencyScroller.setValue(r.getFrom());
-                frequencyScroller.setVisibleAmount(r.getLength());
-                frequencyScroller.setBlockIncrement(r.getLength());
-                frequencyScroller.repaint();
+                for (JScrollBar sb: scrollers) {
+                    sb.removeAdjustmentListener(scrollerListener);
+                }
+
+                for (JScrollBar sb: scrollers) {
+                    sb.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+                    sb.setValue(r.getFrom());
+                    sb.setVisibleAmount(r.getLength());
+                    sb.setBlockIncrement(r.getLength());
+                    sb.repaint();
+                }
             } finally {
                 // Reattach the adjustment listeners.
-                mapScroller.addAdjustmentListener(scrollerListener);
-                frequencyScroller.addAdjustmentListener(scrollerListener);
+                for (JScrollBar sb: scrollers) {
+                    sb.addAdjustmentListener(scrollerListener);
+                }
             }
         }
         rangeField.setText(String.format("%s:%d-%d", ref, r.getFrom(), r.getTo()));
