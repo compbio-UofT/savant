@@ -50,7 +50,7 @@ public class VariantTrack extends Track {
 
     @Override
     public ColourScheme getDefaultColourScheme() {
-        return new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
+        return new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE, ColourKey.N);
     }
 
     @Override

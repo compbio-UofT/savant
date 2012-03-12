@@ -79,25 +79,6 @@ public final class Pileup {
         coverage.put(n, new Coverage());
     }
 
-    public static VariantType getVariantType(char c) {
-        switch (c) {
-            case 'A':
-            case 'a':
-                return VariantType.SNP_A;
-            case 'C':
-            case 'c':
-                return VariantType.SNP_C;
-            case 'G':
-            case 'g':
-                return VariantType.SNP_G;
-            case 'T':
-            case 't':
-                return VariantType.SNP_T;
-            default:
-                return VariantType.OTHER;
-        }
-    }
-
     public int getCoverage(VariantType n, Strand strand) {
         Coverage cov = coverage.get(n);
         if (strand == Strand.FORWARD) {

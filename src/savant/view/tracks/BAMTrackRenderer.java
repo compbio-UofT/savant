@@ -629,7 +629,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 double x = gp.transformXPos(p.getPosition());
                 double h = unitHeight * totalCoverage;
 
-                VariantType genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - startPosition]);
+                VariantType genomeNuc = VariantType.fromChar((char)refSeq[p.getPosition() - startPosition]);
                 VariantType snpNuc = genomeNuc;
                 if (totalCoverage > p.getCoverage(genomeNuc, null)) {
                     // Only record a shape if we have at least some mismatches.
@@ -711,7 +711,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
-                    genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - xMin]);
+                    genomeNuc = VariantType.fromChar((char)refSeq[p.getPosition() - xMin]);
                     snpNuc = genomeNuc;
                 }
 
@@ -816,7 +816,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i = 0; i < operatorLength; i++) {
                         int readIndex = readCursor - alignmentStart + i;
 
-                        VariantType readN = Pileup.getVariantType((char)readBases[readIndex]);
+                        VariantType readN = VariantType.fromChar((char)readBases[readIndex]);
 
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {

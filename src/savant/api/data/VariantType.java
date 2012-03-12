@@ -47,4 +47,23 @@ public enum VariantType {
                 return "";
         }
     }
+    
+    public static VariantType fromChar(char c) {
+        switch (c) {
+            case 'A':
+            case 'a':
+                return VariantType.SNP_A;
+            case 'C':
+            case 'c':
+                return VariantType.SNP_C;
+            case 'G':
+            case 'g':
+                return VariantType.SNP_G;
+            case 'T':
+            case 't':
+                return VariantType.SNP_T;
+            default:
+                return VariantType.OTHER;
+        }
+    }
 }

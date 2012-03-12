@@ -72,7 +72,7 @@ public class VariantMap extends VariationPlot {
 
             boolean gappable = unitHeight > GAP_HEIGHT * 2.0;
 
-            ColourScheme cs = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
+            ColourScheme cs = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE, ColourKey.N);
             ColourAccumulator accumulator = new ColourAccumulator(cs);
 
 
