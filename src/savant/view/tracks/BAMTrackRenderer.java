@@ -803,7 +803,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(VariantType.DELETION, baseQualities[readCursor - alignmentStart + i], strand);
+                            p.pileOn(VariantType.DELETION, baseQualities[readCursor - alignmentStart], strand);
                         }
                     }
                     break;
