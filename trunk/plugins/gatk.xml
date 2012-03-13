@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<plugin id="savant.gatk" version="1.0.1" class="savant.plugin.Tool" sdk-version="2.0.0" name="GATK Genotyper">
+    <tool>java -Xmx4096m -jar GenomeAnalysisTK.jar -T UnifiedGenotyper</tool>
+    <download>http://savantbrowser.com/plugins/tools/GenomeAnalysisTK.jar</download>
+    <progress>INFO.*TraversalEngine.*\s(\d+.\d+)%</progress>
+    <error>ERROR.*MESSAGE: (.*)$</error>
+    <arg name="Reference Sequence" flag="-R" type="FASTA_INPUT_FILE" required="true"/>
+    <arg name="BAM Track" flag="-I" type="BAM_INPUT_FILE" required="true"/>
+    <arg name="Target Range" flag="-L" type="RANGE"/>
+    <arg name="Output File" flag="-o" type="OUTPUT_FILE" required="true"/>
+    <arg name="Genotype Likelihoods Model" flag="-glm" type="LIST" choices="SNP, INDEL, BOTH" default="SNP"/>
+    <arg name="Heterozygosity" flag="-hets" type="FLOAT" default="0.0010"/>
+    <arg name="Output Mode" flag="-out_mode" type="LIST" choices="EMIT_VARIANTS_ONLY, EMIT_ALL_CONFIDENT_SITES, EMIT_ALL_SITES" default="EMIT_VARIANTS_ONLY"/>
+    <arg name="Max Deletion Fraction" flag="-deletions" type="FLOAT" default="0.05"/>
+    <arg name="Min Base Quality Score" flag="-mbq" type="INT" default="17"/>
+    <arg name="Min Indel Count for Genotyping" flag="-minIndelCnt" type="INT" default="5"/>
+    <arg name="Standard Min Confidence Threshold for Calling" flag="-stand_call_conf" type="FLOAT" default="30.0"/>
+    <arg name="Standard Min Confidence Threshold for Emitting" flag="-stand_emit_conf" type="FLOAT" default="30.0"/>
+    <arg name="Annotations" flag="-A" type="MULTI" choices="ChromosomeCounts, IndelType, HardyWeinberg, SpanningDeletions, NBaseCount, AlleleBalance, MappingQualityZero, LowMQ, BaseCounts, MVLikelihoodRatio, InbreedingCoeff, RMSMappingQuality, TechnologyComposition, HaplotypeScore, SampleList, QualByDepth, FisherStrand, SnpEff, HomopolymerRun, DepthOfCoverage, MappingQualityZeroFraction, GCContent, MappingQualityRankSumTest, ReadPosRankSumTest, BaseQualityRankSumTest, ReadDepthAndAllelicFractionBySample, AlleleBalanceBySample, DepthPerAlleleBySample, MappingQualityZeroBySample"/>
+    <arg name="Annotation Groups" flag="-G" type="MULTI" choices="RodRequiringAnnotation, StandardAnnotation, WorkInProgressAnnotation, ExperimentalAnnotation, RankSumTest"/>
+    <arg name="Number of Threads" flag="-nt" type="INT" default="1"/>
+</plugin>
