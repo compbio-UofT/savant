@@ -266,7 +266,7 @@ public class PluginController extends Controller {
     }
 
     private void copyBuiltInPlugins() {
-/*        File destDir = DirectorySettings.getPluginsDirectory();
+        File destDir = DirectorySettings.getPluginsDirectory();
         File srcDir = null;
         FilenameFilter pluginFilter = new PluginFileFilter();
         if (MiscUtils.MAC) {
@@ -285,7 +285,7 @@ public class PluginController extends Controller {
             IOUtils.copyDir(srcDir, destDir, pluginFilter);
         } catch (Exception x) {
             LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
-        }*/
+        }
     }
 
 
