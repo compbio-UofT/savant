@@ -498,13 +498,17 @@ public class BAMTrackRenderer extends TrackRenderer {
                     int alignmentStart = samRecord.getAlignmentStart();
                     double x = gp.transformXPos(alignmentStart);
                     double radius = 4.0;
-                    double top = gp.transformYPos(axisRange.getYRange().getTo()) + radius;
+                    double top = gp.transformYPos(axisRange.getYRange().getTo()/4) + radius;
                     g2.setColor(unmappedMateColor);
                     g2.setStroke(ONE_STROKE);
                     Path2D flower = new Path2D.Double();
                     flower.moveTo(x, gp.transformYPos(0.0));
-                    flower.lineTo(x, top + radius);
-                    flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
+                    flower.lineTo(x, top);
+                    flower.moveTo(x-radius, top-radius);
+                    flower.lineTo(x+radius, top+radius);
+                    flower.moveTo(x-radius, top+radius);
+                    flower.lineTo(x+radius, top-radius);
+                    //flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
                     g2.draw(flower);
                     recordToShapeMap.put(record, flower);
                 } else {
@@ -963,7 +967,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         Stroke currentStroke = g2.getStroke();
         //Stroke drawingStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
-        Stroke drawingStroke = new BasicStroke(2);
+        Stroke drawingStroke = new BasicStroke(1);
         double yPos = gp.transformYPos(0) - (level + 1)*gp.getUnitHeight() + gp.getUnitHeight()/2.0 - gp.getOffset();
 
         Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()) + arrowWidth, yPos, gp.transformXPos(mateInterval.getEnd()) - arrowWidth, yPos);

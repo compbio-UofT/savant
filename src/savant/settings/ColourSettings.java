@@ -44,10 +44,18 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.REVERSE_STRAND, new Color(0, 174, 255));
 
         DEFAULT_SETTINGS.put(ColourKey.CONCORDANT_LENGTH, new Color(0, 174, 255));
-        DEFAULT_SETTINGS.put(ColourKey.DISCORDANT_LENGTH, Color.BLUE);
-        DEFAULT_SETTINGS.put(ColourKey.ONE_READ_INVERTED, Color.MAGENTA);
-        DEFAULT_SETTINGS.put(ColourKey.EVERTED_PAIR, Color.GRAY);
+        DEFAULT_SETTINGS.put(ColourKey.DISCORDANT_LENGTH, Color.RED);
+        DEFAULT_SETTINGS.put(ColourKey.ONE_READ_INVERTED, Color.BLUE);
+        DEFAULT_SETTINGS.put(ColourKey.EVERTED_PAIR, Color.YELLOW);
+        DEFAULT_SETTINGS.put(ColourKey.UNMAPPED_MATE, Color.GRAY);
+
+        /*
+         *  DEFAULT_SETTINGS.put(ColourKey.CONCORDANT_LENGTH, new Color(128, 177, 211));//new Color(0, 174, 255));
+        DEFAULT_SETTINGS.put(ColourKey.DISCORDANT_LENGTH, new Color(190, 186, 218));//Color.BLUE);
+        DEFAULT_SETTINGS.put(ColourKey.ONE_READ_INVERTED, new Color(251, 128, 114));//Color.MAGENTA);
+        DEFAULT_SETTINGS.put(ColourKey.EVERTED_PAIR, new Color(255, 255, 179));//Color.GRAY);
         DEFAULT_SETTINGS.put(ColourKey.UNMAPPED_MATE, Color.BLACK);
+         */
 
         DEFAULT_SETTINGS.put(ColourKey.CONTINUOUS_FILL, new Color(0, 174, 255, 200));
         DEFAULT_SETTINGS.put(ColourKey.CONTINUOUS_LINE, new Color(0, 50, 50, 50));
@@ -59,7 +67,7 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.INTERVAL_TEXT, Color.DARK_GRAY);
         DEFAULT_SETTINGS.put(ColourKey.OPAQUE_GRAPH, new Color(0, 174, 255));
         DEFAULT_SETTINGS.put(ColourKey.TRANSLUCENT_GRAPH, new Color(0, 174, 255, 100));
-      
+
         DEFAULT_SETTINGS.put(ColourKey.SPLITTER, new Color(210, 210, 210));
 
         DEFAULT_SETTINGS.put(ColourKey.GRAPH_PANE_MESSAGE, Color.DARK_GRAY);
@@ -71,7 +79,7 @@ public class ColourSettings {
 
         DEFAULT_SETTINGS.put(ColourKey.HEATMAP_LOW, new Color(0, 0, 255));
         DEFAULT_SETTINGS.put(ColourKey.HEATMAP_MEDIUM, new Color(192, 128, 192));
-        DEFAULT_SETTINGS.put(ColourKey.HEATMAP_HIGH, new Color(255, 0, 0));        
+        DEFAULT_SETTINGS.put(ColourKey.HEATMAP_HIGH, new Color(255, 0, 0));
     }
 
     private static PersistentSettings settings = PersistentSettings.getInstance();
