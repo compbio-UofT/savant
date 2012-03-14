@@ -1184,7 +1184,10 @@ public class Savant extends JFrame {
             com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
             UIManager.put("JideSplitPaneDivider.border", 5);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            LookAndFeelFactory.installJideExtension();
+            
+            if(MiscUtils.WINDOWS){
+                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
+            }
 
             // Load project immediately if argument exists.
             if (Savant.getInstance().isWebStart() && loadProjectUrl != null){
