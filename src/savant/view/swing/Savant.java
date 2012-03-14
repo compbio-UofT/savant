@@ -1182,14 +1182,9 @@ public class Savant extends JFrame {
 
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
-            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
-
             UIManager.put("JideSplitPaneDivider.border", 5);
-
-            // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
+            LookAndFeelFactory.installJideExtension();
 
             // Load project immediately if argument exists.
             if (Savant.getInstance().isWebStart() && loadProjectUrl != null){
