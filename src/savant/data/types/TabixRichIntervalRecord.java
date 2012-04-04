@@ -47,7 +47,7 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
     /**
      * Does the actual work of calculating the blocks.  Note that this method allows for
      * the possibility that block starts are specified as positions relative to the start
-     * of the feature rather than as absolution positions within the chromosome.  This
+     * of the feature rather than as absolute positions within the chromosome.  This
      * functionality is not currently used by our Tabix files.
      */
     @Override
@@ -60,8 +60,10 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
             int offset = relativeStarts ? 0 : getInterval().getStart();
             int endExtra = 1;
             if (!mapping.oneBased) {
-                offset--;
                 endExtra = 0;
+                if (!relativeStarts) {
+                    offset--;
+                }
             }
             if (mapping.blockEnds >= 0) {
                 int[] blockEnds = Block.extractBlocks(values[mapping.blockEnds]);

@@ -81,8 +81,11 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         List<Record> stuffedRecords = new ArrayList<Record>();
         for (Record r : data) {
             RichIntervalRecord ir = (RichIntervalRecord) r;
-            int padamount = fm.stringWidth(ir.getName()) + 5;
-            stuffedRecords.add(new StuffedIntervalRecord(ir,(int)(padamount/unitWidth),(int)(0*unitWidth)));
+            int padAmount = 0;
+            if (ir.getName() != null) {
+                padAmount = (int)((fm.stringWidth(ir.getName()) + 5) / unitWidth);
+            }
+            stuffedRecords.add(new StuffedIntervalRecord(ir, padAmount, 0));
         }
 
         IntervalPacker packer = new IntervalPacker(stuffedRecords);
