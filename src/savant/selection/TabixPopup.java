@@ -45,17 +45,14 @@ public class TabixPopup extends PopupPanel {
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
         String[] values = rec.getValues();
-        if (rec instanceof GFFIntervalRecord) {
-            // For GFF/GTF we break the attribute column into multiple entries.
-            columnNames[GFFIntervalRecord.ATTRIBUTE_COLUMN] = null;
-        }
+        boolean gff = rec instanceof GFFIntervalRecord;
         
         for (int i = 0; i < columnNames.length && i < values.length; i++) {
-            if (columnNames[i] != null) {
+            if (columnNames[i] != null && !(gff && i == GFFIntervalRecord.ATTRIBUTE_COLUMN)) {
                 add(new JLabel(columnNames[i] + ":\t" + values[i]));
             }
         }
-        if (rec instanceof GFFIntervalRecord) {
+        if (gff) {
             Map<String, String> attributes = ((GFFIntervalRecord)rec).getAttributes();
             for (String k: attributes.keySet()) {
                 add(new JLabel(k + ":\t" + attributes.get(k)));
