@@ -37,7 +37,7 @@ import savant.api.adapter.RecordFilterAdapter;
 import savant.api.adapter.VariantDataSourceAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
-import savant.data.types.GTFIntervalRecord;
+import savant.data.types.GFFIntervalRecord;
 import savant.data.types.TabixIntervalRecord;
 import savant.util.IndexCache;
 import savant.util.ColumnMapping;
@@ -175,10 +175,10 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
      * {@inheritDoc}
      */
     @Override
-    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException, InterruptedException {
+    public List<TabixIntervalRecord> getRecords(String ref, RangeAdapter r, Resolution res, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
-            TabixReader.Iterator i = reader.query(MiscUtils.homogenizeSequence(reference) + ":" + range.getFrom() + "-" + (range.getTo()+1));
+            TabixReader.Iterator i = reader.query(MiscUtils.homogenizeSequence(ref) + ":" + r.getFrom() + "-" + (r.getTo()+1));
 
             if (i != null) {
                 String line = null;
@@ -190,6 +190,10 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
                     // Assumption is that iterator will always give records in same order
                     TabixIntervalRecord rec = TabixIntervalRecord.valueOf(line, mapping);
                     if (filt == null || filt.accept(rec)) {
+                        RangeAdapter r2 = rec.getExpandedRange(r);
+                        if (r2 != null) {
+                            return getRecords(ref, r2, res, filt);
+                        }
                         if (rec.getInterval().getStart() == start) {
                             end = rec.getInterval().getEnd();
                             if (ends.get(end) == null) {
@@ -206,7 +210,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
                             ends.put(end, 0);
                             rec.setCount(0);
                         }
-                        if (!absorbGTFRecord(rec, result)) {
+                        if (!absorbGFFRecord(rec, result)) {
                             result.add(rec);
                         }
                     }
@@ -217,7 +221,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
             }
         } catch (ArrayIndexOutOfBoundsException x) {
             // If the chromosome isn't found, the Tabix library manifests it by throwing an ArrayIndexOutOfBoundsException.
-            LOG.info(String.format("Reference \"%s\" not found.", reference));
+            LOG.info(String.format("Reference \"%s\" not found.", ref));
         }
         return result;
 
@@ -268,12 +272,16 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> implements 
         return mapping == ColumnMapping.REFSEQ;
     }
     
-    private boolean absorbGTFRecord(TabixIntervalRecord rec, List<TabixIntervalRecord> recs) {
-        if (rec instanceof GTFIntervalRecord) {
+    private boolean absorbGFFRecord(TabixIntervalRecord rec, List<TabixIntervalRecord> recs) {
+        if (rec instanceof GFFIntervalRecord) {
+            if (((GFFIntervalRecord)rec).getFeatureType().equals("chromosome")) {
+                // Some GFF files contain a useless top-level feature for the entire chromosome.
+                return true;
+            }
             // Find a plausible parent GTF.  It should be the last record, but not always.
-            GTFIntervalRecord child = (GTFIntervalRecord)rec;
+            GFFIntervalRecord child = (GFFIntervalRecord)rec;
             for (int i = recs.size() - 1; i >= 0; i--) {
-                GTFIntervalRecord parent = (GTFIntervalRecord)recs.get(i);
+                GFFIntervalRecord parent = (GFFIntervalRecord)recs.get(i);
                 if (parent.absorbRecord(child)) {
                     return true;
                 }

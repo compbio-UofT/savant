@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
 
 package savant.selection;
 
+import java.util.Map;
 import javax.swing.JLabel;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.data.types.GFFIntervalRecord;
 import savant.data.types.TabixIntervalRecord;
 
 
@@ -42,11 +44,21 @@ public class TabixPopup extends PopupPanel {
         ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
-        String[] values = ((TabixIntervalRecord)record).getValues();
+        String[] values = rec.getValues();
+        if (rec instanceof GFFIntervalRecord) {
+            // For GFF/GTF we break the attribute column into multiple entries.
+            columnNames[GFFIntervalRecord.ATTRIBUTE_COLUMN] = null;
+        }
         
         for (int i = 0; i < columnNames.length && i < values.length; i++) {
             if (columnNames[i] != null) {
                 add(new JLabel(columnNames[i] + ":\t" + values[i]));
+            }
+        }
+        if (rec instanceof GFFIntervalRecord) {
+            Map<String, String> attributes = ((GFFIntervalRecord)rec).getAttributes();
+            for (String k: attributes.keySet()) {
+                add(new JLabel(k + ":\t" + attributes.get(k)));
             }
         }
     }

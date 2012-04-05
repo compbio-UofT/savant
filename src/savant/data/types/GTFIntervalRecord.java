@@ -15,13 +15,8 @@
  */
 package savant.data.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import savant.api.data.Block;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import savant.util.ColumnMapping;
 
 
@@ -30,46 +25,11 @@ import savant.util.ColumnMapping;
  *
  * @author tarkvara
  */
-public class GTFIntervalRecord extends TabixRichIntervalRecord {
-    private static final Log LOG = LogFactory.getLog(GTFIntervalRecord.class);
-
-    private static final int FEATURE_COLUMN = 2;
-    private static final int ATTRIBUTE_COLUMN = 8;
-
-    private final String name;
-    private final String name2;
-    private List<Block> blocks;
-    private int thickStart = -1, thickEnd = -1;
-
+public class GTFIntervalRecord extends GFFIntervalRecord {
     GTFIntervalRecord(String line) {
         super(line, ColumnMapping.GTF);
         name = extractGTFAttribute("gene_id");
         name2 = extractGTFAttribute("transcript_id");
-    }
-
-    @Override
-    public final List<Block> getBlocks() {
-        return blocks;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getAlternateName() {
-        return name2;
-    }
-
-    @Override
-    public int getThickStart() {
-        return thickStart >= 0 ? thickStart : interval.getStart();
-    }
-
-    @Override
-    public int getThickEnd() {
-        return thickEnd >= 0 ? thickEnd : interval.getEnd();
     }
 
     /**
@@ -93,36 +53,25 @@ public class GTFIntervalRecord extends TabixRichIntervalRecord {
         // Skip past the key, a space, and the initial double-quote.
         return attributes.substring(key.length() + 2, attributes.indexOf("\";"));
     }
-
+    
     /**
-     * If possible, absorb the information from the given record.  That is, if this record is
-     * a transcript, it can absorb both exon lines and CDS lines.
-     * @param child a GTF record containing an "exon" or "CDS" line we can potentially absorb
-     * @return true if the record was absorbed.
+     * Populate a map with values extracted from our attribute column.
      */
-    public boolean absorbRecord(GTFIntervalRecord child) {
-        
-        if (name.equals(child.name) && name2.equals(child.name2)) {
-            String feature = child.values[FEATURE_COLUMN];
-            if (feature.equals("exon")) {
-                if (values[FEATURE_COLUMN].equals("transcript")) {
-                    // Only transcripts are allowed to have blocks.
-                    if (blocks == null) {
-                        blocks = new ArrayList<Block>();
-                    }
-                    blocks.add(Block.valueOf(child.interval.getStart() - interval.getStart(), child.interval.getLength()));
-                    return true;
-                }
-            } else if (feature.equals("CDS")) {
-                // Potentially we could have multiple CDS lines for a single transcript.
-                // Our thickness will be the region which subsumes all the CDS lines.
-                if (thickStart < 0) {
-                    thickStart = child.interval.getStart();
-                }
-                thickEnd = Math.max(thickEnd, child.interval.getEnd());
-                return true;
+    @Override
+    public Map<String, String> getAttributes() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        String[] attributes = values[ATTRIBUTE_COLUMN].trim().split("; ");
+        for (String s: attributes) {
+            int quotePos = s.indexOf('\"');
+            if (quotePos > 0) {
+                result.put(s.substring(0, quotePos).trim(), s.substring(quotePos + 1, s.indexOf('\"', quotePos + 1)));
             }
         }
-        return false;
+        return result;
+    }
+
+    @Override
+    protected boolean isParentOf(GFFIntervalRecord child) {
+        return name.equals(child.name) && name2.equals(child.name2);
     }
 }

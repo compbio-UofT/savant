@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package savant.data.types;
 
+import savant.api.adapter.RangeAdapter;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.util.ColumnMapping;
@@ -64,7 +65,13 @@ public class TabixIntervalRecord implements IntervalRecord {
     public static TabixIntervalRecord valueOf(String s, ColumnMapping mapping) {
         switch (mapping.format) {
             case RICH_INTERVAL:
-                return mapping == ColumnMapping.GTF ? new GTFIntervalRecord(s) : new TabixRichIntervalRecord(s, mapping);
+                if (mapping == ColumnMapping.GFF) {
+                    return new GFFIntervalRecord(s);
+                } else if (mapping == ColumnMapping.GTF) {
+                    return new GTFIntervalRecord(s);
+                } else {
+                    return new TabixRichIntervalRecord(s, mapping);
+                }
             case VARIANT:
                 return new VCFVariantRecord(s, mapping);
             default:
@@ -155,5 +162,14 @@ public class TabixIntervalRecord implements IntervalRecord {
         
         // All checks yield exact same value
         return 0;
+    }
+    
+    /**
+     * For GFF records, we may sometimes need to request records from an expanded range, so that we can pick up all a gene's blocks.
+     * @param r the unexpanded range
+     * @return null
+     */
+    public RangeAdapter getExpandedRange(RangeAdapter r) {
+        return null;
     }
 }
