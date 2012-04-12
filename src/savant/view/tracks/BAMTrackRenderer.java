@@ -18,7 +18,6 @@ package savant.view.tracks;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
@@ -75,7 +74,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         switch (evt.getType()) {
             case COMPLETED:
                 if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
-                    int maxDataValue = BAMTrack.getArcYMax(evt.getData());
+                    int maxDataValue = Math.max(BAMTrack.getArcYMax(evt.getData()), 1);
                     Range range = (Range)instructions.get(DrawingInstruction.RANGE);
                     addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
                 }
@@ -386,15 +385,21 @@ public class BAMTrackRenderer extends TrackRenderer {
                     break;
 
                 case M: // Match or mismatch
+                case X:
+                case EQ:
                     // some SAM files do not contain the read bases
-                    if (sequenceSaved) {
-                        for (int i=0; i < operatorLength; i++) {
+                    if (sequenceSaved || operator == CigarOperator.X) {
+                        for (int i = 0; i < operatorLength; i++) {
                             // indices into refSeq and readBases associated with this position in the cigar string
                             int readIndex = readCursor - alignmentStart + i;
-                            int refIndex = sequenceCursor + i - range.getFrom();
                             boolean mismatched = false;
-                            if (refIndex >= 0 && refSeq != null && refIndex < refSeq.length) {
-                                mismatched = refSeq[refIndex] != readBases[readIndex];
+                            if (operator == CigarOperator.X) {
+                                mismatched = true;
+                            } else {
+                                int refIndex = sequenceCursor + i - range.getFrom();
+                                if (refIndex >= 0 && refSeq != null && refIndex < refSeq.length) {
+                                    mismatched = refSeq[refIndex] != readBases[readIndex];
+                                }
                             }
 
                             if (mismatched || drawingAllBases) {
@@ -498,7 +503,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     int alignmentStart = samRecord.getAlignmentStart();
                     double x = gp.transformXPos(alignmentStart);
                     double radius = 4.0;
-                    double top = gp.transformYPos(axisRange.getYRange().getTo()/4) + radius;
+                    double top = gp.transformYPos(axisRange.getYRange().getTo() * 0.25) + radius;
                     g2.setColor(unmappedMateColor);
                     g2.setStroke(ONE_STROKE);
                     Path2D flower = new Path2D.Double();
@@ -816,6 +821,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     }
                     break;
                 case M:
+                case X:
                     // Match or mismatch; we're only interested in mismatches.
                     for (int i = 0; i < operatorLength; i++) {
                         int readIndex = readCursor - alignmentStart + i;

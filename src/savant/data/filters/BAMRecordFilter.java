@@ -140,11 +140,6 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
 
         if (arcMode) {
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
-            // skip reads with a zero insert length--probably mapping errors
-            if (arcLength == 0) {
-                return false;
-            }
-
             if ((arcLengthThreshold != 0.0d && arcLengthThreshold < 1.0d && arcLength < LocationController.getInstance().getRange().getLength() * arcLengthThreshold) || (arcLengthThreshold > 1.0d && arcLength < arcLengthThreshold)) {
                 return false;
             }
