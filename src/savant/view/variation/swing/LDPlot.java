@@ -338,7 +338,8 @@ public class LDPlot extends VariationPlot {
                         i = j;
                     } else {
                         List<VariantRecord> data = controller.getData();
-                        result = new LDRecord(data.get(i), data.get(j), dPrimes[i][j], rSquareds[i][j]);
+                        float d = dPrimes != null ? dPrimes[i][j] : Float.NaN;
+                        result = new LDRecord(data.get(i), data.get(j), d, rSquareds[i][j]);
                         break;
                     }
                 }

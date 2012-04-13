@@ -42,7 +42,10 @@ public class VariantPopup extends PopupPanel {
     protected void initInfo() {
         if (record instanceof LDRecord) {
             LDRecord ldRec = (LDRecord)record;
-            add(new JLabel(String.format("D′: %.2f", ldRec.getDPrime())));
+            float dPrime = ldRec.getDPrime();
+            if (!Float.isNaN(dPrime)) {
+                add(new JLabel(String.format("D′: %.2f", dPrime)));
+            }
             add(new JLabel(String.format("r²: %.2f", ldRec.getRSquared())));
 
             List<VariantRecord> varRecs = ldRec.getConstituents();
