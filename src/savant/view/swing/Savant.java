@@ -1173,6 +1173,7 @@ public class Savant extends JFrame {
                 }
             }
 
+            System.setProperty("java.net.useSystemProxies", "true");
             installMissingPlugins(loadPluginUrls);
 
             //java.awt.EventQueue.invokeLater(new Runnable() {
