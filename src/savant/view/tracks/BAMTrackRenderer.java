@@ -636,17 +636,19 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (totalCoverage > 0) {
                 double bottom = gp.transformYPos(0);
                 double x = gp.transformXPos(p.getPosition());
-                double h = unitHeight * totalCoverage;
 
                 VariantType genomeNuc = VariantType.fromChar((char)refSeq[p.getPosition() - startPosition]);
                 VariantType snpNuc = genomeNuc;
+
+                // Only record a shape if we have at least some mismatches.
                 if (totalCoverage > p.getCoverage(genomeNuc, null)) {
-                    // Only record a shape if we have at least some mismatches.
+                    // Reduce height for insertions, since they don't contribute to the height.
+                    double h = unitHeight * (totalCoverage - p.getCoverage(VariantType.INSERTION, null));
                     recordToShapeMap.put(new PileupRecord(p, false), new Rectangle2D.Double(x, bottom - h, unitWidth, h));
                 }
 
                 while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
-                    h = unitHeight * p.getCoverage(snpNuc, null);
+                    double h = unitHeight * p.getCoverage(snpNuc, null);
                     Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                     accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
                     if (snpNuc == VariantType.INSERTION) {
@@ -716,7 +718,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 double bottom = axis;
                 double top = axis;
                 double x = gp.transformXPos(p.getPosition());
-                double h = unitHeight * p.getTotalCoverage(null);
 
                 VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
@@ -724,9 +725,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                     snpNuc = genomeNuc;
                 }
 
-                if (p.getTotalCoverage(null) > p.getCoverage(genomeNuc, null)) {
-                    // Only record a shape if we have at least some mismatches.
-                    recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalCoverage(Strand.FORWARD), unitWidth, h));
+                // Only record a shape if we have at least some mismatches.
+                int totalCoverage = p.getTotalCoverage(null);
+                if (totalCoverage > p.getCoverage(genomeNuc, null)) {
+                    double h = unitHeight * (totalCoverage - p.getCoverage(VariantType.INSERTION, null));
+                    recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * (p.getTotalCoverage(Strand.FORWARD) - p.getCoverage(VariantType.INSERTION, Strand.FORWARD)), unitWidth, h));
                 }
 
                 while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(null)) != null)) {
@@ -736,7 +739,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                     ColourKey col = getSubPileColour(snpNuc, genomeNuc);
                     if (forwardCoverage > 0) {
-                        h = unitHeight * forwardCoverage;
+                        double h = unitHeight * forwardCoverage;
                         Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                         accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
                         if (snpNuc == VariantType.INSERTION) {
@@ -746,7 +749,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         }
                     }
                     if (reverseCoverage > 0) {
-                        h = unitHeight * reverseCoverage;
+                        double h = unitHeight * reverseCoverage;
                         Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
                         accumulator.addShape(col, rect);
                         if (snpNuc == VariantType.INSERTION) {
