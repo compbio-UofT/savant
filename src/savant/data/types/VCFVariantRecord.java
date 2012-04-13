@@ -254,33 +254,42 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
                     return VariantType.OTHER;
             }
         }
-        if (alt.charAt(0) == '<') {
-            if (alt.startsWith("<INS")) {
-                return VariantType.INSERTION;
-            } else if (alt.startsWith("<DEL")) {
-                return VariantType.DELETION;
-            } else {
-                return VariantType.OTHER;
-            }
-        }
-        if (alt.length() > refBases.length()) {
-            return VariantType.INSERTION;
-        } else if (alt.length() < refBases.length()) {
-            return VariantType.DELETION;
-        } else {
-            // When merging a SNP and a deletion, vcf-merge produces some SNPs with long ALT strings.
-            int numDiffs = 0;
-            VariantType result = VariantType.NONE;
-            for (int i = 0; i < alt.length() && numDiffs <= 1; i++) {
-                if (alt.charAt(i) != refBases.charAt(i)) {
-                    numDiffs++;
-                    result = VariantType.fromChar(alt.charAt(i));
+        switch (alt.charAt(0)) {
+            case '<':
+                // Funky informative string.  We only recognize <INS and <DEL.
+                if (alt.startsWith("<INS")) {
+                    return VariantType.INSERTION;
+                } else if (alt.startsWith("<DEL")) {
+                    return VariantType.DELETION;
+                } else {
+                    return VariantType.OTHER;
                 }
-            }
-            if (numDiffs <= 1) {
-                return result;
-            }
+            case 'I':
+                // VCF 3.3 insertion.
+                return VariantType.INSERTION;
+            case 'D':
+                // VCF 3.3 deletion.
+                return VariantType.DELETION;
+            default:
+                if (alt.length() > refBases.length()) {
+                    return VariantType.INSERTION;
+                } else if (alt.length() < refBases.length()) {
+                    return VariantType.DELETION;
+                } else {
+                    // When merging a SNP and a deletion, vcf-merge produces some SNPs with long ALT strings.
+                    int numDiffs = 0;
+                    VariantType result = VariantType.NONE;
+                    for (int i = 0; i < alt.length() && numDiffs <= 1; i++) {
+                        if (alt.charAt(i) != refBases.charAt(i)) {
+                            numDiffs++;
+                            result = VariantType.fromChar(alt.charAt(i));
+                        }
+                    }
+                    if (numDiffs <= 1) {
+                        return result;
+                    }
+                }
+                return VariantType.OTHER;
         }
-        return VariantType.OTHER;
     }
 }
