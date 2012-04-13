@@ -101,11 +101,12 @@ public class ReferenceComparator implements Comparator<String> {
         if (!Character.isDigit(s.charAt(n))) {
             return -1;
         }
-        for (int i = n - 1; i > 0; i--) {
+        for (int i = n - 1; i >= 0; i--) {
             if (!Character.isDigit(s.charAt(i))) {
                 return i + 1;
             }
         }
+        // Entire contig name happens to be numeric.
         return 0;
     }
 
