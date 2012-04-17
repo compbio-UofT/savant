@@ -206,6 +206,6 @@ public class FormatTool {
         System.err.println("    -1       treat the file as one-based (default for FASTA, GFF, BAM, WIG, and");
         System.err.println("             BedGraph)");
         System.err.println("    inFile   the unformatted input file (required)");
-        System.err.println("    outFile  the output file (if omitted, will default to inFile.savant)");
+        System.err.println("    outFile  the output file (if omitted, will default to inFile.gz or inFile.tdf)");
     }
 }

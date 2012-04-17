@@ -26,7 +26,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.VariantRecord;
+import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.controller.LocationController;
 import savant.settings.ResolutionSettings;
 import savant.util.Bookmark;
@@ -163,6 +165,12 @@ public class VariationModule extends JPanel {
 
         map = new VariantMap(controller);
         map.addMouseWheelListener(wheelListener);
+        LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
+            @Override
+            public void handleEvent(LocationChangedEvent event) {
+                map.repaint();
+            }
+        });
         JPanel mapPanel = populatePanel(map);
         tabs.addTab("Map", mapPanel);
 

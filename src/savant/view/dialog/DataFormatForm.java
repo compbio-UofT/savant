@@ -54,6 +54,7 @@ public final class DataFormatForm extends JDialog {
 
         formatList.setListData(new FormatDef[] {
                                     new FormatDef("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes."),
+                                    new FormatDef("GenePred", false, false, FileType.INTERVAL_KNOWNGENE, "UCSC Gene Prediction format."),
                                     new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF (General Feature Format) is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
                                     new FormatDef("GTF", true, false, FileType.INTERVAL_GTF , "GTF (Gene Transfer Format) is a refinement to GFF which stores gene and transcript IDs in a standard way."),
                                     new FormatDef("VCF", false, false, FileType.INTERVAL_VCF , "VCF (Variant Call Format) is a format for storing gene sequence variants."),

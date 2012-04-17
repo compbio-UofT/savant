@@ -24,11 +24,13 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
+import savant.controller.LocationController;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
+import savant.util.Range;
 import savant.view.tracks.VariantTrackRenderer;
 import savant.view.variation.ParticipantRecord;
 import savant.view.variation.VariationController;
@@ -63,9 +65,13 @@ public class VariantMap extends VariationPlot {
         GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_TOP), 0, h, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_BOTTOM));
         g2.setPaint(gp0);
         g2.fillRect(0, 0, w, h);
-
+        
         List<VariantRecord> data = controller.getData();
         if (data != null && !data.isEmpty()) {
+            double boxTop = Double.NaN;
+            double boxBottom = Double.NaN;
+            Range browseRange = LocationController.getInstance().getRange();
+
             int participantCount = controller.getParticipantCount();
             unitHeight = (double)h / data.size();
             unitWidth = (double)w / participantCount;
@@ -89,6 +95,12 @@ public class VariantMap extends VariationPlot {
                     }
                 }
 
+                if (Double.isNaN(boxTop) && browseRange.getFrom() <= varRec.getPosition() && browseRange.getTo() >= varRec.getPosition()) {
+                    boxTop = y + topGap;
+                    boxBottom = boxTop + unitHeight;
+                } else if (varRec.getPosition() <= browseRange.getTo()) {
+                    boxBottom = y + unitHeight - bottomGap;
+                }
                 double x = 0.0;
                 for (int j = 0; j < participantCount; j++) {
                     VariantTrackRenderer.accumulateZygoteShapes(varRec.getVariantsForParticipant(j), accumulator, new Rectangle2D.Double(x, y + topGap, unitWidth, unitHeight - topGap - bottomGap));
@@ -105,6 +117,10 @@ public class VariantMap extends VariationPlot {
                 // Not enough room to draw gaps, so just label the axes.
                 labelVerticalAxis(g2);
             }
+        
+            g2.setClip(null);
+            g2.setColor(Color.BLUE);
+            g2.draw(new Rectangle2D.Double(0.0, boxTop, w - 1.0, boxBottom - boxTop - 1.0));
         }
     }
 
