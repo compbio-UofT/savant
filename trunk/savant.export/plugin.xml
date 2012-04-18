@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.export" version="1.0.2"
+	class="savant.export.ExportPlugin">
+    <attributes>
+        <attribute id="sdk-version" value="2.0.0"/>
+    </attributes>
+	<runtime>
+                <library id="library" path="/" type="code"></library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extension">
+		<parameter id="class" value="savant.export.ExportPlugin"/>
+		<parameter id="name" value="Export Plugin"/>
+    </extension>
+</plugin>
