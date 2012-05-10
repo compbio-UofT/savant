@@ -131,7 +131,7 @@ public class TabixFormatter extends SavantFileFormatter {
     public void format() throws InterruptedException, IOException {
         try {
             // Sort the input file.
-            setProgress(0.0, "Sorting input file…");
+            setProgress(0.0, "Sorting input file...");
             File sortedFile = File.createTempFile("savant", ".sorted");
             new TabixSorter(inFile, sortedFile).run();
 
@@ -169,12 +169,12 @@ public class TabixFormatter extends SavantFileFormatter {
             }
             output.close();
             input.close();
-            setProgress(0.5, "Creating index file…");
+            setProgress(0.5, "Creating index file...");
             TabixWriter writer = new TabixWriter(outFile, conf);
             writer.createIndex(outFile);
 
             if (dictionary.size() > 0) {
-                setProgress(0.75, "Creating dictionary file…");
+                setProgress(0.75, "Creating dictionary file...");
                 output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
                 Collections.sort(dictionary);
                 for (String l: dictionary) {

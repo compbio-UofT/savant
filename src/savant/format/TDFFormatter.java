@@ -60,7 +60,7 @@ public class TDFFormatter extends SavantFileFormatter {
     @Override
     public void format() throws InterruptedException, IOException {
         Genome genome = getTDFGenome();
-        setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file…");
+        setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, lineCount, new TDFProgressMonitor());
         try {
             pp.preprocess(inFile, DEFAULT_ZOOMS);
@@ -115,7 +115,7 @@ public class TDFFormatter extends SavantFileFormatter {
 
         inFileReader = openInputFile();
 
-        setProgress(0.0, "Processing input file…");
+        setProgress(0.0, "Processing input file...");
 
         // Skip the header if it exists.
         String strLine = inFileReader.readLine();

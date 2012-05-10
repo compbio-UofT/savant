@@ -51,7 +51,7 @@ public class BAMToCoverage extends TDFFormatter {
     @Override
     public void format() throws InterruptedException, IOException {
         Genome genome = getTDFGenome();
-        setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file…");
+        setProgress(INFER_CHROMOSOMES_FRACTION, "Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, 1000000, new TDFProgressMonitor());
         try {
             pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, null, null);
@@ -68,7 +68,7 @@ public class BAMToCoverage extends TDFFormatter {
 
         inFileReader = openInputFile();
 
-        setProgress(0.0, "Processing input file…");
+        setProgress(0.0, "Processing input file...");
 
         SAMFileReader samFileReader = new SAMFileReader(inFile, determineIndexFile());
 
