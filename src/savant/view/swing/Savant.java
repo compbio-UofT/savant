@@ -1128,11 +1128,11 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_loadFromDataSourcePluginItemActionPerformed
 
     private void featureRequestItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureRequestItemActionPerformed
-        (new FeatureRequestDialog(this,false)).setVisible(true);
+        new FeatureRequestDialog().setVisible(true);
     }//GEN-LAST:event_featureRequestItemActionPerformed
 
     private void bugReportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportItemActionPerformed
-        (new BugReportDialog("Bug Report", null)).setVisible(true);
+        new BugReportDialog("Bug Report", null).setVisible(true);
     }//GEN-LAST:event_bugReportItemActionPerformed
 
     /**

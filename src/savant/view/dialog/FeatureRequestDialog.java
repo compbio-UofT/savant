@@ -1,18 +1,26 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * FeatureRequestDialog.java
+ *    Copyright 2011-2012 University of Toronto
  *
- * Created on Mar 31, 2011, 3:56:01 PM
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.dialog;
 
+import java.awt.Dialog;
 import savant.api.util.DialogUtils;
 import savant.mail.Mail;
+import savant.util.MiscUtils;
+
 
 /**
  *
@@ -21,10 +29,13 @@ import savant.mail.Mail;
 public class FeatureRequestDialog extends javax.swing.JDialog {
 
     /** Creates new form FeatureRequestDialog */
-    public FeatureRequestDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public FeatureRequestDialog() {
+        super(DialogUtils.getMainWindow(), Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
-        this.setLocationRelativeTo(parent);
+        pack();
+        getRootPane().setDefaultButton(sendButton);
+        MiscUtils.registerCancelButton(cancelButton);
+        setLocationRelativeTo(getParent());
     }
 
     /** This method is called from within the constructor to
@@ -36,22 +47,22 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        field_description = new javax.swing.JTextArea();
-        jLabel3 = new javax.swing.JLabel();
-        button_cancel = new javax.swing.JButton();
-        button_send = new javax.swing.JButton();
-        field_name = new javax.swing.JTextField();
-        field_email = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        field_institution = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        field_requesttype = new javax.swing.JComboBox();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
-        jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+        descriptionField = new javax.swing.JTextArea();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
+        cancelButton = new javax.swing.JButton();
+        sendButton = new javax.swing.JButton();
+        nameField = new javax.swing.JTextField();
+        emailField = new javax.swing.JTextField();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
+        institutionField = new javax.swing.JTextField();
+        javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
+        requestTypeCombo = new javax.swing.JComboBox();
+        javax.swing.JScrollPane jScrollPane3 = new javax.swing.JScrollPane();
+        javax.swing.JTextArea jTextArea3 = new javax.swing.JTextArea();
+        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Feature Request");
@@ -63,32 +74,26 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         jLabel2.setText("Email address *");
 
-        field_description.setColumns(20);
-        field_description.setLineWrap(true);
-        field_description.setRows(5);
-        field_description.setWrapStyleWord(true);
-        jScrollPane1.setViewportView(field_description);
+        descriptionField.setColumns(20);
+        descriptionField.setLineWrap(true);
+        descriptionField.setRows(5);
+        descriptionField.setWrapStyleWord(true);
+        jScrollPane1.setViewportView(descriptionField);
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         jLabel3.setText("Description of feature *");
 
-        button_cancel.setText("Cancel");
-        button_cancel.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_cancelActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        button_send.setText("Send Request");
-        button_send.addActionListener(new java.awt.event.ActionListener() {
+        sendButton.setText("Send Request");
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_sendActionPerformed(evt);
-            }
-        });
-
-        field_email.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                field_emailActionPerformed(evt);
+                sendButtonActionPerformed(evt);
             }
         });
 
@@ -98,7 +103,7 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         jLabel5.setText("Request Type *");
 
-        field_requesttype.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Visualization", "Analytics", "Data Source", "File format", "Plugin", "Other" }));
+        requestTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Visualization", "Analytics", "Data Source", "File format", "Plugin", "Other" }));
 
         jScrollPane3.setBorder(null);
         jScrollPane3.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -127,9 +132,9 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(button_send)
+                                .addComponent(sendButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(button_cancel))
+                                .addComponent(cancelButton))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -145,10 +150,10 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
                             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
-                            .addComponent(field_email, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
-                            .addComponent(field_name, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
-                            .addComponent(field_institution, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
-                            .addComponent(field_requesttype, 0, 532, Short.MAX_VALUE))))
+                            .addComponent(emailField, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                            .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                            .addComponent(institutionField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                            .addComponent(requestTypeCombo, 0, 532, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -161,46 +166,42 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
                 .addGap(1, 1, 1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(field_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(field_email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(field_institution, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(institutionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(field_requesttype, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(requestTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_cancel)
-                    .addComponent(button_send))
+                    .addComponent(cancelButton)
+                    .addComponent(sendButton))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void field_emailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_field_emailActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_field_emailActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_button_cancelActionPerformed
-
-    private void button_sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_sendActionPerformed
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         if (validateForm()) {
             String name = getPersonsName();
             String email = getEmail();
-            String type = getType();
+            String type = getRequestType();
             String institution = getInstitution();
             String description = getDescription();
 
@@ -212,9 +213,9 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
                 + "Institution: " + institution + "\n\n"
                 + "Description:\n" + description + "\n";
 
-            this.button_send.setText("Sending...");
-            this.button_send.setEnabled(false);
-            this.button_cancel.setEnabled(false);
+            sendButton.setText("Sending...");
+            sendButton.setEnabled(false);
+            cancelButton.setEnabled(false);
 
             if (Mail.sendEMailToDevelopers(name, subject, message)) {
                 DialogUtils.displayMessage("Request sent. Thank you for your suggestion!");
@@ -222,81 +223,54 @@ public class FeatureRequestDialog extends javax.swing.JDialog {
                 DialogUtils.displayError("Error sending request. Check your internet connection or try again later.");
             }
 
-            this.dispose();
+            setVisible(false);
         }
-    }//GEN-LAST:event_button_sendActionPerformed
-
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                FeatureRequestDialog dialog = new FeatureRequestDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
+    }//GEN-LAST:event_sendButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_cancel;
-    private javax.swing.JButton button_send;
-    private javax.swing.JTextArea field_description;
-    private javax.swing.JTextField field_email;
-    private javax.swing.JTextField field_institution;
-    private javax.swing.JTextField field_name;
-    private javax.swing.JComboBox field_requesttype;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JTextArea descriptionField;
+    private javax.swing.JTextField emailField;
+    private javax.swing.JTextField institutionField;
+    private javax.swing.JTextField nameField;
+    private javax.swing.JComboBox requestTypeCombo;
+    private javax.swing.JButton sendButton;
     // End of variables declaration//GEN-END:variables
 
     private String getPersonsName() {
-        return this.field_name.getText();
+        return nameField.getText();
     }
 
     private String getEmail() {
-        return this.field_email.getText();
+        return emailField.getText();
     }
 
-    private String getType() {
-        return (String) this.field_requesttype.getSelectedItem();
+    private String getRequestType() {
+        return (String)requestTypeCombo.getSelectedItem();
     }
 
     private String getInstitution() {
-        return this.field_institution.getText();
+        return institutionField.getText();
     }
 
     private String getDescription() {
-        return this.field_description.getText();
+        return descriptionField.getText();
     }
 
     private boolean validateForm() {
-        if (this.getPersonsName().equals("")){
-            DialogUtils.displayMessage("Enter your name.");
-            this.field_name.requestFocus();
+        if (getPersonsName().equals("")){
+            DialogUtils.displayMessage("Please enter your name.");
+            nameField.requestFocus();
             return false;
         } else if (!this.getEmail().contains("@")) {
-            DialogUtils.displayMessage("Enter a valid email address.");
-            this.field_email.requestFocus();
+            DialogUtils.displayMessage("Please enter a valid email address.");
+            emailField.requestFocus();
             return false;
         } else if (this.getDescription().equals("")) {
-            DialogUtils.displayMessage("Enter a description of the feature.");
-            this.field_description.requestFocus();
+            DialogUtils.displayMessage("Please enter a description of the feature.");
+            descriptionField.requestFocus();
             return false;
         }
         return true;
     }
-
 }

@@ -142,7 +142,7 @@ public class TabixFormatter extends SavantFileFormatter {
             String line;
             while ((line = input.readLine()) != null) {
                 if (!line.isEmpty()) {
-                    output.println(line);
+                    output.print(line + "\n");
                     if ((mapping.name >= 0 || mapping.name2 >= 0) && !line.startsWith("#")) {
                         String[] columns = line.split("\\t");
                         String chrom = columns[mapping.chrom];
@@ -178,7 +178,7 @@ public class TabixFormatter extends SavantFileFormatter {
                 output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
                 Collections.sort(dictionary);
                 for (String l: dictionary) {
-                    output.println(l);
+                    output.print(l + "\n");
                 }
                 output.close();
             }
@@ -220,7 +220,7 @@ public class TabixFormatter extends SavantFileFormatter {
         public String writeHeader(AsciiLineReader reader, PrintWriter writer) throws IOException {
             String nextLine = reader.readLine();
             while (nextLine.startsWith("#")) {
-                writer.println(nextLine);
+                writer.print(nextLine + "\n");
                 nextLine = reader.readLine();
             }
             // We may have to truncate the header to remove optional columns (usually for Bed).
@@ -232,7 +232,7 @@ public class TabixFormatter extends SavantFileFormatter {
                     header += "\t" + headerColumns[i];
                 }
             }
-            writer.println("#" + header);
+            writer.print("#" + header + "\n");
             // Readjust our mapping now that we know the actual number of columns.
             mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
             return nextLine;
