@@ -2,7 +2,7 @@
   <headerType>gui</headerType>
   <jar>./Savant.jar</jar>
   <dontWrapJar>true</dontWrapJar>
-  <outfile>Savant.exe</outfile>
+  <outfile>files/Savant.exe</outfile>
   <errTitle>Savant</errTitle>
   <chdir>.</chdir>
   <icon>SavantWinIcons.ico</icon>
