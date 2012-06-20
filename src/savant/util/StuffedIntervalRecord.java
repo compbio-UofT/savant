@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package savant.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
+
 
 /**
  *
@@ -27,37 +29,18 @@ import savant.api.data.IntervalRecord;
  */
 public class StuffedIntervalRecord implements IntervalRecord {
 
-    public static List<List<IntervalRecord>> getOriginalIntervals(List<List<IntervalRecord>> pack) {
+    private final int start, end;
+    private final IntervalRecord originalRecord;
 
-        List<List<IntervalRecord>> result = new ArrayList<List<IntervalRecord>>();
-
-        for (List<IntervalRecord> list : pack) {
-
-            List<IntervalRecord> subresult = new ArrayList<IntervalRecord>();
-
-            for (IntervalRecord r : list) {
-
-                StuffedIntervalRecord sir = (StuffedIntervalRecord) r;
-                subresult.add(sir.getOriginalInterval());
-
-            }
-
-            result.add(subresult);
-        }
-
-        return result;
-    }
-
-    Interval stuffedRecord;
-    IntervalRecord originalRecord;
-    int leftstuffing;
-    int rightstuffing;
-
-    public StuffedIntervalRecord(IntervalRecord record, int leftstuffing, int rightstuffing) {
+    public StuffedIntervalRecord(IntervalRecord record, int leftStuffing, int rightStuffing) {
         this.originalRecord = record;
-        this.leftstuffing = leftstuffing;
-        this.rightstuffing = rightstuffing;
-        this.stuffedRecord = Interval.valueOf(Math.max(0,record.getInterval().getStart()-leftstuffing), record.getInterval().getEnd()+rightstuffing);
+        if (record.getInterval().getLength() == 0) {
+            // Special case, it's an insertion.  We need at least one base in each direction to draw the diamond.
+            leftStuffing = Math.max(1, leftStuffing);
+            rightStuffing = Math.max(1, rightStuffing);
+        }
+        this.start = Math.max(0, record.getInterval().getStart() - leftStuffing);
+        this.end = record.getInterval().getEnd() + rightStuffing;
     }
 
     @Override
@@ -67,7 +50,7 @@ public class StuffedIntervalRecord implements IntervalRecord {
 
     @Override
     public Interval getInterval() {
-        return stuffedRecord;
+        return Interval.valueOf(start, end);
     }
 
     @Override
@@ -81,34 +64,48 @@ public class StuffedIntervalRecord implements IntervalRecord {
         StuffedIntervalRecord other = (StuffedIntervalRecord) o;
 
         //compare ref
-        if (!this.getReference().equals(other.getReference())){
-            String a1 = this.getReference();
-            String a2 = other.getReference();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
-                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
-                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-            }
-            if(a1.length() < a2.length()) return -1;
-            if(a1.length() > a2.length()) return 1;
+        if (!getReference().equals(other.getReference())) {
+            return getReference().compareTo(other.getReference());
         }
+
         //compare interval
-        int a = this.getInterval().getStart();
-        int b = other.getInterval().getStart();
+        int start = getInterval().getStart();
+        int otherStart = other.getInterval().getStart();
+        int end = getInterval().getEnd();
+        int otherEnd = other.getInterval().getEnd();
 
-        int c = this.getInterval().getEnd();
-        int d = other.getInterval().getEnd();
-
-        if(a == b){
-            if (d < c) { return -1; }
-            else if (d > c) { return 1; } // longer intervals reported first
-            else {return 0; }
-        } 
-        else if(a < b) { return -1; }
-        else { return 1; }
+        if (start == otherStart) {
+            if (otherEnd < end) {
+                return -1;
+            } else if (otherEnd > end) {
+                // Longer intervals reported first
+                return 1;
+            } else {
+                return 0;
+            }
+        } else if (start < otherStart) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     private IntervalRecord getOriginalInterval() {
-        return this.originalRecord;
+        return originalRecord;
     }
 
+    public static List<List<IntervalRecord>> getOriginalIntervals(List<List<IntervalRecord>> pack) {
+
+        List<List<IntervalRecord>> result = new ArrayList<List<IntervalRecord>>();
+
+        for (List<IntervalRecord> list : pack) {
+            List<IntervalRecord> subResult = new ArrayList<IntervalRecord>();
+            for (IntervalRecord r : list) {
+                subResult.add(((StuffedIntervalRecord)r).getOriginalInterval());
+            }
+            result.add(subResult);
+        }
+
+        return result;
+    }
 }

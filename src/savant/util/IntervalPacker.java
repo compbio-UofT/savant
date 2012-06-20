@@ -1,9 +1,5 @@
 /*
- * IntervalPacker.java
- * Created on Feb 1, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,12 +16,7 @@
 
 package savant.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
@@ -34,6 +25,7 @@ import savant.api.data.Record;
 
 /**
  * Utility class to do build the data structures necessary to draw packed intervals.
+ * 
  * @author vwilliams
  */
 public class IntervalPacker {

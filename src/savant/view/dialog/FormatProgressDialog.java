@@ -197,7 +197,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                 break;
             case FAILED:
                 setVisible(false);
-                DataFormatForm.reportFormattingError(event.getError(), formatter.getInputFile().getAbsolutePath());
+                SavantFileFormatter.reportFormattingError(event.getError(), formatter.getInputFile());
                 break;
         }
     }

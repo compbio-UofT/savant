@@ -17,6 +17,7 @@ package savant.util;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Locale;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
@@ -102,7 +103,7 @@ public class Bookmark implements BookmarkAdapter {
         }
 
         if (text.length() > 0) {
-            NumberFormat numberParser = NumberFormat.getIntegerInstance();
+            NumberFormat numberParser = NumberFormat.getIntegerInstance(Locale.US);
             int minusPos = text.indexOf('-');
             if (minusPos == 0) {
                 // Leading minus sign.  Shift to the left.

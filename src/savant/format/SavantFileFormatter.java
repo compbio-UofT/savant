@@ -196,23 +196,23 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
         return true;
     }
 
-    public void reportFormattingError(final Throwable e, final File inputFile) {
-        if (e instanceof InterruptedException) {
+    public static void reportFormattingError(final Throwable x, final File inFile) {
+        if (x instanceof InterruptedException) {
             DialogUtils.displayMessage("Format cancelled.");
-        } else if (e instanceof SavantFileFormattingException) {
+        } else if (x instanceof SavantFileFormattingException) {
             // Not a Savant error.  They've just chosen the wrong kind of file.
-            DialogUtils.displayMessage("Sorry", e.getMessage());
+            DialogUtils.displayMessage("Format Unsuccessful", x.getMessage());
         } else {
-            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+            JideOptionPane optionPane = new JideOptionPane(String.format("<html>Message: <i>%s</i><br><br>Click the <i>Details</i> button to see more information...<br><br>"
+                    + "Please report any issues you experience to the to the development team.</html>", MiscUtils.getMessage(x)), JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
             optionPane.setTitle("A problem was encountered while formatting.");
             optionPane.setOptions(new String[] {});
             JButton reportButton = new JButton("Report Issue");
             ((JComponent)optionPane.getComponent(optionPane.getComponentCount() - 1)).add(reportButton);
-            final JDialog dialog = optionPane.createDialog(DialogUtils.getMainWindow(), "Format unsuccessful");
+            final JDialog dialog = optionPane.createDialog(DialogUtils.getMainWindow(), "Format Unsuccessful");
             dialog.setModal(true);
             dialog.setResizable(true);
-            optionPane.setDetails(MiscUtils.getStackTrace(e));
+            optionPane.setDetails(MiscUtils.getStackTrace(x));
             //optionPane.setDetailsVisible(true);
             dialog.pack();
 
@@ -227,14 +227,14 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
                     issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
                     issue += "- TYPE: [e.g. BED]\n";
                     issue += "- CONTENTS: [e.g. human genes]\n";
-                    issue += "- PATH: " + inputFile.getAbsolutePath() + "\n";
+                    issue += "- PATH: " + inFile + "\n";
                     issue += "- ADDITIONAL COMMENTS:\n\n";
 
                     issue += "=== ERROR DETAILS ===\n";
-                    issue += MiscUtils.getStackTrace(e);
+                    issue += MiscUtils.getStackTrace(x);
 
                     dialog.dispose();
-                    (new BugReportDialog(issue, inputFile.getAbsolutePath())).setVisible(true);
+                    new BugReportDialog(issue, inFile.getAbsolutePath()).setVisible(true);
                 }
 
             });
@@ -242,6 +242,7 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
             dialog.setVisible(true);
         }
     }
+
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
 

@@ -59,7 +59,7 @@ public class TabixFormatter extends SavantFileFormatter {
      * @param outFile output .gz file (index will append .tbi to the name)
      * @param needsTabs if true, file needs extra processing to convert whitespace to tabs
      */
-    public TabixFormatter(File inFile, File outFile, FileType inputFileType, boolean needsTabs) throws IOException {
+    public TabixFormatter(File inFile, File outFile, FileType inputFileType, boolean needsTabs) throws IOException, SavantFileFormattingException {
         super(inFile, outFile);
         needsTabHack = needsTabs;
 
@@ -104,6 +104,9 @@ public class TabixFormatter extends SavantFileFormatter {
         }
         mapping = ColumnMapping.inferMapping(header, (flags & TabixWriter.TI_FLAG_UCSC) == 0);
         conf = mapping.getTabixConf(flags);
+        if (mapping.chrom < 0 || mapping.start < 0) {
+            throw new SavantFileFormattingException("Unable to determine columns.  Does this file have a proper header line?");
+        }
     }
 
     /**

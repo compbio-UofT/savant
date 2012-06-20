@@ -246,7 +246,7 @@ public final class DataFormatForm extends JDialog {
                 setVisible(false);
             }
         } catch (Exception x) {
-            reportFormattingError(x, inFile.getAbsolutePath());
+            SavantFileFormatter.reportFormattingError(x, inFile);
         }
     }//GEN-LAST:event_formatButtonActionPerformed
 
@@ -355,53 +355,6 @@ public final class DataFormatForm extends JDialog {
             }
         }
         return false;
-    }
-
-    public static void reportFormattingError(final Throwable x, final String path) {
-        if (x instanceof InterruptedException) {
-            DialogUtils.displayMessage("Format cancelled.");
-        } else if (x instanceof SavantFileFormattingException) {
-            // Not a Savant error.  They've just chosen the wrong kind of file.
-            DialogUtils.displayMessage("Sorry", x.getMessage());
-        } else {
-            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-            optionPane.setTitle("A problem was encountered while formatting.");
-            optionPane.setOptions(new String[] {});
-            JButton reportButton = new JButton("Report Issue");
-            ((JComponent)optionPane.getComponent(optionPane.getComponentCount() - 1)).add(reportButton);
-            final JDialog dialog = optionPane.createDialog(DialogUtils.getMainWindow(), "Format unsuccessful");
-            dialog.setModal(true);
-            dialog.setResizable(true);
-            optionPane.setDetails(MiscUtils.getStackTrace(x));
-            //optionPane.setDetailsVisible(true);
-            dialog.pack();
-
-            reportButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e2) {
-                    String issue = "Hey Savant Developers,\n\n";
-                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
-
-                    issue += "=== TO BE COMPLETED BY USER ===\n";
-                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
-                    issue += "- TYPE: [e.g. BED]\n";
-                    issue += "- CONTENTS: [e.g. human genes]\n";
-                    issue += "- PATH: " + path + "\n";
-                    issue += "- ADDITIONAL COMMENTS:\n\n";
-
-                    issue += "=== ERROR DETAILS ===\n";
-                    issue += MiscUtils.getStackTrace(x);
-
-                    dialog.dispose();
-                    (new BugReportDialog(issue, path)).setVisible(true);
-                }
-
-            });
-
-            dialog.setVisible(true);
-        }
     }
 
     /**
