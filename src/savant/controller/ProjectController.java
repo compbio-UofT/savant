@@ -40,6 +40,7 @@ import savant.settings.DirectorySettings;
 import savant.util.Controller;
 import savant.util.FileExtensionFilter;
 import savant.util.NetworkUtils;
+import savant.view.swing.Savant;
 
 
 /**
@@ -148,7 +149,7 @@ public class ProjectController extends Controller {
     }
 
     public boolean promptToSaveChanges(boolean quitting) throws Exception {
-        if (isProjectOpen()) {
+        if (isProjectOpen() && Savant.getInstance().isStandalone()) {
             if (!projectSaved) {
                 int result = DialogUtils.askYesNoCancel(quitting ? "Save changes to current project before quitting?" : "Save changes to current project?");
                 if (result == DialogUtils.YES) {

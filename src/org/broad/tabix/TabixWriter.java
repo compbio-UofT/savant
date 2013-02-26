@@ -48,6 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * @author tarkvara
  */
 public class TabixWriter extends TabixReader {
+    
     private static final Log LOG = LogFactory.getLog(TabixWriter.class);
     private static final Charset LATIN1 = Charset.forName("ISO-8859-1");
 
@@ -250,7 +251,7 @@ public class TabixWriter extends TabixReader {
 
         for (int i = 0; i < mChr2tid.size(); i++) {
             Map<Integer, List<TPair64>> binningForChr = binningIndex.get(i);
-            
+
             // Write the binning index.
             writeInt(fp, binningForChr.size());
             for (int k: binningForChr.keySet()) {

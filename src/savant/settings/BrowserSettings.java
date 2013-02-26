@@ -35,7 +35,7 @@ public class BrowserSettings {
     private static final String SHOWSTARTPAGE_KEY = "SHOWSTARTPAGE";
 
     private static final Font TRACK_FONT = new Font("Sans-Serif", Font.BOLD, 12);
-    
+
     /*
      * Remote Files
      */
@@ -57,7 +57,7 @@ public class BrowserSettings {
     public static final URL NEWS_URL = NetworkUtils.getKnownGoodURL(URL, "serve/start/news.xml");
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
-    public static final String VERSION = "2.0.3";
+    public static final String VERSION = "2.0.4";
     public static String BUILD = "";
 
     /**

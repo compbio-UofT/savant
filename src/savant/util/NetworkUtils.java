@@ -62,7 +62,7 @@ public class NetworkUtils {
                 @Override
                 public void checkClientTrusted(X509Certificate[] certs, String authType) {
                 }
-                
+
                 @Override
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 }
@@ -189,7 +189,7 @@ public class NetworkUtils {
      * Goes through the logic of getSeekableStreamForURI, but doesn't actually create a stream.
      * Useful for determining whether an error might be due to cache corruption, in which case
      * a retry is worth taking.
-     * 
+     *
      * @param uri an ftp:, http:, or file: URI
      * @return <code>true</code> if the URI would be opened with a CacheableSABS
      */
@@ -226,7 +226,7 @@ public class NetworkUtils {
 
     /**
      * Extract the file-name portion of a URI.
-     * 
+     *
      * @param uri the URI to be processed
      * @return the file-name portion of the URI
      */

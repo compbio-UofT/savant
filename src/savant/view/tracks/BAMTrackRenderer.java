@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.view.tracks;
 
 import java.awt.*;
@@ -50,17 +49,15 @@ import savant.data.types.PileupRecord;
 import savant.exception.RenderingException;
 import savant.util.*;
 
-
 /**
  * Class to perform all the rendering of a BAM Track in all its modes.
  *
  * @author vwilliams
  */
 public class BAMTrackRenderer extends TrackRenderer {
+
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
-
     private static final Font MISMATCH_FONT = LEGEND_FONT.deriveFont(8.0f);
-
     private byte[] refSeq = null;
     private DrawingMode lastMode;
     private Resolution lastResolution;
@@ -73,10 +70,10 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void handleEvent(DataRetrievalEvent evt) {
         switch (evt.getType()) {
             case COMPLETED:
-                if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
+                if ((DrawingMode) instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
                     int maxDataValue = Math.max(BAMTrack.getArcYMax(evt.getData()), 1);
-                    Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+                    Range range = (Range) instructions.get(DrawingInstruction.RANGE);
+                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, (int) Math.round(maxDataValue + maxDataValue * 0.1))));
                 }
                 break;
         }
@@ -87,15 +84,15 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         DrawingMode oldMode = lastMode;
-        lastMode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        Resolution res = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
+        lastMode = (DrawingMode) instructions.get(DrawingInstruction.MODE);
+        Resolution res = (Resolution) instructions.get(DrawingInstruction.RESOLUTION);
 
         if (res == Resolution.HIGH) {
             if (lastMode != DrawingMode.STANDARD && lastMode != DrawingMode.SEQUENCE) {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if (genome.isSequenceSet()) {
-                    AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+                    AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
                     String ref = LocationController.getInstance().getReferenceName();
                     Range r = axisRange.getXRange();
                     try {
@@ -181,8 +178,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (!gp.isScaledToFit()) {
             arrowWidth = gp.getUnitHeight() * 0.25;
         }
-        double pixelsPerBase = Math.max(0.01, (double)gp.getWidth() / (double)range.getLength());
-        int breathingRoom = (int)Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
+        double pixelsPerBase = Math.max(0.01, (double) gp.getWidth() / (double) range.getLength());
+        int breathingRoom = (int) Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
 
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
         List<List<IntervalRecord>> intervals = new IntervalPacker(data).pack(breathingRoom);
@@ -191,18 +188,26 @@ public class BAMTrackRenderer extends TrackRenderer {
         int maxYRange;
         int numIntervals = intervals.size();
         // Set the Y range to the closest value of 10, 20, 50, 100, n*100
-        if (numIntervals <= 10) maxYRange = 10;
-        else if (numIntervals <= 20) maxYRange = 20;
-        else if (numIntervals <=50) maxYRange = 50;
-        else if (numIntervals <= 100) maxYRange = 100;
-        else maxYRange = numIntervals;
-        gp.setYRange(new Range(0,maxYRange));
+        if (numIntervals <= 10) {
+            maxYRange = 10;
+        } else if (numIntervals <= 20) {
+            maxYRange = 20;
+        } else if (numIntervals <= 50) {
+            maxYRange = 50;
+        } else if (numIntervals <= 100) {
+            maxYRange = 100;
+        } else {
+            maxYRange = numIntervals;
+        }
+        gp.setYRange(new Range(0, maxYRange));
 
         //resize frame if necessary
-        if (gp.needsToResize()) return;
+        if (gp.needsToResize()) {
+            return;
+        }
 
         // scan the map of intervals and draw the intervals for each level
-        for (int level=0; level<intervals.size(); level++) {
+        for (int level = 0; level < intervals.size(); level++) {
 
             List<IntervalRecord> intervalsThisLevel = intervals.get(level);
 
@@ -234,7 +239,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (override != null) {
             readColor = override;
         }
-        if ((Boolean)instructions.get(DrawingInstruction.MAPPING_QUALITY)) {
+        if ((Boolean) instructions.get(DrawingInstruction.MAPPING_QUALITY)) {
             int alpha = getConstrainedAlpha(samRec.getMappingQuality());
             readColor = new Color(readColor.getRed(), readColor.getGreen(), readColor.getBlue(), alpha);
         }
@@ -245,16 +250,16 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
         double x = gp.transformXPos(rec.getInterval().getStart());
-        double y = gp.transformYPos(0) - (level + 1)* readHeight - gp.getOffset();
+        double y = gp.transformYPos(0) - (level + 1) * readHeight - gp.getOffset();
         double w = rec.getInterval().getLength() * gp.getUnitWidth();
 
 
         // cut off x and w so no drawing happens off-screen
         double x2;
-        if (rightMostX < x+w) {
+        if (rightMostX < x + w) {
             x2 = rightMostX;
         } else {
-            x2 = x+w;
+            x2 = x + w;
         }
         if (leftMostX > x) {
             x = leftMostX;
@@ -264,7 +269,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Shape pointyBar = getPointyBar(reverseStrand, x, y, w, readHeight);
 
         // Only fill in the read if we're not going to slam bases on top of it.
-        boolean baseQuality = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
+        boolean baseQuality = (Boolean) instructions.get(DrawingInstruction.BASE_QUALITY);
         if (lastMode != DrawingMode.SEQUENCE && !baseQuality) {
             g2.setColor(readColor);
             g2.fill(pointyBar);
@@ -322,14 +327,14 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     /**
-     * Render the individual bases on top of the read.  Depending on the drawing mode
-     * this can be either bases read or mismatches.
+     * Render the individual bases on top of the read. Depending on the drawing
+     * mode this can be either bases read or mismatches.
      */
     private void renderBases(Graphics2D g2, GraphPaneAdapter gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
-        boolean baseQualityEnabled = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
+        boolean baseQualityEnabled = (Boolean) instructions.get(DrawingInstruction.BASE_QUALITY);
         boolean drawingAllBases = lastMode == DrawingMode.SEQUENCE || baseQualityEnabled;
 
         double unitWidth = gp.getUnitWidth();
@@ -405,13 +410,13 @@ public class BAMTrackRenderer extends TrackRenderer {
                             if (mismatched || drawingAllBases) {
                                 Color col;
                                 if ((mismatched && lastMode != DrawingMode.STANDARD) || lastMode == DrawingMode.SEQUENCE) {
-                                    col = cs.getBaseColor((char)readBases[readIndex]);
+                                    col = cs.getBaseColor((char) readBases[readIndex]);
                                 } else {
                                     col = cs.getColor(samRecord.getReadNegativeStrandFlag() ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
                                 }
 
                                 if (baseQualityEnabled && col != null) {
-                                    col = new Color(col.getRed(), col.getGreen(), col.getBlue(), getConstrainedAlpha((int)Math.round((baseQualities[readIndex] * 0.025) * 255)));
+                                    col = new Color(col.getRed(), col.getGreen(), col.getBlue(), getConstrainedAlpha((int) Math.round((baseQualities[readIndex] * 0.025) * 255)));
                                 }
 
                                 double xCoordinate = gp.transformXPos(sequenceCursor + i);
@@ -426,7 +431,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                                     g2.setColor(new Color(10, 10, 10));
                                     String s = new String(readBases, readIndex, 1);
                                     charRect = fm.getStringBounds(s, g2);
-                                    g2.drawString(s, (float)(xCoordinate + (unitWidth - charRect.getWidth()) * 0.5), (float)(top + fm.getAscent() + (unitHeight - charRect.getHeight()) * 0.5));
+                                    g2.drawString(s, (float) (xCoordinate + (unitWidth - charRect.getWidth()) * 0.5), (float) (top + fm.getAscent() + (unitHeight - charRect.getHeight()) * 0.5));
                                 }
                             }
                         }
@@ -434,7 +439,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     break;
 
                 case N: // Skipped
-                    opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level+1)*unitHeight) - offset, opWidth, unitHeight);
+                    opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0) - ((level + 1) * unitHeight) - offset, opWidth, unitHeight);
                     g2.setColor(cs.getColor(ColourKey.SKIPPED));
                     g2.fill(opRect);
                     break;
@@ -442,10 +447,14 @@ public class BAMTrackRenderer extends TrackRenderer {
                 default:    // P - passing, H - hard clip, or S - soft clip
                     break;
             }
-            if (operator.consumesReadBases()) readCursor += operatorLength;
-            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
+            if (operator.consumesReadBases()) {
+                readCursor += operatorLength;
+            }
+            if (operator.consumesReferenceBases()) {
+                sequenceCursor += operatorLength;
+            }
         }
-        for (Rectangle2D ins: insertions) {
+        for (Rectangle2D ins : insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
     }
@@ -464,7 +473,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     private Color makeTransparent(Color c) {
-        return new Color(c.getRed(),c.getGreen(),c.getBlue(),90);
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), 90);
     }
 
     private void renderArcPairedMode(Graphics2D g2, GraphPaneAdapter gp) {
@@ -491,11 +500,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // iterate through the data and draw
         LOG.debug("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
-        for (Record record: data) {
-            BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
+        for (Record record : data) {
+            BAMIntervalRecord bamRecord = (BAMIntervalRecord) record;
             SAMRecord samRecord = bamRecord.getSAMRecord();
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
-            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
+            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord, prot);
 
             if (samRecord.getReadPairedFlag() && type != null) {
                 if (samRecord.getMateUnmappedFlag()) {
@@ -509,20 +518,55 @@ public class BAMTrackRenderer extends TrackRenderer {
                     Path2D flower = new Path2D.Double();
                     flower.moveTo(x, gp.transformYPos(0.0));
                     flower.lineTo(x, top);
-                    flower.moveTo(x-radius, top-radius);
-                    flower.lineTo(x+radius, top+radius);
-                    flower.moveTo(x-radius, top+radius);
-                    flower.lineTo(x+radius, top-radius);
+                    flower.moveTo(x - radius, top - radius);
+                    flower.lineTo(x + radius, top + radius);
+                    flower.moveTo(x - radius, top + radius);
+                    flower.lineTo(x + radius, top - radius);
                     //flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
                     g2.draw(flower);
                     recordToShapeMap.put(record, flower);
+
+                    // mates map to different chrs
+                } else if (!samRecord.getMateReferenceName().equals(samRecord.getReferenceName())) {
+
+                    int alignmentStart = samRecord.getAlignmentStart();
+                    double x = gp.transformXPos(alignmentStart);
+                    double arrowWidth = 10;
+                    double arrowHeight = 15;
+                    double top = gp.transformYPos(axisRange.getYRange().getTo() * 0.9);
+                    g2.setColor(invertedReadColor);
+                    g2.setStroke(TWO_STROKE);
+
+                    Path2D stem = new Path2D.Double();
+                    stem.moveTo(x, gp.transformYPos(0.0));
+                    stem.lineTo(x, top + arrowHeight);
+
+                    g2.draw(stem);
+
+                    Path2D pointer = new Path2D.Double();
+                    pointer.moveTo(x, top);
+                    pointer.lineTo(x - arrowWidth/2, top + arrowHeight);
+                    pointer.lineTo(x + arrowWidth/2, top + arrowHeight);
+                    pointer.lineTo(x, top);
+                    g2.fill(pointer);
+
+                    pointer.append(stem, false);
+
+                    //flower.append(new Ellipse2D.Double(x - radius, top - radius, radius * 2.0, radius * 2.0), false);
+                    //g2.draw(pointer);
+
+                    recordToShapeMap.put(record, pointer);
+
+                    // mates map to the same chr
                 } else {
                     // Paired read with normal mate.
 
                     int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
                     // skip reads with a zero insert length--probably mapping errors
-                    if (arcLength == 0) continue;
+                    if (arcLength == 0) {
+                        continue;
+                    }
 
                     int alignmentStart;
                     int mateAlignmentStart = samRecord.getMateAlignmentStart();
@@ -556,19 +600,18 @@ public class BAMTrackRenderer extends TrackRenderer {
                         default:
                             // make sure arclength is over our threshold
                             /*if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
-                                continue;
-                            }
-                            else if (threshold > 1.0d && arcLength < threshold) {
-                                continue;
-                            }*/
+                             continue;
+                             }
+                             else if (threshold > 1.0d && arcLength < threshold) {
+                             continue;
+                             }*/
 
                             intervalStart = alignmentStart;
 
                             if (arcLength > discordantMax || arcLength < discordantMin) {
                                 g2.setColor(discordantLengthColor);
                                 g2.setStroke(TWO_STROKE);
-                            }
-                            else {
+                            } else {
                                 g2.setColor(normalArcColor);
                                 g2.setStroke(ONE_STROKE);
                             }
@@ -597,36 +640,38 @@ public class BAMTrackRenderer extends TrackRenderer {
             throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", RenderingException.WARNING_PRIORITY);
         }
 
-        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
         // make the pileups
         int length = axisRange.getXMax() - axisRange.getXMin() + 1;
         assert Math.abs(axisRange.getXMin()) <= Integer.MAX_VALUE;
-        int startPosition = (int)axisRange.getXMin();
+        int startPosition = (int) axisRange.getXMin();
         for (int j = 0; j < length; j++) {
             pileups.add(new Pileup(startPosition + j));
         }
 
         // Go through the samrecords and edit the pileups
-        for (Record record: data) {
-            SAMRecord samRecord = ((BAMIntervalRecord)record).getSAMRecord();
+        for (Record record : data) {
+            SAMRecord samRecord = ((BAMIntervalRecord) record).getSAMRecord();
             updatePileupsFromSAMRecord(pileups, samRecord, startPosition);
         }
 
         double maxHeight = 0;
         for (Pileup p : pileups) {
             int current = p.getTotalCoverage(null);
-            if (current > maxHeight) maxHeight = current;
+            if (current > maxHeight) {
+                maxHeight = current;
+            }
         }
 
         gp.setXRange(axisRange.getXRange());
-        gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
+        gp.setYRange(new Range(0, (int) Math.rint((double) maxHeight / 0.9)));
 
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.9)) / maxHeight;
-        double unitWidth =  gp.getUnitWidth();
+        double unitWidth = gp.getUnitWidth();
 
         ColourAccumulator accumulator = new ColourAccumulator(cs);
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
@@ -637,7 +682,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 double bottom = gp.transformYPos(0);
                 double x = gp.transformXPos(p.getPosition());
 
-                VariantType genomeNuc = VariantType.fromChar((char)refSeq[p.getPosition() - startPosition]);
+                VariantType genomeNuc = VariantType.fromChar((char) refSeq[p.getPosition() - startPosition]);
                 VariantType snpNuc = genomeNuc;
 
                 // Only record a shape if we have at least some mismatches.
@@ -662,7 +707,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         accumulator.fill(g2);
-        for (Rectangle2D ins: insertions) {
+        for (Rectangle2D ins : insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
     }
@@ -675,10 +720,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
 
-        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         int xMin = axisRange.getXMin();
         int xMax = axisRange.getXMax();
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
@@ -688,8 +733,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // Go through the samrecords and edit the pileups
-        for (Record record: data) {
-            SAMRecord samRecord = ((BAMIntervalRecord)record).getSAMRecord();
+        for (Record record : data) {
+            SAMRecord samRecord = ((BAMIntervalRecord) record).getSAMRecord();
             updatePileupsFromSAMRecord(pileups, samRecord, xMin);
         }
 
@@ -697,10 +742,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (Pileup p : pileups) {
             int current1 = p.getTotalCoverage(Strand.REVERSE);
             int current2 = p.getTotalCoverage(Strand.FORWARD);
-            if (current1 > maxHeight) maxHeight = current1;
-            if (current2 > maxHeight) maxHeight = current2;
+            if (current1 > maxHeight) {
+                maxHeight = current1;
+            }
+            if (current2 > maxHeight) {
+                maxHeight = current2;
+            }
         }
-        int yMax = (int)Math.ceil(maxHeight / 0.9);
+        int yMax = (int) Math.ceil(maxHeight / 0.9);
         gp.setYRange(new Range(-yMax, yMax));
         instructions.put(DrawingInstruction.AXIS_RANGE, new AxisRange(xMin, xMax, -yMax, yMax));
 
@@ -708,7 +757,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         double unitHeight = gp.getUnitHeight();
-        double unitWidth =  gp.getUnitWidth();
+        double unitWidth = gp.getUnitWidth();
         double axis = gp.transformYPos(0.0);
 
         for (Pileup p : pileups) {
@@ -721,7 +770,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
-                    genomeNuc = VariantType.fromChar((char)refSeq[p.getPosition() - xMin]);
+                    genomeNuc = VariantType.fromChar((char) refSeq[p.getPosition() - xMin]);
                     snpNuc = genomeNuc;
                 }
 
@@ -765,7 +814,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         accumulator.fill(g2);
-        for (Rectangle2D ins: insertions) {
+        for (Rectangle2D ins : insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
 
@@ -829,7 +878,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i = 0; i < operatorLength; i++) {
                         int readIndex = readCursor - alignmentStart + i;
 
-                        VariantType readN = VariantType.fromChar((char)readBases[readIndex]);
+                        VariantType readN = VariantType.fromChar((char) readBases[readIndex]);
 
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
@@ -883,11 +932,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         for (int i = 0; i < data.size(); i++) {
 
-            BAMIntervalRecord bamRecord = (BAMIntervalRecord)data.get(i);
+            BAMIntervalRecord bamRecord = (BAMIntervalRecord) data.get(i);
             Interval interval = bamRecord.getInterval();
             SAMRecord samRecord = bamRecord.getSAMRecord();
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
-            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
+            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord, prot);
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
             //discard unmapped reads
@@ -927,7 +976,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //if there are records remaining without a mate, they are probably off screen to the left
         Iterator<ArrayList<BAMIntervalRecord>> it = mateQueue.values().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             ArrayList<BAMIntervalRecord> list = it.next();
             for (BAMIntervalRecord bamRecord : list) {
                 Interval interval = bamRecord.getInterval();
@@ -937,8 +986,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         //resize frame if necessary
-        gp.setYRange(new Range(0,levels.size()+2));
-        if (gp.needsToResize()) return;
+        gp.setYRange(new Range(0, levels.size() + 2));
+        if (gp.needsToResize()) {
+            return;
+        }
 
         //now, draw everything
         for (DrawStore drawStore : savedDraws) {
@@ -951,14 +1002,16 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     /**
-     * Find the mate for record with name readName in the list records.
-     * If mate found, remove and return. Otherwise, return null.
+     * Find the mate for record with name readName in the list records. If mate
+     * found, remove and return. Otherwise, return null.
      */
     private BAMIntervalRecord popMate(ArrayList<BAMIntervalRecord> records, SAMRecord samRecord) {
 
-        if (records == null) return null;
+        if (records == null) {
+            return null;
+        }
         for (int i = 0; i < records.size(); i++) {
-            SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSAMRecord();
+            SAMRecord samRecord2 = ((BAMIntervalRecord) records.get(i)).getSAMRecord();
             if (MiscUtils.isMate(samRecord, samRecord2, false)) {
                 BAMIntervalRecord intervalRecord = records.get(i);
                 records.remove(i);
@@ -977,7 +1030,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Stroke currentStroke = g2.getStroke();
         //Stroke drawingStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
         Stroke drawingStroke = new BasicStroke(1);
-        double yPos = gp.transformYPos(0) - (level + 1)*gp.getUnitHeight() + gp.getUnitHeight()/2.0 - gp.getOffset();
+        double yPos = gp.transformYPos(0) - (level + 1) * gp.getUnitHeight() + gp.getUnitHeight() / 2.0 - gp.getOffset();
 
         Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()) + arrowWidth, yPos, gp.transformXPos(mateInterval.getEnd()) - arrowWidth, yPos);
         g2.setStroke(drawingStroke);
@@ -987,10 +1040,14 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         Rectangle2D bound = new Rectangle2D.Double(Math.min(gp.transformXPos(mateInterval.getStart()),
                 gp.transformXPos(mateInterval.getEnd())),
-                yPos - gp.getUnitHeight()/2.0, Math.abs(gp.transformXPos(mateInterval.getEnd())-gp.transformXPos(mateInterval.getStart())),
+                yPos - gp.getUnitHeight() / 2.0, Math.abs(gp.transformXPos(mateInterval.getEnd()) - gp.transformXPos(mateInterval.getStart())),
                 gp.getUnitHeight());
-        if (ir1 != null) artifactMap.put(ir1, bound);
-        if (ir2 != null) artifactMap.put(ir2, bound);
+        if (ir1 != null) {
+            artifactMap.put(ir1, bound);
+        }
+        if (ir2 != null) {
+            artifactMap.put(ir2, bound);
+        }
 
     }
 
@@ -1030,13 +1087,13 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
         levels.add(new ArrayList<Interval>());
-        levels.get(levels.size()-1).add(interval);
-        return levels.size()-1;
+        levels.get(levels.size() - 1).add(interval);
+        return levels.size() - 1;
     }
 
     /**
-     * Store information for drawing a read so that it can be done later.
-     * Used for piled interval mode
+     * Store information for drawing a read so that it can be done later. Used
+     * for piled interval mode
      */
     private class DrawStore {
 
@@ -1114,7 +1171,7 @@ public class BAMTrackRenderer extends TrackRenderer {
      * Draw two read-shapes: one for forward and one for reverse.
      */
     private void drawStrandLegends(Graphics2D g2, int x, int y) {
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Shape pointyBar = getPointyBar(false, x, y - 12, 36.0, 12.0);
         g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
         g2.fill(pointyBar);
@@ -1134,7 +1191,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     /**
-     * Draw the legend for bases, but also the entries for insertions and deletions.
+     * Draw the legend for bases, but also the entries for insertions and
+     * deletions.
      */
     private void drawBaseLegendExtended(Graphics2D g2, int x, int y, ColourKey... keys) {
         drawBaseLegend(g2, x, y, keys);

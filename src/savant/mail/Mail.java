@@ -17,9 +17,9 @@ import savant.util.CryptoUtils;
 
 public class Mail {
 
-    static String src = CryptoUtils.decrypt("bqgO3l4Mri63fD852DLpZ8ZMClOw+jFu");
-    static String target = CryptoUtils.decrypt("DTgwgEq+czLyMpN/RJkuabYSDQwJCH6lqincenCkeLc=");
+    static String src = CryptoUtils.decrypt("XdJquAMal3XcGsUkmGS9vY/d8CEke2yLD124VsRe4O4=");
     static String pw = CryptoUtils.decrypt("OxTfiD1tzb7BvRHGfn+MoA==");
+    static String target = CryptoUtils.decrypt("DTgwgEq+czLyMpN/RJkuabYSDQwJCH6lqincenCkeLc=");
     static String host = "smtp.gmail.com";
     static String port = "465";
     static String starttls = "true";
@@ -29,7 +29,7 @@ public class Mail {
 
     public static void main(String[] args) {
         String from = "My Name";
-        if (Mail.sendEMailToDevelopers(from, "Yo yo", ":))))", new File("C:\\test.pdf"))) {
+        if (Mail.sendEMailToDevelopers(from, "Test Send", "...", null)) {
             System.out.println("Mail sent successfully");
         } else {
             System.out.println("Uh oh...");
@@ -76,7 +76,7 @@ public class Mail {
                 mbp2.setFileName(fds.getName());
                 mp.addBodyPart(mbp2);
             }
-            
+
             // add the Multipart to the message
             msg.setContent(mp);
             // set the Date: header

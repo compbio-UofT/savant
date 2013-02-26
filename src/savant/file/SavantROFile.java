@@ -339,7 +339,7 @@ public class SavantROFile implements ROFile {
     public void setHeaderOffset(long offset) {
         this.headerOffset = offset;
     }
-    
+
     public boolean isSupportedVersion(int version) {
         return SUPPORTED_FILE_VERSIONS.contains(version);
     }

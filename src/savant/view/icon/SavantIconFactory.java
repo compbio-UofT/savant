@@ -13,11 +13,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.view.icon;
 
 import javax.swing.ImageIcon;
-
 
 /**
  * Factory class which creates icons for Savant.
@@ -43,6 +41,7 @@ public class SavantIconFactory {
     }
 
     public enum StandardIcon {
+
         ADD,
         SAVE,
         OPEN,
@@ -52,6 +51,7 @@ public class SavantIconFactory {
         RUN,
         STOP,
         REFRESH,
+        GENOME,
         UP,
         DOWN,
         UNDO,
@@ -74,7 +74,7 @@ public class SavantIconFactory {
     };
 
     public ImageIcon getIcon(StandardIcon icon) {
-        switch(icon) {
+        switch (icon) {
             case ADD:
                 return getIcon("/savant/images/icon/add.png");
             case SAVE:
@@ -87,6 +87,8 @@ public class SavantIconFactory {
                 return getIcon("/savant/images/icon/close_red.png");
             case DELETE:
                 return getIcon("/savant/images/icon/delete.png");
+            case GENOME:
+                return getIcon("/savant/images/icon/dna.png");
             case RUN:
                 return getIcon("/savant/images/icon/run.png");
             case UNDO:
@@ -135,5 +137,4 @@ public class SavantIconFactory {
                 return null;
         }
     }
-
 }

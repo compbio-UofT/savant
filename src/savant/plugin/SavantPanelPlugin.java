@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.plugin;
 
 import com.jidesoft.docking.DockingManager;
@@ -24,34 +23,33 @@ import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.tracks.Track;
 
-
 /**
- * Plugin which displays its contents in a JPanel managed by the Savant user-interface.
- * The canonical example is our own data table plugin.
+ * Plugin which displays its contents in a JPanel managed by the Savant
+ * user-interface. The canonical example is our own data table plugin.
  *
  * @author mfiume
  */
 public abstract class SavantPanelPlugin extends SavantPlugin {
 
     /**
-     * This method is called once during application life cycle to allow a third-party
-     * plugin to initialize and show itself.
+     * This method is called once during application life cycle to allow a
+     * third-party plugin to initialize and show itself.
      *
      * @param panel parent panel for auxiliary data components
      */
     public abstract void init(JPanel panel);
 
     /**
-     * Show or hide all UI elements associated with this plugin.  This includes both the
-     * frame for the plugin's GUI as well as any layer canvasses which have been created on
-     * the plugin's behalf.
+     * Show or hide all UI elements associated with this plugin. This includes
+     * both the frame for the plugin's GUI as well as any layer canvasses which
+     * have been created on the plugin's behalf.
      */
     public void setVisible(boolean value) {
         String frameKey = getTitle();
         DockingManager auxDockingManager = Savant.getInstance().getAuxDockingManager();
         MiscUtils.setFrameVisibility(frameKey, value, auxDockingManager);
 
-        for (Track t: TrackController.getInstance().getTracks()) {
+        for (Track t : TrackController.getInstance().getTracks()) {
             JPanel layerCanvas = t.getFrame().getLayerCanvas(this, false);
             if (layerCanvas != null) {
                 layerCanvas.setVisible(value);
@@ -63,6 +61,10 @@ public abstract class SavantPanelPlugin extends SavantPlugin {
      * Is the associated plugin currently visible?
      */
     public boolean isVisible() {
-        return Savant.getInstance().getAuxDockingManager().getFrame(getTitle()).isVisible();
+        try {
+            return Savant.getInstance().getAuxDockingManager().getFrame(getTitle()).isVisible();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

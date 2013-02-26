@@ -55,7 +55,7 @@ public class FastaDataSource extends DataSource<SequenceRecord> implements Seque
         fastaURI = uri;
         try {
             File faiFile = IndexCache.getIndexFile(uri, "fai", "fa");
-            index = FastaUtils.readIndex(faiFile);            
+            index = FastaUtils.readIndex(faiFile);
         } catch (FileNotFoundException x) {
             if (l != null) {
                 l.handleEvent(new TrackCreationEvent("Generating index...", -1.0));
@@ -80,14 +80,14 @@ public class FastaDataSource extends DataSource<SequenceRecord> implements Seque
             int lineNum = (r.getFrom() - 1) / entry.lineLength;
             long offset = entry.offset + lineNum * (entry.lineLength + 1) + (r.getFrom() - 1) % entry.lineLength;
             stream.seek(offset);
-            
+
             int c;
             while ((c = stream.read()) >= 0 && i < sequence.length) {
                 if (c != '\n') {
                     sequence[i++] = (byte)Character.toUpperCase(c);
                 }
             }
-            
+
             return Arrays.asList(SequenceRecord.valueOf(ref, sequence));
         } else {
             return null;

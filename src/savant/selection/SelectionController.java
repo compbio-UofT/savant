@@ -86,7 +86,7 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
             addToCurrentSelected(name, o);
         }
     }
-    
+
     public void removeSelectionWithoutEvent(String name, Record o) {
         map.get(name).remove(o);
         removeFromCurrentSelected(name, o);
@@ -125,7 +125,7 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
     private int binarySearchSelected(String name, Comparable key) {
 
         List<Record> selected = map.get(name);
-        if (selected == null) return -1;
+        if (selected == null) { return -1; }
 
         int start = 0;
         int end = selected.size();
@@ -159,17 +159,17 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
                if (pos != -1) list.add(o);
            }
        }
-       
+
        return list;
    }
 
     /**
     * This function is equivalent to getSelectedFromList(URI uri, List<Record> data)
     * but it uses range to check whether anything has changed since the last
-    * request. If nothing has changed, return the same list. 
+    * request. If nothing has changed, return the same list.
     */
     public List<Record> getSelectedFromList(String name, Range range, List<Record> data) {
-       
+
        if (range.equals(rangeMap.get(name)) && currentMap.get(name) != null) {
            return currentMap.get(name);
        }
@@ -211,14 +211,14 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
        Collections.sort(map.get(name));
        fireEvent(new SelectionChangedEvent());
    }
-   
+
    /*
-    * If any of group is not selected, select all. 
-    * Otherwise unselect all. 
+    * If any of group is not selected, select all.
+    * Otherwise unselect all.
     */
    public void toggleGroup(String name, List<Record> group) {
        ensureKey(name);
-       
+
        boolean notSelected = false;
        for (Record r : group) {
            if (binarySearchSelected(name, r) == -1) {
@@ -226,13 +226,13 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
                break;
            }
        }
-       
+
        if (notSelected) { //select all
            for(Record r : group) addSelectionWithoutEvent(name, r);
        } else {         //deselect all
            for(Record r : group) removeSelectionWithoutEvent(name, r);
        }
-       
+
        fireEvent(new SelectionChangedEvent());
    }
 }

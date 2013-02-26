@@ -43,6 +43,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import net.sf.samtools.SAMFileReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -73,13 +74,13 @@ import savant.view.variation.VariationController;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackFactory;
 
-
 /**
  * Main application Window (Frame).
  *
  * @author mfiume
  */
 public class Savant extends JFrame {
+
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
     private static boolean isDebugging = false;
@@ -92,15 +93,15 @@ public class Savant extends JFrame {
     private MemoryStatusBarItem memorystatusbar;
     private Application macOSXApplication;
     private boolean browserControlsShown = false;
-
     //web start
     static BasicService basicService = null;
     static boolean webStart = false;
     private WelcomePage startpage;
+    private final boolean isStandalone;
 
-    /** == [[ DOCKING ]] ==
-     *  Components (such as frames, the Task Pane, etc.)
-     *  can be docked to regions of the UI
+    /**
+     * == [[ DOCKING ]] == Components (such as frames, the Task Pane, etc.) can
+     * be docked to regions of the UI
      */
     private void initDocking() {
 
@@ -115,8 +116,6 @@ public class Savant extends JFrame {
         auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
-        //auxDockingManager.loadLayoutData();
-        //auxDockingManager.setAutohidable(false);
 
         JPanel trackPanel = new JPanel();
         trackPanel.setLayout(new BorderLayout());
@@ -126,10 +125,8 @@ public class Savant extends JFrame {
         trackDockingManager = new DefaultDockingManager(this, trackPanel);
         trackPanel.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         trackDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
-        //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
-        //trackDockingManager.loadLayoutData();
 
         auxDockingManager.setShowInitial(false);
         trackDockingManager.setShowInitial(false);
@@ -161,17 +158,24 @@ public class Savant extends JFrame {
         trackDockingManager.getWorkspace().add(trackBackground);
         trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
     }
-    /** Minimum and maximum dimensions of the browser form */
+    /**
+     * Minimum and maximum dimensions of the browser form
+     */
     static int minimumFormWidth = 500;
     static int minimumFormHeight = 500;
-    /** The loaded genome */
+    /**
+     * The loaded genome
+     */
     //private Genome loadedGenome;
-    /** The log */
+    /**
+     * The log
+     */
     private static JTextArea log;
-    /** Click and drag control for range selection */
+    /**
+     * Click and drag control for range selection
+     */
     private RangeSelectionPanel rangeSelector;
     private Ruler ruler;
-
     /**
      * Info
      */
@@ -187,11 +191,27 @@ public class Savant extends JFrame {
         return instance;
     }
 
-    /** Creates new form Savant */
+    public static synchronized Savant getInstance(boolean quietly, boolean pluginsEnabled) {
+        if (instance == null) {
+            instance = new Savant(quietly, pluginsEnabled);
+        }
+
+        return instance;
+    }
+
     private Savant() {
+        this(true, true);
+    }
+
+    /**
+     * Creates new form Savant
+     */
+    private Savant(boolean isStandalone, boolean pluginsEnabled) {
+
+        this.isStandalone = isStandalone;
 
         try {
-            basicService = (BasicService)ServiceManager.lookup("javax.jnlp.BasicService");
+            basicService = (BasicService) ServiceManager.lookup("javax.jnlp.BasicService");
             webStart = true;
         } catch (UnavailableServiceException e) {
             //System.err.println("Lookup failed: " + e);
@@ -200,14 +220,17 @@ public class Savant extends JFrame {
 
         instance = this;
 
+
         Splash s = new Splash(instance, false);
-        s.setVisible(true);
+        if (isStandalone()) {
+            s.setVisible(true);
+        }
 
         addComponentListener(new ComponentAdapter() {
-
             /**
-             * Resize the form to the minimum size if the
-             * user has resized it to something smaller.
+             * Resize the form to the minimum size if the user has resized it to
+             * something smaller.
+             *
              * @param e The resize event
              */
             @Override
@@ -300,27 +323,32 @@ public class Savant extends JFrame {
             logUsageStats();
         }
 
-        s.setStatus("Loading plugins");
-        PluginController pluginController = PluginController.getInstance();
-        pluginController.addListener(new Listener<PluginEvent>() {
-            @Override
-            public void handleEvent(PluginEvent event) {
-                SavantPlugin plugin = event.getPlugin();
-                if (event.getType() == PluginEvent.Type.LOADED) {
-                    if (plugin instanceof SavantPanelPlugin) {
-                        DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
-                        JPanel p = (JPanel)f.getContentPane();
-                        p.setLayout(new BorderLayout());
-                        p.add(event.getCanvas(), BorderLayout.CENTER);
-                        auxDockingManager.addFrame(f);
-                        addPluginToMenu(new PluginMenuItem((SavantPanelPlugin)plugin));
-                    } else if (event.getPlugin() instanceof SavantDataSourcePlugin) {
-                        loadFromDataSourcePluginItem.setText("Load Track from Other Datasource...");
+        if (pluginsEnabled) {
+
+            s.setStatus("Loading plugins");
+
+
+            PluginController pluginController = PluginController.getInstance();
+            pluginController.addListener(new Listener<PluginEvent>() {
+                @Override
+                public void handleEvent(PluginEvent event) {
+                    SavantPlugin plugin = event.getPlugin();
+                    if (event.getType() == PluginEvent.Type.LOADED) {
+                        if (plugin instanceof SavantPanelPlugin) {
+                            DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
+                            JPanel p = (JPanel) f.getContentPane();
+                            p.setLayout(new BorderLayout());
+                            p.add(event.getCanvas(), BorderLayout.CENTER);
+                            auxDockingManager.addFrame(f);
+                            addPluginToMenu(new PluginMenuItem((SavantPanelPlugin) plugin));
+                        } else if (event.getPlugin() instanceof SavantDataSourcePlugin) {
+                            loadFromDataSourcePluginItem.setText("Load Track from Other Datasource...");
+                        }
                     }
                 }
-            }
-        });
-        pluginController.loadPlugins(DirectorySettings.getPluginsDirectory());
+            });
+            pluginController.loadPlugins(DirectorySettings.getPluginsDirectory());
+        }
 
         s.setStatus("Organizing layout");
 
@@ -332,22 +360,25 @@ public class Savant extends JFrame {
 
         s.setVisible(false);
 
-        makeGUIVisible();
+        if (isStandalone()) {
+            makeGUIVisible();
+        }
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    public boolean isStandalone() {
+        return isStandalone;
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         view_buttongroup = new javax.swing.ButtonGroup();
-        panel_top = new javax.swing.JPanel();
-        panelExtendedMiddle = new javax.swing.JPanel();
-        panel_main = new javax.swing.JPanel();
         toolbar_bottom = new javax.swing.JToolBar();
         label_mouseposition_title = new javax.swing.JLabel();
         mousePositionLabel = new javax.swing.JLabel();
@@ -355,6 +386,10 @@ public class Savant extends JFrame {
         label_status = new javax.swing.JLabel();
         s_e_sep = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
+        panel_browser = new javax.swing.JPanel();
+        panel_top = new javax.swing.JPanel();
+        panelExtendedMiddle = new javax.swing.JPanel();
+        panel_main = new javax.swing.JPanel();
         pluginToolbar = new javax.swing.JPanel();
         menuBar_top = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -417,44 +452,6 @@ public class Savant extends JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 204));
 
-        panel_top.setMaximumSize(new java.awt.Dimension(1000, 30));
-        panel_top.setMinimumSize(new java.awt.Dimension(0, 0));
-        panel_top.setPreferredSize(new java.awt.Dimension(0, 30));
-        panel_top.setLayout(new java.awt.BorderLayout());
-
-        panelExtendedMiddle.setBackground(new java.awt.Color(51, 51, 51));
-        panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(0, 0));
-        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 25));
-
-        javax.swing.GroupLayout panelExtendedMiddleLayout = new javax.swing.GroupLayout(panelExtendedMiddle);
-        panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
-        panelExtendedMiddleLayout.setHorizontalGroup(
-            panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1027, Short.MAX_VALUE)
-        );
-        panelExtendedMiddleLayout.setVerticalGroup(
-            panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        panel_top.add(panelExtendedMiddle, java.awt.BorderLayout.CENTER);
-
-        panel_main.setBackground(new java.awt.Color(153, 153, 153));
-        panel_main.setMaximumSize(new java.awt.Dimension(99999, 99999));
-        panel_main.setMinimumSize(new java.awt.Dimension(1, 1));
-        panel_main.setPreferredSize(new java.awt.Dimension(99999, 99999));
-
-        javax.swing.GroupLayout panel_mainLayout = new javax.swing.GroupLayout(panel_main);
-        panel_main.setLayout(panel_mainLayout);
-        panel_mainLayout.setHorizontalGroup(
-            panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1027, Short.MAX_VALUE)
-        );
-        panel_mainLayout.setVerticalGroup(
-            panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 526, Short.MAX_VALUE)
-        );
-
         toolbar_bottom.setFloatable(false);
         toolbar_bottom.setAlignmentX(1.0F);
 
@@ -474,9 +471,66 @@ public class Savant extends JFrame {
         label_memory.setText(" Memory: ");
         toolbar_bottom.add(label_memory);
 
+        panel_top.setMaximumSize(new java.awt.Dimension(1000, 30));
+        panel_top.setMinimumSize(new java.awt.Dimension(0, 0));
+        panel_top.setPreferredSize(new java.awt.Dimension(0, 30));
+        panel_top.setLayout(new java.awt.BorderLayout());
+
+        panelExtendedMiddle.setBackground(new java.awt.Color(51, 51, 51));
+        panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 25));
+
+        javax.swing.GroupLayout panelExtendedMiddleLayout = new javax.swing.GroupLayout(panelExtendedMiddle);
+        panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
+        panelExtendedMiddleLayout.setHorizontalGroup(
+            panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1045, Short.MAX_VALUE)
+        );
+        panelExtendedMiddleLayout.setVerticalGroup(
+            panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
+        );
+
+        panel_top.add(panelExtendedMiddle, java.awt.BorderLayout.CENTER);
+
+        panel_main.setBackground(new java.awt.Color(153, 153, 153));
+        panel_main.setMaximumSize(new java.awt.Dimension(99999, 99999));
+        panel_main.setMinimumSize(new java.awt.Dimension(1, 1));
+        panel_main.setPreferredSize(new java.awt.Dimension(99999, 99999));
+
+        javax.swing.GroupLayout panel_mainLayout = new javax.swing.GroupLayout(panel_main);
+        panel_main.setLayout(panel_mainLayout);
+        panel_mainLayout.setHorizontalGroup(
+            panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panel_mainLayout.setVerticalGroup(
+            panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 532, Short.MAX_VALUE)
+        );
+
         pluginToolbar.setVisible(false);
         pluginToolbar.setPreferredSize(new java.awt.Dimension(856, 24));
         pluginToolbar.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
+
+        javax.swing.GroupLayout panel_browserLayout = new javax.swing.GroupLayout(panel_browser);
+        panel_browser.setLayout(panel_browserLayout);
+        panel_browserLayout.setHorizontalGroup(
+            panel_browserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1045, Short.MAX_VALUE)
+            .addComponent(pluginToolbar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 1045, Short.MAX_VALUE)
+        );
+        panel_browserLayout.setVerticalGroup(
+            panel_browserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_browserLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pluginToolbar, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE))
+        );
 
         fileMenu.setText("File");
 
@@ -865,22 +919,14 @@ public class Savant extends JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
-                .addContainerGap())
-            .addComponent(pluginToolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
+            .addComponent(panel_browser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(pluginToolbar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
-                .addGap(0, 0, 0)
+                .addComponent(panel_browser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -889,18 +935,22 @@ public class Savant extends JFrame {
 
     /**
      * Shift the currentViewableRange all the way to the right
+     *
      * @param evt The mouse event which triggers the function
      */
     /**
      * Shift the currentViewableRange to the right
+     *
      * @param evt The mouse event which triggers the function
      */
     /**
      * Shift the currentViewableRange to the left
+     *
      * @param evt The mouse event which triggers the function
      */
     /**
      * Shift the currentViewableRange all the way to the left
+     *
      * @param evt The mouse event which triggers the function
      */
     private void navigationItemMousePressed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_navigationItemMousePressed
@@ -954,33 +1004,15 @@ public class Savant extends JFrame {
     private void loadGenomeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGenomeItemActionPerformed
         showOpenGenomeDialog();
     }//GEN-LAST:event_loadGenomeItemActionPerformed
-
     private File lastTrackDirectory = null;
 
     private void loadFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileItemActionPerformed
-        if (!GenomeController.getInstance().isGenomeLoaded()) {
-            JOptionPane.showMessageDialog(this, "Load a genome first.");
-            return;
-        }
-
-        File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
-        for (File f : selectedFiles) {
-            // This creates the tracks asynchronously, which handles all exceptions internally.
-            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), null, null);
-        }
-        if (selectedFiles.length > 0) {
-            this.setLastTrackDirectory(selectedFiles[0].getParentFile());
-        }
+        openTrackFromFile();
     }//GEN-LAST:event_loadFromFileItemActionPerformed
 
     private void loadFromURLItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromURLItemActionPerformed
-        URL url = OpenURLDialog.getURL(this);
-        if (url != null) {
-            try {
-                FrameController.getInstance().addTrackFromURI(url.toURI(), null, null);
-            } catch (URISyntaxException ignored) {
-            }
-        }
+        openTrackFromURL();
+
     }//GEN-LAST:event_loadFromURLItemActionPerformed
 
     private void websiteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_websiteItemActionPerformed
@@ -1007,22 +1039,38 @@ public class Savant extends JFrame {
 
     private void windowMenuStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_windowMenuStateChanged
         /*
-        if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible() != this.menu_info.getState()) {
-        this.menu_info.setState(!this.menu_info.getState());
-        }
-        if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible() != this.menu_bookmarks.getState()) {
-        this.menu_bookmarks.setState(!this.menu_bookmarks.getState());
-        }
+         if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible() != this.menu_info.getState()) {
+         this.menu_info.setState(!this.menu_info.getState());
+         }
+         if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible() != this.menu_bookmarks.getState()) {
+         this.menu_bookmarks.setState(!this.menu_bookmarks.getState());
+         }
          */
     }//GEN-LAST:event_windowMenuStateChanged
+    String bookmarkframeKey = "Bookmarks";
+    String variationframeKey = "Variation";
 
     private void bookmarksItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookmarksItemActionPerformed
-
-        String frameKey = "Bookmarks";
-        boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
-        MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
-        bookmarksItem.setSelected(isVisible);
+        setBookmarksVisibile(auxDockingManager.getFrame(bookmarkframeKey).isHidden());
     }//GEN-LAST:event_bookmarksItemActionPerformed
+
+    public void setBookmarksVisibile(boolean isVisible) {
+        MiscUtils.setFrameVisibility(bookmarkframeKey, isVisible, auxDockingManager);
+        bookmarksItem.setSelected(isVisible);
+    }
+
+    private void initVariationPanel() {
+
+        DockableFrame df = DockableFrameFactory.createFrame("Variation", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
+        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
+        auxDockingManager.addFrame(df);
+        setVariantsVisibile(false);
+        df.getContentPane().add(VariationController.getInstance().getModule());
+    }
+
+    public void setVariantsVisibile(boolean isVisible) {
+        MiscUtils.setFrameVisibility(variationframeKey, isVisible, auxDockingManager);
+    }
 
     private void tutorialsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialsItemActionPerformed
         try {
@@ -1117,14 +1165,7 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_crosshairItemActionPerformed
 
     private void loadFromDataSourcePluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginItemActionPerformed
-        try {
-            DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
-            if (s != null) {
-                FrameController.getInstance().createFrame(new Track[] { TrackFactory.createTrack(s) });
-            }
-        } catch (Throwable x) {
-            DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
-        }
+        openTrackFromRepository();
     }//GEN-LAST:event_loadFromDataSourcePluginItemActionPerformed
 
     private void featureRequestItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureRequestItemActionPerformed
@@ -1137,6 +1178,7 @@ public class Savant extends JFrame {
 
     /**
      * Starts an instance of the Savant Browser
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -1146,9 +1188,9 @@ public class Savant extends JFrame {
             boolean loadPlugin = false;
             String loadProjectUrl = null;
             List<String> loadPluginUrls = new ArrayList<String>();
-            for(int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++) {
                 String s = args[i];
-                if(s.startsWith("--")) { //build
+                if (s.startsWith("--")) { //build
                     loadProject = false;
                     loadPlugin = false;
                     BrowserSettings.BUILD = s.replaceAll("-", "");
@@ -1156,17 +1198,17 @@ public class Savant extends JFrame {
                         turnExperimentalFeaturesOff = false;
                     }
                 } else if (s.startsWith("-")) {
-                    if(s.equals("-project")) {
+                    if (s.equals("-project")) {
                         loadProject = true;
                         loadPlugin = false;
                     } else if (s.equals("-plugins")) {
                         loadPlugin = true;
                         loadProject = false;
                     }
-                } else if (loadProject){
+                } else if (loadProject) {
                     loadProjectUrl = s;
                     loadProject = false;
-                } else if (loadPlugin){
+                } else if (loadPlugin) {
                     loadPluginUrls.add(s);
                 } else {
                     //bad argument, skip
@@ -1185,13 +1227,15 @@ public class Savant extends JFrame {
             com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
             UIManager.put("JideSplitPaneDivider.border", 5);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
-            if(MiscUtils.WINDOWS){
+
+            SAMFileReader.setDefaultValidationStringency(SAMFileReader.ValidationStringency.SILENT);
+
+            if (MiscUtils.WINDOWS) {
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
             }
 
             // Load project immediately if argument exists.
-            if (Savant.getInstance().isWebStart() && loadProjectUrl != null){
+            if (Savant.getInstance().isWebStart() && loadProjectUrl != null) {
                 ProjectController.getInstance().loadProjectFromURL(loadProjectUrl);
             }
         } catch (Exception x) {
@@ -1233,15 +1277,14 @@ public class Savant extends JFrame {
                     + "&" + post("os.name", System.getProperty("os.name"))
                     + "&" + post("os.arch", System.getProperty("os.arch"))
                     + "&" + post("os.version", System.getProperty("os.version"))
-                    + "&" + post("user.region", System.getProperty("user.region")
-                    );
+                    + "&" + post("user.region", System.getProperty("user.region"));
 
             printout.writeBytes(content);
             printout.flush();
             printout.close();
             urlConn.getInputStream();
         } catch (Exception ex) {
-           //LOG.error("Error logging usage stats.", ex);
+            //LOG.error("Error logging usage stats.", ex);
         }
     }
 
@@ -1307,6 +1350,7 @@ public class Savant extends JFrame {
     private javax.swing.JMenuItem panLeftItem;
     private javax.swing.JMenuItem panRightItem;
     private javax.swing.JPanel panelExtendedMiddle;
+    private javax.swing.JPanel panel_browser;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_top;
     private javax.swing.JPanel pluginToolbar;
@@ -1340,19 +1384,18 @@ public class Savant extends JFrame {
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Customize the UI.  This includes doing any platform-specific customization.
+     * Customize the UI. This includes doing any platform-specific
+     * customization.
      */
     private void customizeUI() {
         if (MiscUtils.MAC) {
             try {
                 macOSXApplication = Application.getApplication();
                 macOSXApplication.setAboutHandler(new AboutHandler() {
-
                     @Override
                     public void handleAbout(AppEvent.AboutEvent evt) {
                         final Splash dlg = new Splash(instance, true);
                         dlg.addMouseListener(new MouseAdapter() {
-
                             @Override
                             public void mouseClicked(MouseEvent e) {
                                 dlg.setVisible(false);
@@ -1362,14 +1405,12 @@ public class Savant extends JFrame {
                     }
                 });
                 macOSXApplication.setPreferencesHandler(new PreferencesHandler() {
-
                     @Override
                     public void handlePreferences(AppEvent.PreferencesEvent evt) {
                         preferencesItemActionPerformed(null);
                     }
                 });
                 macOSXApplication.setQuitHandler(new QuitHandler() {
-
                     @Override
                     public void handleQuitRequestWith(AppEvent.QuitEvent evt, QuitResponse resp) {
                         exitItemActionPerformed(null);
@@ -1388,7 +1429,6 @@ public class Savant extends JFrame {
             }
         }
         LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
-
             @Override
             public void customize(UIDefaults defaults) {
                 ThemePainter painter = (ThemePainter) UIDefaultsLookup.get("Theme.painter");
@@ -1479,15 +1519,6 @@ public class Savant extends JFrame {
         });
     }
 
-    private void initVariationPanel() {
-
-        DockableFrame df = DockableFrameFactory.createFrame("Variation", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
-        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
-        auxDockingManager.addFrame(df);
-        MiscUtils.setFrameVisibility("Variation", false, auxDockingManager);
-        df.getContentPane().add(VariationController.getInstance().getModule());
-    }
-
     private void askToDispose() {
         try {
             if (ProjectController.getInstance().promptToSaveChanges(true)) {
@@ -1507,7 +1538,6 @@ public class Savant extends JFrame {
 
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
@@ -1567,6 +1597,10 @@ public class Savant extends JFrame {
 
     }
 
+    public JComponent getBrowserPanel() {
+        return this.panel_browser;
+    }
+
     private void initBrowseMenu() {
         navigationBar = new NavigationBar();
         panelExtendedMiddle.setLayout(new BorderLayout());
@@ -1579,14 +1613,18 @@ public class Savant extends JFrame {
      * Prompt the user to open a genome file.
      */
     public void showOpenGenomeDialog() {
-        LoadGenomeDialog d = new LoadGenomeDialog(this,true);
+        LoadGenomeDialog d = new LoadGenomeDialog(this, true);
         d.setFromFileDirectory(lastTrackDirectory);
         d.setVisible(true);
     }
 
+    public void setTrackBackground(Color c) {
+        trackBackground.setBackground(c);
+    }
+
     /**
-     * Move our start page out of the way and open up our rulers and navigation widgets.
-     * Called by FrameController when the first Frame is opened.
+     * Move our start page out of the way and open up our rulers and navigation
+     * widgets. Called by FrameController when the first Frame is opened.
      */
     public void showBrowserControls() {
         if (browserControlsShown) {
@@ -1666,7 +1704,7 @@ public class Savant extends JFrame {
             String s = x == -1 ? "" : "X: " + MiscUtils.numToString(x);
             if (!Double.isNaN(y)) {
                 // If the value is an exact integer (e.g. for interval tracks) display it with no decimal places.
-                s += yIntegral ? String.format(" Y: %d", (int)y) : String.format(" Y: %.3f", y);
+                s += yIntegral ? String.format(" Y: %d", (int) y) : String.format(" Y: %.3f", y);
             }
             mousePositionLabel.setText(s);
         }
@@ -1703,32 +1741,31 @@ public class Savant extends JFrame {
 
     public static void installMissingPlugins(List<String> pluginUrls) {
         String localFile = null;
-        for (String stringUrl: pluginUrls) {
+        for (String stringUrl : pluginUrls) {
 
-            try{
-                URL url  = new URL(stringUrl);
+            try {
+                URL url = new URL(stringUrl);
                 InputStream is = url.openStream();
-                FileOutputStream fos=null;
+                FileOutputStream fos = null;
 
-                StringTokenizer st=new StringTokenizer(url.getFile(), "/");
+                StringTokenizer st = new StringTokenizer(url.getFile(), "/");
                 while (st.hasMoreTokens()) {
-                    localFile=st.nextToken();
+                    localFile = st.nextToken();
                 }
 
                 localFile = new File(DirectorySettings.getPluginsDirectory(), localFile).getAbsolutePath();
 
                 fos = new FileOutputStream(localFile);
 
-                int oneChar, count=0;
-                while ((oneChar=is.read()) != -1)
-                {
+                int oneChar, count = 0;
+                while ((oneChar = is.read()) != -1) {
                     fos.write(oneChar);
                     count++;
                 }
                 is.close();
                 fos.close();
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error(e);
             }
         }
@@ -1742,16 +1779,16 @@ public class Savant extends JFrame {
 
     private void initHiddenShortcuts() {
         JMenuBar hiddenBar = new JMenuBar();
-        hiddenBar.setSize(new Dimension(0,0));
-        hiddenBar.setMaximumSize(new Dimension(0,0));
-        hiddenBar.setPreferredSize(new Dimension(0,0));
+        hiddenBar.setSize(new Dimension(0, 0));
+        hiddenBar.setMaximumSize(new Dimension(0, 0));
+        hiddenBar.setPreferredSize(new Dimension(0, 0));
 
         JMenuItem hiddenBookmarkPrev = new JMenuItem("");
         hiddenBookmarkPrev.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_9, MiscUtils.MENU_MASK));
         hiddenBookmarkPrev.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if(favoriteSheet != null){
+                if (favoriteSheet != null) {
                     favoriteSheet.goToPreviousBookmark();
                 }
             }
@@ -1762,7 +1799,7 @@ public class Savant extends JFrame {
         hiddenBookmarkNext.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if(favoriteSheet != null){
+                if (favoriteSheet != null) {
                     favoriteSheet.goToNextBookmark();
                 }
             }
@@ -1771,5 +1808,47 @@ public class Savant extends JFrame {
         hiddenBar.add(hiddenBookmarkPrev);
         hiddenBar.add(hiddenBookmarkNext);
         this.add(hiddenBar);
+    }
+
+    public void openTrack() {
+        LoadTrackDialog ltd = new LoadTrackDialog(Savant.getInstance(),true);
+        ltd.setVisible(true);
+    }
+
+    public void openTrackFromURL() {
+        URL url = OpenURLDialog.getURL(this);
+        if (url != null) {
+            try {
+                FrameController.getInstance().addTrackFromURI(url.toURI(), null, null);
+            } catch (URISyntaxException ignored) {
+            }
+        }
+    }
+
+    public void openTrackFromFile() {
+        if (!GenomeController.getInstance().isGenomeLoaded()) {
+            JOptionPane.showMessageDialog(this, "Load a genome first.");
+            return;
+        }
+
+        File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
+        for (File f : selectedFiles) {
+            // This creates the tracks asynchronously, which handles all exceptions internally.
+            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), null, null);
+        }
+        if (selectedFiles.length > 0) {
+            this.setLastTrackDirectory(selectedFiles[0].getParentFile());
+        }
+    }
+
+    public void openTrackFromRepository() {
+        try {
+            DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
+            if (s != null) {
+                FrameController.getInstance().createFrame(new Track[]{TrackFactory.createTrack(s)});
+            }
+        } catch (Throwable x) {
+            DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
+        }
     }
 }
