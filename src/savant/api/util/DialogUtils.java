@@ -35,7 +35,8 @@ import javax.swing.filechooser.FileFilter;
 import com.jidesoft.dialog.JideOptionPane;
 
 import savant.util.MiscUtils;
-import savant.view.dialog.BugReportDialog;
+import savant.util.error.report.BugReportDialog;
+import savant.view.swing.Savant;
 
 /**
  * Utility methods to allow plugins to make Savant display a dialog.  Among other
@@ -108,7 +109,7 @@ public class DialogUtils {
 
     /**
      * Display a dialog that gets an input string from the user.
-     * 
+     *
      * @param title title of the dialog window
      * @param message prompt message that appears in the dialog
      * @param defaultInput default string which appears in the text-field
@@ -181,7 +182,7 @@ public class DialogUtils {
                     issue += MiscUtils.getStackTrace(t);
 
                     dialog.dispose();
-                    (new BugReportDialog(issue, null)).setVisible(true);
+                    (new BugReportDialog(Savant.getInstance(),issue)).setVisible(true);
                 }
 
                 });

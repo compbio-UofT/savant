@@ -41,7 +41,8 @@ import savant.util.Controller;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.SavantFileUtils;
-import savant.view.dialog.BugReportDialog;
+import savant.util.error.report.BugReportDialog;
+import savant.view.swing.Savant;
 
 
 public abstract class SavantFileFormatter extends Controller<FormatEvent> {
@@ -220,21 +221,16 @@ public abstract class SavantFileFormatter extends Controller<FormatEvent> {
 
                 @Override
                 public void actionPerformed(ActionEvent e2) {
-                    String issue = "Hey Savant Developers,\n\n";
-                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
+                    String issue = "I am having trouble formatting my file for use with Savant.\nI have provided additional diagnostic information below.\n\n";
 
-                    issue += "=== TO BE COMPLETED BY USER ===\n";
-                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
-                    issue += "- TYPE: [e.g. BED]\n";
-                    issue += "- CONTENTS: [e.g. human genes]\n";
-                    issue += "- PATH: " + inFile + "\n";
-                    issue += "- ADDITIONAL COMMENTS:\n\n";
-
-                    issue += "=== ERROR DETAILS ===\n";
-                    issue += MiscUtils.getStackTrace(x);
+                    issue += "SOURCE OF FILE: [e.g. UCSC]\n\n";
+                    issue += "TYPE: [e.g. BED]\n\n";
+                    issue += "CONTENTS: [e.g. human genes]\n\n";
+                    issue += "PATH: " + inFile + "\n\n";
+                    issue += "ADDITIONAL COMMENTS:\n\n";
 
                     dialog.dispose();
-                    new BugReportDialog(issue, inFile.getAbsolutePath()).setVisible(true);
+                    new BugReportDialog(Savant.getInstance(), issue).setVisible(true);
                 }
 
             });

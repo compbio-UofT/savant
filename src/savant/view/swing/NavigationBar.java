@@ -92,6 +92,7 @@ public class NavigationBar extends JToolBar {
         JButton loadGenomeButton = (JButton) add(new JButton(""));
         loadGenomeButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.GENOME));
         loadGenomeButton.setToolTipText("Load or change genome");
+        loadGenomeButton.setFocusable(false);
         loadGenomeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,6 +106,7 @@ public class NavigationBar extends JToolBar {
         loadGenomeButton.setMaximumSize(ICON_SIZE);
 
         JButton loadTrackButton = (JButton) add(new JButton(""));
+        loadTrackButton.setFocusable(false);
         loadTrackButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
         loadTrackButton.setToolTipText("Load a track");
         loadTrackButton.addActionListener(new ActionListener() {
@@ -119,11 +121,14 @@ public class NavigationBar extends JToolBar {
         loadTrackButton.setMinimumSize(ICON_SIZE);
         loadTrackButton.setMaximumSize(ICON_SIZE);
 
-        if (Savant.getInstance().isStandalone()) {
+        if (!Savant.getInstance().isStandalone()) {
             add(loadGenomeButton);
             add(loadTrackButton);
             add(getRigidPadding());
             add(getRigidPadding());
+        } else {
+            loadGenomeButton.setVisible(false);
+            loadTrackButton.setVisible(false);
         }
 
         JLabel rangeText = new JLabel("Location: ");

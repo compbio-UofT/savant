@@ -66,6 +66,7 @@ import savant.settings.*;
 import savant.util.ColourKey;
 import savant.util.MiscUtils;
 import savant.util.Version;
+import savant.util.error.report.BugReportDialog;
 import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
@@ -191,9 +192,9 @@ public class Savant extends JFrame {
         return instance;
     }
 
-    public static synchronized Savant getInstance(boolean quietly, boolean pluginsEnabled) {
+    public static synchronized Savant getInstance(boolean isStandalone, boolean pluginsEnabled) {
         if (instance == null) {
-            instance = new Savant(quietly, pluginsEnabled);
+            instance = new Savant(isStandalone, pluginsEnabled);
         }
 
         return instance;
@@ -219,7 +220,6 @@ public class Savant extends JFrame {
         }
 
         instance = this;
-
 
         Splash s = new Splash(instance, false);
         if (isStandalone()) {
@@ -365,7 +365,7 @@ public class Savant extends JFrame {
         }
     }
 
-    public boolean isStandalone() {
+    public final boolean isStandalone() {
         return isStandalone;
     }
 
@@ -1173,7 +1173,7 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_featureRequestItemActionPerformed
 
     private void bugReportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportItemActionPerformed
-        new BugReportDialog("Bug Report", null).setVisible(true);
+        new BugReportDialog(this).setVisible(true);
     }//GEN-LAST:event_bugReportItemActionPerformed
 
     /**
@@ -1620,6 +1620,10 @@ public class Savant extends JFrame {
 
     public void setTrackBackground(Color c) {
         trackBackground.setBackground(c);
+    }
+
+    public void setStartPageVisible(boolean b) {
+        startpage.setVisible(b);
     }
 
     /**

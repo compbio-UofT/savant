@@ -302,6 +302,7 @@ public class MiscUtils {
     }
 
     public static String getStackTrace(Throwable t) {
+        if (t == null) { return ""; }
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
         t.printStackTrace(printWriter);
@@ -417,7 +418,7 @@ public class MiscUtils {
 
     /**
      * If rec1 is likely a mate of rec2, return true.
-     * 
+     *
      * @param rec1 first record
      * @param rec2 second record
      * @param extraCheck if true, equality check is insufficient to avoid self-mating; check positions as well
@@ -447,7 +448,7 @@ public class MiscUtils {
         }
 
         //list of possible suffices...may grow over time.
-        String[][] suffices = {{"\\1","\\2"},{"_F","_R"},{"_F3","_R3"}};     
+        String[][] suffices = {{"\\1","\\2"},{"_F","_R"},{"_F3","_R3"}};
 
         //check suffices
         for(String[] pair : suffices){
