@@ -34,7 +34,7 @@ public class BugReport {
                     + "&institution=" + institute
                     + "&problem=" + problem
                     + "&exception=" + getStackTrace(t)
-                    + "&clientinfo=" + kvp("program-version", version) + ", " + kvp("java-version", getJDKVersion()) + ", " + kvp("os", getOS()) + ", " + kvp("time", (new Date()).toLocaleString());
+                    + "&clientinfo=" + kvp("program-version", version) + ", " + kvp("java-version", getJDKVersion()) + ", " + kvp("os", getOS()) + ", " + kvp("time", (new Date()).toString());
 
             postRequest(new URL(reportURL), params);
 

@@ -121,7 +121,7 @@ public final class FrameCommandBar extends JMenuBar {
      */
     private JMenu createToolsMenu() {
         JMenu menu = new JMenu("Tools");
-        JMenuItem item = new JCheckBoxMenuItem("Lock Track");
+        JMenuItem item = new JCheckBoxMenuItem("Lock X Axis");
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -129,6 +129,18 @@ public final class FrameCommandBar extends JMenuBar {
             }
         });
         menu.add(item);
+
+        // TODO: experimental feature which doesn't quite work yet
+        final JMenuItem itemy = new JCheckBoxMenuItem("Lock Y Axis");
+        itemy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Trying to locking Y max: " + !itemy.isSelected());
+                graphPane.setYMaxLocked(itemy.isSelected());
+            }
+        });
+        //menu.add(itemy);
+
 
         item = new JMenuItem("Copy URL to Clipboard");
         item.addActionListener(new ActionListener() {

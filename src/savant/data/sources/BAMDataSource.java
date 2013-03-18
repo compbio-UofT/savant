@@ -13,13 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.data.sources;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,16 +41,15 @@ import savant.util.IndexCache;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
-
 /**
- * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
+ * Class to represent a track of BAM intervals. Uses SAMTools to read data
+ * within a range.
  *
  * @author vwilliams
  */
 public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMDataSourceAdapter {
 
     private static final Log LOG = LogFactory.getLog(BAMDataSource.class);
-
     private SAMFileReader samFileReader;
     private SAMFileHeader samFileHeader;
     private URI uri;
@@ -84,13 +83,17 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
 
             recordIterator = samFileReader.query(ref, range.getFrom(), range.getTo(), false);
 
+
             SAMRecord samRecord;
             BAMIntervalRecord record;
             while (recordIterator.hasNext()) {
+
                 samRecord = recordIterator.next();
-                
+
                 // Don't keep unmapped reads
-                if (samRecord.getReadUnmappedFlag()) continue;
+                if (samRecord.getReadUnmappedFlag()) {
+                    continue;
+                }
 
                 record = BAMIntervalRecord.valueOf(samRecord);
                 if (filt == null || filt.accept(record)) {
@@ -127,7 +130,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
         int closestSequenceIndex = Integer.MAX_VALUE;
         int i = 0;
         for (SAMSequenceRecord sequenceRecord : sequenceDictionary.getSequences()) {
-            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - (int)referenceSequenceLength);
+            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - (int) referenceSequenceLength);
             if (lengthDelta < leastDifferenceInSequenceLength) {
                 leastDifferenceInSequenceLength = lengthDelta;
                 closestSequenceIndex = i;
@@ -150,7 +153,6 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
             samFileReader.close();
         }
     }
-
     Set<String> referenceNames;
 
     @Override
@@ -181,11 +183,12 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
 
     @Override
     public final String[] getColumnNames() {
-        return new String[] { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
+        return new String[]{"Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size"};
     }
 
     /**
-     * For use by the Data Table plugin, which needs to know the header for export purposes.
+     * For use by the Data Table plugin, which needs to know the header for
+     * export purposes.
      */
     @Override
     public SAMFileHeader getHeader() {

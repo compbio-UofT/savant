@@ -37,6 +37,7 @@ import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.exception.RenderingException;
 import savant.selection.SelectionController;
+import savant.util.AxisRange;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
@@ -57,10 +58,10 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     protected static final Font LEGEND_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
     protected static final Stroke ONE_STROKE = new BasicStroke(1.0f);
     protected static final Stroke TWO_STROKE = new BasicStroke(2.0f);
-    
+
     /** Size of colour swatch used in legend for bases. */
     protected static final Dimension SWATCH_SIZE = new Dimension(6, 13);
-    
+
     /** Notional line-height in legends. */
     protected static final int LEGEND_LINE_HEIGHT = 18;
 
@@ -77,7 +78,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     /**
      * Set the track's name.  This is used only to provide a key when dealing with the SelectionController.
      *
-     * @param name 
+     * @param name
      */
     public void setTrackName(String name) {
         trackName = name;
@@ -114,6 +115,9 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     }
 
     public void addInstruction(DrawingInstruction key, Object value) {
+        if (key == DrawingInstruction.AXIS_RANGE) {
+            //System.out.println("Setting y axis range to " + ((AxisRange)value).getYRange());
+        }
         instructions.put(key, value);
     }
 
@@ -187,12 +191,12 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     public Map<Record, Shape> searchPoint(Point p) {
 
         if (!hasMappedValues() || data == null) return null;
-        
+
         DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        
+
         Map<Record, Shape> map = new HashMap<Record, Shape>();
         boolean allowFuzzySNPs = true;
-               
+
         Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
         for (Record rec: recordToShapeMap.keySet()) {
             Shape s = recordToShapeMap.get(rec);
@@ -226,7 +230,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
             } else {
                 LOG.info("Why is shape null for " + rec);
             }
-            
+
             //check other artifacts
             Shape artifact = artifactMap.get(rec);
             if (artifact != null && artifact.contains(p.x, p.y)) {
@@ -296,7 +300,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     public static int getConstrainedAlpha(int alpha) {
         return alpha < MIN_TRANSPARENCY ? MIN_TRANSPARENCY : (alpha > MAX_TRANSPARENCY ? MAX_TRANSPARENCY : alpha);
     }
-    
+
     public void toggleGroup(ArrayList<Record> recs) {
         if (selectionAllowed(false)) {
             SelectionController.getInstance().toggleGroup(trackName, recs);
@@ -341,8 +345,8 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
 
         return rhombus;
     }
-    
-    
+
+
     /**
      * Return the dimensions of the legend which this renderer currently requires.
      * If the derived renderer doesn't have a legend, it should return null.
@@ -350,7 +354,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     public Dimension getLegendSize(DrawingMode mode) {
         return null;
     }
-    
+
     /**
      * Draw the actual legend.
      */
@@ -378,7 +382,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
             y += LEGEND_LINE_HEIGHT;
         }
     }
-    
+
     /**
      * Draw a legend which consists of the given bases arranged horizontally
      */

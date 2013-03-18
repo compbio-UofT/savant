@@ -77,7 +77,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     private JPanel sidePanel;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
-    
+
     private String progressMessage = null;
     private double progressFraction = -1.0;
 
@@ -102,7 +102,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
                 }
                 return new Dimension(0, 0);
             }
-            
+
             @Override
             public Dimension getMinimumSize() {
                 return getPreferredSize();
@@ -188,7 +188,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
                         graphPane.setPreferredSize(goodSize);
                         graphPane.setSize(goodSize);
                     }
-                    
+
                     setLegendVisible(true);
                 }
             }
@@ -203,7 +203,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         c.gridwidth = 2;
         c.gridheight = 1;
         c.insets = new Insets(0, 0, 0, 0);
-        
+
         frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
         frameLandscape.add(scrollPane, c);
 
@@ -327,7 +327,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         sidePanel.setVisible(value);
         setLegendVisible(value);
     }
-        
+
     /**
      * Make the legend and ymax visible, but only if we have enough space for it.
      */
@@ -345,7 +345,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         } else {
             setYMaxVisible(false);
             legend.setVisible(false);
-            
+
         }
         legend.invalidate();
     }
@@ -401,7 +401,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
     /**
      * Tells the frame that the draw mode for this track has changed.  Gives the frame
-     * a chance to rebuild its user interface and request a repaint. 
+     * a chance to rebuild its user interface and request a repaint.
      * @param t the track whose mode has changed
      */
     @Override
@@ -518,7 +518,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         graphPane.setUnitHeight(h);
         graphPane.setScaledToFit(false);
     }
-    
+
     /**
      * GraphPane wants to know what progress message to display.
      */

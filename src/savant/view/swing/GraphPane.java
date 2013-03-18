@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.view.swing;
 
 import java.awt.*;
@@ -23,6 +22,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
@@ -54,7 +54,6 @@ import savant.view.tracks.ContinuousTrackRenderer;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackCancellationListener;
 
-
 /**
  *
  * @author mfiume
@@ -62,35 +61,34 @@ import savant.view.tracks.TrackCancellationListener;
 public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelListener, MouseListener, MouseMotionListener {
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
-
     private Track[] tracks;
     private Frame parentFrame;
-
     private int mouseX = 0;
     private int mouseY = 0;
-
-    /** min / max axis values */
+    /**
+     * min / max axis values
+     */
     private int xMin;
     private int xMax;
     protected int yMin;
     protected int yMax;
     private double unitWidth = Double.NaN;
     protected double unitHeight;
-
     private AxisType yAxisType = AxisType.NONE;
     private AxisType xAxisType = AxisType.NONE;
     private boolean mouseInside = false;
-
     // Locking
     private Range lockedRange;
-
-    /** By default, tracks adjust their unitHeight to accommodate the contents without a scroll-bar. */
+    /**
+     * By default, tracks adjust their unitHeight to accommodate the contents
+     * without a scroll-bar.
+     */
     protected boolean scaledToFit = true;
-
-    /** Selection Variables */
+    /**
+     * Selection Variables
+     */
     private Rectangle2D selectionRect = new Rectangle2D.Double();
     private boolean isDragging = false;
-
     //scrolling...
     private BufferedImage bufferedImage;
     private Range prevRange = null;
@@ -105,27 +103,24 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private boolean renderRequired = false;
     private int posOffset = 0;
     protected boolean forcedHeight = false;
-
     //dragging
     private int startX;
     private int startY;
     private int baseX;
     private int initialScroll;
     private boolean panVert = false;
-
     //popup
     public Thread popupThread;
     private Record currentOverRecord = null;
     private Shape currentOverShape = null;
-
     /**
      * Provides progress indication when loading a track.
      */
     private ProgressPanel progressPanel;
-
     //awaiting exported images
     private final List<Listener<ExportEvent>> exportListeners = new ArrayList<Listener<ExportEvent>>();
     private final List<Listener<PopupEvent>> popupListeners = new ArrayList<Listener<PopupEvent>>();
+    private boolean yAxisLocked;
 
     /**
      * CONSTRUCTOR
@@ -133,10 +128,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     public GraphPane(Frame parent) {
         this.parentFrame = parent;
         addMouseListener(this); // listens for own mouse and
-        addMouseMotionListener( this ); // mouse-motion events
+        addMouseMotionListener(this); // mouse-motion events
         //addKeyListener( this );
         getInputMap().allKeys();
         addMouseWheelListener(this);
+
+        //trackToYRangeMap = new HashMap<Track, Range>();
 
         popupThread = new Thread(new PopupThread(this), "PopupThread");
         popupThread.start();
@@ -152,6 +149,16 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 }
             }
         });
+    }
+
+    /**
+     * Lock the Y Axes from changing automatically
+     *
+     * @param b
+     */
+    public void setYMaxLocked(boolean b) {
+        System.out.println("Locking Y max: " + b);
+        this.yAxisLocked = b;
     }
 
     /**
@@ -188,8 +195,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         // Paint a gradient from top to bottom
         GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_TOP), 0, getHeight(), ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_BOTTOM));
-        g2.setPaint( gp0 );
-        g2.fillRect( 0, 0, getWidth(), getHeight() );
+        g2.setPaint(gp0);
+        g2.fillRect(0, 0, getWidth(), getHeight());
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         LocationController lc = LocationController.getInstance();
@@ -207,9 +214,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             parentFrame.updateProgress();
             return false;
         } else {
-            for (Track t: tracks) {
+            for (Track t : tracks) {
                 if (t.getRenderer().isWaitingForData()) {
-                    String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
+                    String progressMsg = (String) t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
                     setPreferredSize(new Dimension(getWidth(), 0));
                     showProgress(progressMsg, -1.0);
                     return false;
@@ -224,16 +231,20 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         int minYRange = Integer.MAX_VALUE;
         int maxYRange = Integer.MIN_VALUE;
         AxisType bestYAxis = AxisType.NONE;
-        for (Track t: tracks) {
+        for (Track t : tracks) {
 
             // ask renderers for extra info on range; consolidate to maximum Y range
-            AxisRange axisRange = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
+            AxisRange axisRange = (AxisRange) t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
 
             if (axisRange != null) {
                 int axisYMin = axisRange.getYMin();
                 int axisYMax = axisRange.getYMax();
-                if (axisYMin < minYRange) minYRange = axisYMin;
-                if (axisYMax > maxYRange) maxYRange = axisYMax;
+                if (axisYMin < minYRange) {
+                    minYRange = axisYMin;
+                }
+                if (axisYMax > maxYRange) {
+                    maxYRange = axisYMax;
+                }
             }
 
             // Ask renderers if they want horizontal grid-lines; if any say yes, draw them.
@@ -258,7 +269,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         setXRange(xRange);
         setYAxisType(bestYAxis);
         Range consolidatedYRange = new Range(minYRange, maxYRange);
+
         setYRange(consolidatedYRange);
+        consolidatedYRange = new Range(yMin, yMax);
 
         DrawingMode currentMode = tracks[0].getDrawingMode();
 
@@ -315,15 +328,21 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             boolean nothingRendered = true;
             String message = null;
             int priority = -1;
-            for (Track t: tracks) {
+
+
+            for (Track t : tracks) {
                 // Change renderers' drawing instructions to reflect consolidated YRange
-                AxisRange axes = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
+                AxisRange axes = (AxisRange) t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
+
                 if (axes == null) {
                     axes = new AxisRange(xRange, consolidatedYRange);
                 } else {
                     axes = new AxisRange(axes.getXRange(), consolidatedYRange);
                 }
+
+                //System.out.println("Consolidated y range for " + t.getName() + " is " + consolidatedYRange);
                 t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, axes);
+
                 try {
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
@@ -376,44 +395,45 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
             g2.drawImage(bufferedImage, 0, getOffset(), this);
             fireExportEvent(xRange, bufferedImage);
-            
+
             renderCurrentSelected(g2);
         }
         return true;
     }
 
     /**
-     * Get the height of the viewport.  The viewport is the grandparent of this GraphPane.
+     * Get the height of the viewport. The viewport is the grandparent of this
+     * GraphPane.
      */
     private int getViewportHeight() {
         return getParent().getParent().getHeight();
     }
 
     /**
-     * Access to the scrollbar associated with this GraphPane.  For ordinary GraphPanes,
-     * the JScrollPane is our great-grandparent.
+     * Access to the scrollbar associated with this GraphPane. For ordinary
+     * GraphPanes, the JScrollPane is our great-grandparent.
      */
     public JScrollBar getVerticalScrollBar() {
-        return ((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar();
+        return ((JScrollPane) getParent().getParent().getParent()).getVerticalScrollBar();
     }
 
     private void renderCurrentSelected(Graphics2D g2) {
         // Temporarily shift the origin
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.translate(0, getOffset());
-        for (Track t: tracks) {
+        for (Track t : tracks) {
             if (t.getRenderer().hasMappedValues()) {
                 List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
                 if (currentSelected.size() > 0) {
                     boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
-                    for (Shape selectedShape: currentSelected) {
+                    for (Shape selectedShape : currentSelected) {
                         if (selectedShape != currentOverShape) {
                             if (arcMode) {
                                 g2.setColor(Color.GREEN);
                                 g2.draw(selectedShape);
                             } else {
                                 //g2.setColor(Color.GREEN);
-                                g2.setColor(new Color(0,255,0,150));
+                                g2.setColor(new Color(0, 255, 0, 150));
                                 g2.fill(selectedShape);
                                 if (selectedShape.getBounds().getWidth() > 5) {
                                     g2.setColor(Color.BLACK);
@@ -430,16 +450,16 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             if (tracks[0].getDrawingMode() == DrawingMode.ARC_PAIRED) {
                 g2.setColor(Color.RED);
                 g2.draw(currentOverShape);
-                             
+
                 //get record pair
-                BAMIntervalRecord rec1 = (BAMIntervalRecord)currentOverRecord;
-                BAMIntervalRecord rec2 = ((BAMTrack)tracks[0]).getMate(rec1); //mate
-                
+                BAMIntervalRecord rec1 = (BAMIntervalRecord) currentOverRecord;
+                BAMIntervalRecord rec2 = ((BAMTrack) tracks[0]).getMate(rec1); //mate
+
                 //render reads with mismatches
-                ((BAMTrackRenderer)tracks[0].getRenderer()).renderReadsFromArc(g2, this, rec1, rec2, prevRange);
+                ((BAMTrackRenderer) tracks[0].getRenderer()).renderReadsFromArc(g2, this, rec1, rec2, prevRange);
 
             } else {
-                g2.setColor(new Color(255,0,0,150));
+                g2.setColor(new Color(255, 0, 0, 150));
                 g2.fill(currentOverShape);
                 if (currentOverShape.getBounds() != null && currentOverShape.getBounds().getWidth() > 5 && currentOverShape.getBounds().getHeight() > 3) {
                     g2.setColor(Color.BLACK);
@@ -461,8 +481,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Force the bufferedImage to contain entire height at current range.  Intended
-     * for creating images for track export.  Make sure you unforce immediately after!
+     * Force the bufferedImage to contain entire height at current range.
+     * Intended for creating images for track export. Make sure you unforce
+     * immediately after!
      */
     public void forceFullHeight() {
         forcedHeight = true;
@@ -493,7 +514,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         boolean trueRender = render(g2);
 
         GraphPaneController gpc = GraphPaneController.getInstance();
@@ -513,7 +534,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             }
 
             g2.drawLine(mouseX, 0, mouseX, h);
-            if (genomeY != -1) g.drawLine(0, mouseY, this.getWidth(), mouseY);
+            if (genomeY != -1) {
+                g.drawLine(0, mouseY, this.getWidth(), mouseY);
+            }
             g2.drawString(target, mouseX + 5, mouseY - 5);
         }
 
@@ -522,7 +545,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         double width = x1 - x2;
 
-        selectionRect = new Rectangle2D.Double(width < 0 ? x1 : x2, 0.0, Math.max(2.0 ,Math.abs(width)), h);
+        selectionRect = new Rectangle2D.Double(width < 0 ? x1 : x2, 0.0, Math.max(2.0, Math.abs(width)), h);
 
         if (gpc.isPanning()) {
             // Panning adjustments (none).
@@ -530,7 +553,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             // Zooming adjustments.
             Rectangle2D rectangle = new Rectangle2D.Double(selectionRect.getX(), selectionRect.getY() - 10.0, selectionRect.getWidth(), selectionRect.getHeight() + 10.0);
             g2.setColor(Color.gray);
-            g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 3f, new float[] {4f}, 4f));
+            g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 3f, new float[]{4f}, 4f));
             g2.draw(rectangle);
 
             if (gpc.isZooming()) {
@@ -555,10 +578,10 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         if (gpc.isSpotlight() && !gpc.isZooming()) {
 
             int center = gpc.getMouseXPosition();
-            int left = center - gpc.getSpotlightSize()/2;
+            int left = center - gpc.getSpotlightSize() / 2;
             int right = left + gpc.getSpotlightSize();
 
-            g2.setColor(new Color(0,0,0,200));
+            g2.setColor(new Color(0, 0, 0, 200));
 
             // draw left of spotlight
             if (left >= xRange.getFrom()) {
@@ -572,7 +595,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
 
         if (isLocked()) {
-            drawMessage((Graphics2D)g, "Locked");
+            drawMessage((Graphics2D) g, "Locked");
         }
         if (trueRender) {
             gpc.delistRenderingGraphpane(this);
@@ -581,6 +604,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      * Render the background of this GraphPane
+     *
      * @param g The graphics object to use
      */
     private void renderBackground(Graphics2D g2, boolean xGridOn, boolean yGridOn) {
@@ -604,7 +628,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
             g2.setColor(gridColor);
             g2.setFont(tickFont);
-            for (int t: yTicks) {
+            for (int t : yTicks) {
                 double y = transformYPos(t);
 
                 // Skip labels at the top or bottom of the window because they look stupid.
@@ -612,12 +636,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                     String s = Integer.toString(t);
                     Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
                     double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
-                    g2.drawString(s, 4.0F, (float)baseline);
+                    g2.drawString(s, 4.0F, (float) baseline);
                     clipArea.subtract(new Area(new Rectangle2D.Double(3.0, baseline - labelRect.getHeight() - 1.0, labelRect.getWidth() + 2.0, labelRect.getHeight() + 2.0)));
                 }
             }
             g2.setClip(clipArea);
-            for (int t2: yTicks) {
+            for (int t2 : yTicks) {
                 double y = transformYPos(t2);
                 g2.draw(new Line2D.Double(0.0, y, w, y));
             }
@@ -627,7 +651,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int[] xTicks = MiscUtils.getTickPositions(r);
 
             g2.setColor(gridColor);
-            for (int t: xTicks) {
+            for (int t : xTicks) {
                 double x = transformXPos(t);
                 g2.draw(new Line2D.Double(x, 0, x, h));
             }
@@ -640,7 +664,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Set the range for the horizontal axis, adjusting the width of graph units.
+     * Set the range for the horizontal axis, adjusting the width of graph
+     * units.
      *
      * @param r an X range
      */
@@ -660,7 +685,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         xAxisType = type;
     }
 
-    
     @Override
     public Range getYRange() {
         return new Range(yMin, yMax);
@@ -673,6 +697,22 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      */
     @Override
     public void setYRange(Range r) {
+
+        /*
+         *         if (yAxisLocked) {
+         if (lastYRange != null) {
+         consolidatedYRange = lastYRange;
+         System.out.println("Got previous y range for " + this.getTracks()[0].getName() + " at " + consolidatedYRange);
+         } else {
+         System.out.println("No y range stored for " + this.getTracks()[0].getName());
+         }
+         }
+         */
+
+        if (yAxisLocked) {
+            return;
+        }
+
         if (r != null && yAxisType != AxisType.NONE) {
             int oldYMin = yMin;
             yMin = r.getFrom();
@@ -688,6 +728,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 }
             }
         }
+
+        //System.out.println("Saving range for " + this.getTracks()[0].getName() + " at " + new Range(yMin, yMax));
+
     }
 
     /**
@@ -700,6 +743,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      * Calculate the number of pixels equal to one graph unit of height.
+     *
      * @return the height of a graph unit in pixels
      */
     @Override
@@ -711,7 +755,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * Set the number of pixels equal to one graph unit of height.
      */
     public void setUnitHeight() {
-        unitHeight = (double)getHeight() / (yMax - yMin);
+        unitHeight = (double) getHeight() / (yMax - yMin);
     }
 
     /**
@@ -724,7 +768,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      *
-     * @return  the number of pixels equal to one graph unit of width.
+     * @return the number of pixels equal to one graph unit of width.
      */
     @Override
     public double getUnitWidth() {
@@ -735,22 +779,24 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * Set the number of pixels equal to one graph unit of width.
      */
     public void setUnitWidth() {
-        unitWidth = (double)getWidth() / (xMax - xMin + 1);
+        unitWidth = (double) getWidth() / (xMax - xMin + 1);
     }
 
     /**
-     * Transform a horizontal position in terms of drawing coordinates into graph units.
+     * Transform a horizontal position in terms of drawing coordinates into
+     * graph units.
      *
      * @param pix drawing position in pixels
      * @return corresponding logical position
      */
     @Override
     public int transformXPixel(double pix) {
-        return (int)Math.floor(pix / unitWidth + xMin);
+        return (int) Math.floor(pix / unitWidth + xMin);
     }
 
     /**
-     * Transform a horizontal position in terms of graph units into a drawing coordinate.
+     * Transform a horizontal position in terms of graph units into a drawing
+     * coordinate.
      *
      * @param pos position in graph coordinates
      * @return corresponding drawing coordinate
@@ -771,9 +817,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         return (getHeight() - pix) / unitHeight + yMin;
     }
 
-
     /**
-     * Transform a vertical position in terms of graph units into a pixel position.
+     * Transform a vertical position in terms of graph units into a pixel
+     * position.
      *
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
@@ -802,9 +848,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             if (InterfaceSettings.doesWheelZoom()) {
                 if (notches < 0) {
                     lc.zoomInOnMouse();
-               } else {
+                } else {
                     lc.zoomOutFromMouse();
-               }
+                }
             } else {
                 JScrollBar sb = getVerticalScrollBar();
                 if (sb.isVisible()) {
@@ -822,7 +868,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         gpc.setPanning(isDragging && !zooming && !selecting);
         gpc.setSelecting(isDragging && selecting);
     }
-
 
     /**
      * {@inheritDoc}
@@ -898,12 +943,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             }
             int newMin = (int) Math.round(Math.min(x1, x2) / getUnitWidth());
             // some weirdness here, but it's to get around an off by one
-            int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / getUnitWidth())-1, newMin);
+            int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / getUnitWidth()) - 1, newMin);
             Range newr = new Range(r.getFrom() + newMin, r.getFrom() + newMax);
 
             lc.setLocation(newr);
         } else if (gpc.isSelecting()) {
-            for (Track t: tracks) {
+            for (Track t : tracks) {
                 if (t.getRenderer().hasMappedValues()) {
                     if (t.getRenderer().rectangleSelect(selectionRect)) {
                         repaint();
@@ -919,13 +964,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         gpc.setMouseReleasePosition(transformXPixel(x2));
     }
 
-
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void mouseEntered( final MouseEvent event ) {
+    public void mouseEntered(final MouseEvent event) {
         resetCursor();
         mouseInside = true;
         setMouseModifier(event);
@@ -936,7 +979,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * {@inheritDoc}
      */
     @Override
-    public void mouseExited( final MouseEvent event ) {
+    public void mouseExited(final MouseEvent event) {
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         setMouseModifier(event);
 
@@ -1029,7 +1072,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Given a MouseEvent, return the x value constrained by the dimensions of the GraphPane.
+     * Given a MouseEvent, return the x value constrained by the dimensions of
+     * the GraphPane.
      */
     private int getConstrainedX(MouseEvent event) {
         int x = event.getX();
@@ -1040,8 +1084,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * A locked track maintains its horizontal location while other tracks scroll.
-     * 
+     * A locked track maintains its horizontal location while other tracks
+     * scroll.
+     *
      * @return true if the track is locked, false otherwise
      */
     public boolean isLocked() {
@@ -1050,6 +1095,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      * Set a track so that it doesn't scroll horizontally.
+     *
      * @param b true to prevent horizontal scrolling
      */
     public void setLocked(boolean b) {
@@ -1070,27 +1116,32 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     //POPUP
     public void tryPopup(Point p) {
 
-        if (tracks == null) return;
+        if (tracks == null) {
+            return;
+        }
 
         Point pt = new Point(p.x, p.y - getOffset());
 
-        for (Track t: tracks) {
+        for (Track t : tracks) {
             Map<Record, Shape> map = t.getRenderer().searchPoint(pt);
             if (map != null) {
-                /** XXX: This line is here to get around what looks like a bug in the 1.6.0_20 JVM for Snow Leopard
-                 * which causes the mouseExited events not to be triggered sometimes. We hide the popup before
-                 * showing another. This needs to be done exactly here: after we know we have a new popup to show
-                 * and before we set currentOverRecord. Otherwise, it won't work.
+                /**
+                 * XXX: This line is here to get around what looks like a bug in
+                 * the 1.6.0_20 JVM for Snow Leopard which causes the
+                 * mouseExited events not to be triggered sometimes. We hide the
+                 * popup before showing another. This needs to be done exactly
+                 * here: after we know we have a new popup to show and before we
+                 * set currentOverRecord. Otherwise, it won't work.
                  */
                 PopupPanel.hidePopup();
-                
+
                 // Arbitrarily pick the first record in the map.  Most of the time, there will be only one.
                 Record overRecord = map.keySet().iterator().next();
-                
-                Point p1 = (Point)p.clone();
+
+                Point p1 = (Point) p.clone();
                 SwingUtilities.convertPointToScreen(p1, this);
                 PopupPanel.showPopup(this, p1, t, overRecord);
-                
+
                 currentOverRecord = overRecord;
                 currentOverShape = map.get(currentOverRecord);
                 if (currentOverRecord instanceof ContinuousRecord) {
@@ -1108,11 +1159,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      * Invoked when user selects something in the popup menu.
-     * @param rec 
+     *
+     * @param rec
      */
     @Override
     public void recordSelected(Record rec) {
-        for (Track t: tracks) {
+        for (Track t : tracks) {
             t.getRenderer().addToSelected(rec);
         }
         repaint();
@@ -1131,16 +1183,16 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         Point p_offset = new Point(p.x, p.y - getOffset());
 
-        for (Track t: tracks) {
+        for (Track t : tracks) {
             Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
             if (map != null) {
                 Object[] recs = map.keySet().toArray();
                 if (recs.length == 1) {
-                    t.getRenderer().addToSelected((Record)recs[0]);
+                    t.getRenderer().addToSelected((Record) recs[0]);
                 } else {
                     ArrayList<Record> array = new ArrayList<Record>();
-                    for(Object rec : recs) {
-                        array.add((Record)rec);
+                    for (Object rec : recs) {
+                        array.add((Record) rec);
                     }
                     t.getRenderer().toggleGroup(array);
                 }
@@ -1162,7 +1214,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         Font font = g2.getFont();
         Font subFont = font;
 
-        int h = getSize().height/3;
+        int h = getSize().height / 3;
         int w = getWidth();
 
         if (w > 500) {
@@ -1179,33 +1231,34 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         int returnPos = message.indexOf('\n');
         g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));
         if (returnPos > 0) {
-            drawMessageHelper(g2, message.substring(0, returnPos), font, w, h, -(subFont.getSize()/2));
-            drawMessageHelper(g2, message.substring(returnPos + 1), subFont, w, h, font.getSize()-(subFont.getSize()/2));
+            drawMessageHelper(g2, message.substring(0, returnPos), font, w, h, -(subFont.getSize() / 2));
+            drawMessageHelper(g2, message.substring(returnPos + 1), subFont, w, h, font.getSize() - (subFont.getSize() / 2));
         } else {
             drawMessageHelper(g2, message, font, w, h, 0);
         }
     }
-    
+
     private void drawMessageHelper(Graphics2D g2, String message, Font font, int w, int h, int offset) {
         g2.setFont(font);
         FontMetrics metrics = g2.getFontMetrics();
 
         Rectangle2D stringBounds = font.getStringBounds(message, g2.getFontRenderContext());
 
-        int preferredWidth = (int)stringBounds.getWidth()+metrics.getHeight();
-        int preferredHeight = (int)stringBounds.getHeight()+metrics.getHeight();
+        int preferredWidth = (int) stringBounds.getWidth() + metrics.getHeight();
+        int preferredHeight = (int) stringBounds.getHeight() + metrics.getHeight();
 
         w = Math.min(preferredWidth, w);
         h = Math.min(preferredHeight, h);
 
-        int x = (getWidth() - (int)stringBounds.getWidth()) / 2;
-        int y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2) + offset;
+        int x = (getWidth() - (int) stringBounds.getWidth()) / 2;
+        int y = (getHeight() / 2) + ((metrics.getAscent() - metrics.getDescent()) / 2) + offset;
 
-        g2.drawString(message,x,y);
+        g2.drawString(message, x, y);
     }
 
     /**
-     * One of tracks is still loading.  Instead of rendering, put up a progress-bar.
+     * One of tracks is still loading. Instead of rendering, put up a
+     * progress-bar.
      *
      * @param msg progress message to be displayed
      */
@@ -1218,7 +1271,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         progressPanel.setFraction(fraction);
         validate();
     }
-    
+
     public void addExportEventListener(Listener<ExportEvent> eel) {
         synchronized (exportListeners) {
             exportListeners.add(eel);
@@ -1267,7 +1320,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             size = popupListeners.size(); //a listener may get removed
         }
     }
-    
+
     @Override
     public void setScaledToFit(boolean value) {
         if (scaledToFit != value) {
@@ -1287,8 +1340,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Check to see if the frame needs to be resized.  Only required if we're not using scaledToFit mode,
-     * and thus have a pre-existing notion of what the unit-height (or interval height) should be.
+     * Check to see if the frame needs to be resized. Only required if we're not
+     * using scaledToFit mode, and thus have a pre-existing notion of what the
+     * unit-height (or interval height) should be.
      *
      * @return true if pane needs to be resized
      */
@@ -1296,7 +1350,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     public boolean needsToResize() {
         if (!scaledToFit) {
             int currentHeight = getHeight();
-            int expectedHeight = (int)((yMax - yMin) * unitHeight);
+            int expectedHeight = (int) ((yMax - yMin) * unitHeight);
 
             expectedHeight = Math.max(expectedHeight, parentFrame.getFrameLandscape().getHeight());
             if (expectedHeight != currentHeight) {
@@ -1308,7 +1362,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Update the display of ymax.  Overridden by VariantGraphPanes to show the
+     * Update the display of ymax. Overridden by VariantGraphPanes to show the
      */
     protected void updateYMax() {
         parentFrame.updateYMax(yMax);
