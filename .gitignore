@@ -44,6 +44,7 @@ dist
 *.toc
 *.out
 *.lot
+*.lof
 *.bbl
 *.blg
 
