@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
@@ -52,10 +53,10 @@ import org.apache.commons.net.ftp.FTPFile;
 import savant.api.util.DialogUtils;
 import savant.api.util.TrackUtils;
 import savant.controller.BookmarkController;
-import savant.net.DownloadController;
 import savant.settings.DirectorySettings;
+import savant.util.swing.DocumentViewer;
+import savant.view.dialog.DownloadDialog;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.util.DocumentViewer;
 
 /**
  * HTTP browser for AGP project.
@@ -149,16 +150,25 @@ public class HTTPBrowser extends JPanel {
                     fileSeparator = System.getProperty("file.separator");
                     filename = outputDir + fileSeparator + shortpath;
                     if (!(new File(filename)).exists()) {
-                        DownloadController.getInstance().download(fullpath.toURL(), outputDir, null);
+                        // FIXME A Window is needed, I'm not sure that we can
+                        // actually get one this way
+                        DownloadDialog dd = new DownloadDialog(
+                            SwingUtilities.getWindowAncestor(this), true);
+                        dd.downloadFile(fullpath.toURL(), outputDir, null);
+                        setVisible(false);
                     }
-                    BookmarkController.getInstance().addBookmarksFromFile(new File(filename));
+                    BookmarkController.getInstance().addBookmarksFromFile(new File(filename), false);
                     break;
                 case DOCUMENT:
                     outputDir = DirectorySettings.getTmpDirectory();
                     fileSeparator = System.getProperty("file.separator");
                     filename = outputDir + fileSeparator + shortpath;
                     if (!(new File(filename)).exists()) {
-                        DownloadController.getInstance().download(fullpath.toURL(), outputDir, null);
+                        // FIXME A Window is needed, I'm not sure that we can
+                        // actually get one this way
+                        DownloadDialog dd = new DownloadDialog(SwingUtilities.getWindowAncestor(this), true);
+                        dd.downloadFile(fullpath.toURL(), outputDir, null);
+                        setVisible(false);
                     }
                     v.addDocument(filename);
                     v.setExtendedState(v.getExtendedState() | DocumentViewer.MAXIMIZED_BOTH);

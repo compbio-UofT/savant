@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Vector;
 import net.sf.samtools.SAMRecord.SAMTagAndValue;
 import savant.api.adapter.TrackAdapter;
+import savant.api.data.Block;
+import savant.api.data.Record;
+import savant.api.data.SequenceRecord;
 import savant.data.sources.TabixDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.BEDIntervalRecord;
-import savant.data.types.Block;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.GenericPointRecord;
-import savant.data.types.Record;
-import savant.data.types.SequenceRecord;
 import savant.data.types.TabixIntervalRecord;
 
 /**
