@@ -535,7 +535,6 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
                 long freeMemory = runtime.freeMemory() / 1024*1024; // in mb
                 if (freeMemory < MEMORY_LIMIT) {
                     warned = true;
-                    System.out.println("Memory WARNING " + freeMemory);
                     thread.interrupt();
                     return;
                 }
