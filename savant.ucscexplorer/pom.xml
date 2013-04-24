@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>edu.toronto.cs.savant</groupId>
+    <artifactId>savant-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>savant-plugin-ucscexplorer</artifactId>
+  <name>Savant - UCSC Explorer plugin</name>
+  <description>A version of the SQL data-source plugin which is configured to work nicely with the UCSC database.</description>
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-ucsc</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
