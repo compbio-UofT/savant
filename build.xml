@@ -71,11 +71,6 @@
     nbproject/build-impl.xml file. 
 
     -->
-     <target name="-pre-jar">
-         <copy file="log4j.properties" todir="${build.classes.dir}">
-         </copy>
-     </target>
-
 <!--    <target  name="-post-jar">
         <echo>Copying plugins...</echo>
         <mkdir dir="${dist.dir}/plugins" />
