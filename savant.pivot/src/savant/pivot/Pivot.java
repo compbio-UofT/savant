@@ -36,24 +36,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
-import org.java.plugin.Plugin;
-import savant.plugin.PluginAdapter;
 
 import javax.swing.*;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import savant.plugin.GUIPlugin;
-import savant.swing.component.FilterableTable;
+import savant.plugin.SavantPanelPlugin;
+import savant.util.swing.FilterableTable;
 import savant.view.swing.Savant;
 
-public class Pivot extends Plugin implements GUIPlugin {
+public class Pivot extends SavantPanelPlugin {
 
     static JTextField a;
     static JPanel p;
 
-    public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {
+    public void init(JPanel tablePanel) {
         
         tablePanel.setLayout(new BorderLayout());
         //f = new PathField(JFileChooser.OPEN_DIALOG);
