@@ -25,6 +25,7 @@ target-eclipse
 
 # NetBeans
 nbproject
+build
 out
 dist
 
