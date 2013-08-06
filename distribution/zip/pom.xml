@@ -30,7 +30,7 @@
   <artifactId>savant-zip</artifactId>
   <packaging>pom</packaging>
   <name>Savant - Zip Distribution</name>
-  <description>Distribution contains the MedSavantClient module and its dependencies as a zip.</description>
+  <description>Distribution contains the Savant Genome Browser and its dependencies as a zip.</description>
 
   <dependencies>
     <dependency>
