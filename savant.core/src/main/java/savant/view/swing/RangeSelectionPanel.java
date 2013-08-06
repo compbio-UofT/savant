@@ -168,7 +168,7 @@ public class RangeSelectionPanel extends JPanel implements Listener<LocationChan
                 bands = genome.getCytobands(locationController.getReferenceName());
             }
 
-            Image barUnselectedGlossyImage = ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
+            Image barUnselectedGlossyImage = ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.png"));
             Image leftCapImage = ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
             Image rightCapImage = ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
 
