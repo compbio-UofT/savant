@@ -38,7 +38,7 @@ public class Bookmark implements BookmarkAdapter {
     public Bookmark(String reference, Range r) {
         this(reference, r, "", false);
     }
-    
+
     public Bookmark(String reference, Range r, boolean addMargin){
         this(reference, r, "", addMargin);
     }
@@ -46,7 +46,7 @@ public class Bookmark implements BookmarkAdapter {
     public Bookmark(String reference, Range r, String ann) {
         this(reference, r, ann, false);
     }
-    
+
     public Bookmark(String reference, Range r, String ann, boolean addMargin){
         this.setReference(reference);
         this.setRange(addMargin ? RangeUtils.addMargin(r) : r);
@@ -77,7 +77,7 @@ public class Bookmark implements BookmarkAdapter {
      * <dt>+1000</dt><dd>1000 bases to the right of the current start, keeping same range-length</dd>
      * <dt>-1000</dt><dd>1000 bases to the left of the current range, keeping same range-length</dd>
      * </dl>
-     * 
+     *
      * @param text the string typed in by the user
      * @param baseRef the current reference (for resolving relative location specs)
      * @param baseRange the current range (for resolving relative location specs)
@@ -103,7 +103,7 @@ public class Bookmark implements BookmarkAdapter {
         }
 
         if (text.length() > 0) {
-            NumberFormat numberParser = NumberFormat.getIntegerInstance(Locale.US);
+            NumberFormat numberParser = NumberFormat.getIntegerInstance(Locale.getDefault());
             int minusPos = text.indexOf('-');
             if (minusPos == 0) {
                 // Leading minus sign.  Shift to the left.

@@ -45,20 +45,20 @@ public abstract class BackgroundWorker<T> extends SwingWorker<T, Object> {
             }
         }
     }
-    
+
 
     /**
      * Show progress during a lengthy operation.  As a special case, pass 1.0 to remove the progress display.
      * @param fraction the fraction completed (1.0 to indicate full completion; -1.0 as special flag to indicate indeterminate progress-bar).
      */
     protected abstract void showProgress(double fraction);
-    
+
     /**
      * Called when the worker has successfully completed its task.
      * @param result the value returned by <code>doInBackground()</code>.
      */
     protected abstract void showSuccess(T result);
-    
+
     /**
      * Called when the task has thrown an exception.  Default behaviour is to log the exception
      * and put up a dialog box.

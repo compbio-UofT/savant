@@ -153,6 +153,7 @@ public class DialogUtils {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
+
                 String msg = message;
                 if (t.getCause() != null) {
                     msg += "\r\nCause: " + MiscUtils.getMessage(t.getCause()) + ".";
