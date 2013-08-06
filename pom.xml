@@ -433,6 +433,7 @@
     <module>savant.ucsc</module>
     <module>savant.ucscexplorer</module>
     <module>savant.thousandgenomes</module>
+    <module>distribution</module>
     <!-- Disabled since they use old APIs no longer available -->
     <!-- FIXME: Update the sources and re-enable these plugin -->
     <!-- <module>savant.dataplus</module> -->
