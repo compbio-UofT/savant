@@ -75,7 +75,6 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
-    <sourceDirectory>src</sourceDirectory>
 
     <extensions>
       <!-- Enables uploading releases to Nexus -->
