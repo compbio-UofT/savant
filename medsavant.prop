@@ -1,9 +1,0 @@
-db.driver=com.mysql.jdbc.Driver
-db.name=big6
-general.autologin=false
-medsavant.version=1.0
-server.address=localhost
-server.port=3232
-user.name=root
-user.password=
-user.rememberpass=false
