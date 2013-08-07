@@ -103,6 +103,7 @@
   </pluginRepositories>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <enforcer.skip>false</enforcer.skip>
     <checkstyle.skip>false</checkstyle.skip>
     <jide.version>3.5.0</jide.version>
