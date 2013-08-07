@@ -400,10 +400,10 @@ public class Tool extends SavantPanelPlugin {
             cancelButton.setText("Cancel");
             console.setText("");
 
-            progressInfo.setText("Preparing input files…");
+            progressInfo.setText("Preparing input files\u2026");
             prepareInputs();
 
-            progressInfo.setText("Running tool…");
+            progressInfo.setText("Running tool\u2026");
             runTool();
 
             if (loadUponCompletion) {

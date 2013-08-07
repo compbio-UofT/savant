@@ -146,7 +146,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 switch (evt.getType()) {
                     case STARTED:
                         rawData.set(index, null);
-                        module.showProgress("Retrieving variant data…", -1.0);
+                        module.showProgress("Retrieving variant data\u2026", -1.0);
                         break;
                     case COMPLETED:
                         if (evt.getData() != null) {
@@ -365,7 +365,7 @@ public class VariationController implements Listener<DataRetrievalEvent> {
                 return;
             }
         }
-        module.showProgress("Aggregating variant data…", -1.0);
+        module.showProgress("Aggregating variant data\u2026", -1.0);
         aggregateData = null;
         module.recalculated(getData());
     }

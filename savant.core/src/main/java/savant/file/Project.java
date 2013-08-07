@@ -259,7 +259,7 @@ public class Project {
         writer.writeEndElement();
 
         for (FrameAdapter fr: FrameController.getInstance().getOrderedFrames()) {
-            // Frame may have zero-length track array  if user saves while the "Creating track… progress-bar is up.
+            // Frame may have zero-length track array  if user saves while the "Creating track\u2026 progress-bar is up.
             TrackAdapter[] tracks = fr.getTracks();
             if (tracks.length > 0) {
                 TrackAdapter t0 = tracks[0];

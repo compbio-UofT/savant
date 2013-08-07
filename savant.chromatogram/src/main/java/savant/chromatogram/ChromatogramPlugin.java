@@ -91,7 +91,7 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
         gbc.fill = GridBagConstraints.HORIZONTAL;        
         panel.add(pathField, gbc);
         
-        JButton browseButton = new JButton("Browse…");
+        JButton browseButton = new JButton("Browse\u2026");
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {

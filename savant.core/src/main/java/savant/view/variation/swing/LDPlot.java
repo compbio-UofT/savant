@@ -51,7 +51,7 @@ public class LDPlot extends VariationPlot {
     private static final double LEGEND_WIDTH = 15.0;
     private static final float TICK_LENGTH = 3.0f;
     private static final String OUT_OF_MEMORY_ERROR = "Zoom in to see data";
-    private static final String UNPHASED_ERROR = "D′ not calculated for unphased data";
+    private static final String UNPHASED_ERROR = "D\u2032 not calculated for unphased data";
 
     private static final Color[] HEATMAP_COLORS = { ColourSettings.getColor(ColourKey.HEATMAP_LOW), ColourSettings.getColor(ColourKey.HEATMAP_MEDIUM), ColourSettings.getColor(ColourKey.HEATMAP_HIGH) };
 
@@ -89,7 +89,7 @@ public class LDPlot extends VariationPlot {
                 calculator = new LDCalculator(controller, phased) {
                     @Override
                     protected Object doInBackground() throws Exception {
-                        controller.getModule().showProgress("Calculating Linkage Disequilibrium…", 0.0);
+                        controller.getModule().showProgress("Calculating Linkage Disequilibrium\u2026", 0.0);
                         return super.doInBackground();
                     }
 
@@ -109,7 +109,7 @@ public class LDPlot extends VariationPlot {
                             public void run() {
                                 // In some cases, invokeLater gets around to this point AFTER done() has been called.
                                 if (!isDone()) {
-                                    controller.getModule().showProgress("Calculating Linkage Disequilibrium…", fract);
+                                    controller.getModule().showProgress("Calculating Linkage Disequilibrium\u2026", fract);
                                 }
                             }
                         });
@@ -181,7 +181,7 @@ public class LDPlot extends VariationPlot {
                         }
                     }
                 } else {
-                    // User selected D′ for unphased data which has no D′ calculation.
+                    // User selected D' for unphased data which has no D' calculation.
                     g2.setColor(Color.BLACK);
                     g2.setFont(VariationModule.MESSAGE_FONT.deriveFont(18.0f));
                     MiscUtils.drawMessage(g2, UNPHASED_ERROR, new Rectangle2D.Float(0.0f, 0.0f, getWidth(), 40.0f));
@@ -352,7 +352,7 @@ public class LDPlot extends VariationPlot {
      * Not currently used.  THis allows us to dump out our LD calculations in a format identical to VCFTools.
      *
      * @param output output file
-     * @param phased if true, output D′ as well as r²
+     * @param phased if true, output D\u2032 as well as r\u00B2
      * @throws IOException 
      */
     private void dumpLD(Writer output, boolean phased) throws IOException {

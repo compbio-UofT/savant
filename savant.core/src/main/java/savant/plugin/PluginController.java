@@ -120,7 +120,7 @@ public class PluginController extends Controller {
                         errorStr.append("<br>");
                     }
                     errorStr.append(s);
-                    errorStr.append(" – ");
+                    errorStr.append(" \u2013 ");
                     errorStr.append(pluginErrors.get(s));
                 }
                 if (errorStr != null) {
@@ -406,7 +406,7 @@ public class PluginController extends Controller {
             } catch (Throwable x) {
                 LOG.error("Unable to load " + desc.getName(), x);
                 pluginErrors.put(desc.getID(), x.getClass().getName());
-                DialogUtils.displayMessage("Plugin Not Loaded", String.format("<html>The following plugin could not be loaded:<br><br><i>%s – %s</i><br><br>It will not be available to Savant.</html>", desc.getID(), x));
+                DialogUtils.displayMessage("Plugin Not Loaded", String.format("<html>The following plugin could not be loaded:<br><br><i>%s \u2013 %s</i><br><br>It will not be available to Savant.</html>", desc.getID(), x));
             }
         }
     }

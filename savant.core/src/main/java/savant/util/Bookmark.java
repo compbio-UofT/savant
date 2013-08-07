@@ -111,7 +111,7 @@ public class Bookmark implements BookmarkAdapter {
                 from -= delta;
                 to -= delta;
             } else if (minusPos > 0) {
-                // Fully-specified range.  Could be reversed if Miško is causing problems.
+                // Fully-specified range.
                 int first = numberParser.parse(text.substring(0, minusPos)).intValue();
                 int second = numberParser.parse(text.substring(minusPos + 1)).intValue();
                 if (first <= second) {

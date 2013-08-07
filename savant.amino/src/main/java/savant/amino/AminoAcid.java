@@ -48,7 +48,7 @@ public enum AminoAcid {
     TRYPTOPHAN("Tryptophan", "Trp", 'W', new Color(180, 90, 180)),
     TYROSINE("Tyrosine", "Tyr", 'Y', new Color(50, 50, 170)),
     VALINE("Valine", "Val", 'V', new Color(15, 130, 15)),
-    STOP("Stop", "***", '★', new Color(255, 0, 0));
+    STOP("Stop", "***", '\u2605', new Color(255, 0, 0));
 
     final String name;
     final String abbreviation;

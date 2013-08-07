@@ -92,7 +92,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         double xFormXPos = Double.NaN, xFormYPos = Double.NaN;
 
         double yPixel0 = gp.transformYPos(0.0);
-        LOG.debug("h=" + gp.getHeight() + ", yMin=" + gp.getYRange().getFrom() + ", unitHeight=" + gp.getUnitHeight() + " ➤ yPixel0=" + yPixel0);
+        LOG.debug("h=" + gp.getHeight() + ", yMin=" + gp.getYRange().getFrom() + ", unitHeight=" + gp.getUnitHeight() + " \u27A4 yPixel0=" + yPixel0);
         
         double maxData = 0;
         boolean haveOpenPath = false;

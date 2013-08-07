@@ -849,7 +849,7 @@ public class Savant extends JFrame {
 
         pluginsMenu.setText("Plugins");
 
-        menuitem_pluginmanager.setText("Plugin Manager…");
+        menuitem_pluginmanager.setText("Plugin Manager\u2026");
         menuitem_pluginmanager.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_pluginmanagerActionPerformed(evt);

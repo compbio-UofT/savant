@@ -213,7 +213,7 @@ public class FormatProgressDialog extends JDialog implements Listener<FormatEven
                 }
                 path = parent;
             } while (path.length() > 0 && path.length() + 2 + file.length() > maxLen);
-            return path + "…" + File.separator + file;
+            return path + "\u2026" + File.separator + file;
         } else {
             return path;
         }

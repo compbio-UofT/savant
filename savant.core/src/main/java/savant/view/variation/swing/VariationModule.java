@@ -188,10 +188,10 @@ public class VariationModule extends JPanel {
                 ldPlot.repaint();
             }
         };
-        JRadioButton dPrimeButton = new JRadioButton("D′", true);
+        JRadioButton dPrimeButton = new JRadioButton("D\u2032", true);
         dPrimeButton.setActionCommand("true");
         dPrimeButton.addActionListener(redrawForcer);
-        JRadioButton rSquaredButton = new JRadioButton("r²", false);
+        JRadioButton rSquaredButton = new JRadioButton("r\u00B2", false);
         rSquaredButton.setActionCommand("false");
         rSquaredButton.addActionListener(redrawForcer);
         

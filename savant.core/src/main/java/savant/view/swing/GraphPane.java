@@ -306,14 +306,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             if (!forcedHeight) {
                 h = Math.min(h, getViewportHeight() * 3);
             }
-            LOG.debug("Requesting " + getWidth() + "×" + h + " bufferedImage.");
+            LOG.debug("Requesting " + getWidth() + "\u00D7" + h + " bufferedImage.");
             bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
             if (bufferedImage.getHeight() == getHeight()) {
                 setOffset(0);
             } else {
                 setOffset(scroller.getValue() - getViewportHeight());
             }
-            LOG.debug("Rendering fresh " + bufferedImage.getWidth() + "×" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+            LOG.debug("Rendering fresh " + bufferedImage.getWidth() + "\u00D7" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
