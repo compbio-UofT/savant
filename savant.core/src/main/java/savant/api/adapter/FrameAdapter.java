@@ -68,4 +68,6 @@ public interface FrameAdapter extends Listener<DataRetrievalEvent> {
     public void handleEvent(TrackCreationEvent evt);
 
     public int getIntervalHeight();
+    
+    public void setCloseable(boolean closeable);
 }

@@ -98,7 +98,9 @@ public class FrameController {
     }
 
     public void closeFrame(Frame frame, boolean askFirst) {
-
+        if(!frame.isCloseable()){
+            return;
+        }
         if (askFirst) {
             if (DialogUtils.askYesNo("Confirm", "Are you sure you want to close this track?") == DialogUtils.NO) {
                 return;

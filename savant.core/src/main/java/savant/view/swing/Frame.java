@@ -51,40 +51,42 @@ import savant.view.tracks.Track;
 import savant.view.tracks.TrackCreationEvent;
 import savant.view.tracks.TrackFactory.TrackCreationListener;
 
-
 /**
  *
  * @author mfiume, AndrewBrook
  */
 public class Frame extends DockableFrame implements FrameAdapter, TrackCreationListener {
+
     private static final Log LOG = LogFactory.getLog(Frame.class);
-
-    /** If true, the frame's construction was halted by an error or by the user cancelling. */
+    /**
+     * If true, the frame's construction was halted by an error or by the user
+     * cancelling.
+     */
     private boolean aborted;
-
-    /** If true, the frame will be holding a sequence track, so it can be shorter than usual. */
+    /**
+     * If true, the frame will be holding a sequence track, so it can be shorter
+     * than usual.
+     */
     private boolean sequence;
-
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
     private Track[] tracks = new Track[0];
     private DrawingMode initialDrawingMode;
-
     private JLayeredPane jlp;
-
     private FrameCommandBar commandBar;
     private JComponent legend;
     private JPanel sidePanel;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
-
     private String progressMessage = null;
     private double progressFraction = -1.0;
+    private boolean closeable = true;
 
     /**
      * Construct a new Frame for holding a track.
      *
-     * @param df the DataFormat, so the frame can do any format-specific initialisation (e.g. smaller height for sequence tracks)
+     * @param df the DataFormat, so the frame can do any format-specific
+     * initialisation (e.g. smaller height for sequence tracks)
      */
     public Frame(DataFormat df) {
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
@@ -94,7 +96,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         legend = new JComponent() {
             @Override
             public Dimension getPreferredSize() {
-                for (Track t: tracks) {
+                for (Track t : tracks) {
                     Dimension d = t.getRenderer().getLegendSize(t.getDrawingMode());
                     if (d != null) {
                         return d;
@@ -110,11 +112,11 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
             @Override
             public void paintComponent(Graphics g) {
-                for (Track t: tracks) {
+                for (Track t : tracks) {
                     Dimension d = t.getRenderer().getLegendSize(t.getDrawingMode());
                     if (d != null) {
-                        Graphics2D g2 = (Graphics2D)g;
-                        GradientPaint gp = new GradientPaint(0, 0, Color.WHITE, 0, 60, new Color(230,230,230));
+                        Graphics2D g2 = (Graphics2D) g;
+                        GradientPaint gp = new GradientPaint(0, 0, Color.WHITE, 0, 60, new Color(230, 230, 230));
                         g2.setPaint(gp);
                         g2.fillRect(0, 0, d.width, d.height);
 
@@ -133,7 +135,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         //add graphPane -> jlp -> scrollPane
         jlp = new JLayeredPane();
         jlp.setLayout(new GridBagLayout());
-        GridBagConstraints gbc= new GridBagConstraints();
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -232,9 +234,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     }
 
     /**
-     * Set the tracks associated with this frame.  Normally, this should only be done
-     * once, since the Frame also uses this opportunity to set up some GUI elements
-     * which depend on the presence of loaded tracks.
+     * Set the tracks associated with this frame. Normally, this should only be
+     * done once, since the Frame also uses this opportunity to set up some GUI
+     * elements which depend on the presence of loaded tracks.
      *
      * @param newTracks the tracks to be displayed in this frame
      */
@@ -251,13 +253,13 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             return;
         }
         if (df == DataFormat.SEQUENCE) {
-            GenomeController.getInstance().setSequence((SequenceTrack)newTracks[0]);
+            GenomeController.getInstance().setSequence((SequenceTrack) newTracks[0]);
         }
 
         tracks = newTracks;
         graphPane.setTracks(tracks);
 
-        for (Track t: tracks) {
+        for (Track t : tracks) {
             t.setFrame(this, initialDrawingMode);
 
             // Adds the track to the TrackController's internal list, and fires a TrackEvent.ADDED event to all listeners.
@@ -272,7 +274,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
-            yMaxPanel.setBackground(new Color(240,240,240));
+            yMaxPanel.setBackground(new Color(240, 240, 240));
             yMaxPanel.setOpaque(true);
             yMaxPanel.setAlignmentX(0.5f);
 
@@ -308,28 +310,47 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
 
-        JPanel contentPane = (JPanel)getContentPane();
+        JPanel contentPane = (JPanel) getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(frameLandscape);
     }
 
     /**
-     * Convenience method.  More often than not, we just want the frame to host a single track.
+     * Convenience method. More often than not, we just want the frame to host a
+     * single track.
      *
      * @param newTrack the track to be used for this frame.
      */
     public void setTrack(Track newTrack) {
-        setTracks(new Track[] { newTrack });
+        setTracks(new Track[]{newTrack});
     }
-
 
     public void setActiveFrame(boolean value) {
         sidePanel.setVisible(value);
         setLegendVisible(value);
     }
 
+    @Override
+    public void setCloseable(boolean closeable) {
+        if (this.closeable != closeable) {
+
+            this.closeable = closeable;
+            if (closeable) {
+                setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE);
+            } else {
+                setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE);
+            }
+
+        }
+    }
+
+    public boolean isCloseable() {
+        return closeable;
+    }
+
     /**
-     * Make the legend and ymax visible, but only if we have enough space for it.
+     * Make the legend and ymax visible, but only if we have enough space for
+     * it.
      */
     public void setLegendVisible(boolean value) {
         if (value) {
@@ -365,7 +386,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     }
 
     /**
-     * When the GraphPane's y-axis type has been updated, update the visibility of the yMax value.
+     * When the GraphPane's y-axis type has been updated, update the visibility
+     * of the yMax value.
      */
     void setYMaxVisible(boolean flag) {
         if (yMaxPanel != null) {
@@ -374,7 +396,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     }
 
     /**
-     * Force the associated track to redraw.  Used when the colour scheme has been changed by the Preferences dialog.
+     * Force the associated track to redraw. Used when the colour scheme has
+     * been changed by the Preferences dialog.
      */
     @Override
     public void forceRedraw() {
@@ -388,7 +411,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
      * @param range
      */
     public void drawTracksInRange(String reference, Range range) {
-        if (graphPane.isLocked()) { return; }
+        if (graphPane.isLocked()) {
+            return;
+        }
 
         graphPane.setXRange(range);
 
@@ -400,8 +425,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     }
 
     /**
-     * Tells the frame that the draw mode for this track has changed.  Gives the frame
-     * a chance to rebuild its user interface and request a repaint.
+     * Tells the frame that the draw mode for this track has changed. Gives the
+     * frame a chance to rebuild its user interface and request a repaint.
+     *
      * @param t the track whose mode has changed
      */
     @Override
@@ -414,7 +440,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     }
 
     /**
-     * Get a panel for a plugin to draw on.  If necessary, a new one will be created.
+     * Get a panel for a plugin to draw on. If necessary, a new one will be
+     * created.
      */
     @Override
     public JPanel getLayerCanvas(SavantPanelPlugin plugin, boolean mayCreate) {
@@ -430,7 +457,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             c.gridy = 0;
             c.gridwidth = 3;
             c.gridheight = 2;
-            jlp.add(p,c,2);
+            jlp.add(p, c, 2);
             jlp.setLayer(p, 50);
             pluginLayers.put(plugin, p);
             if (plugin != null) {
@@ -443,7 +470,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     /**
      * Export this frame as an image.
      */
-    public BufferedImage frameToImage(int baseSelected){
+    public BufferedImage frameToImage(int baseSelected) {
         BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = bufferedImage.createGraphics();
         graphPane.setRenderForced();
@@ -451,8 +478,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         graphPane.render(g2);
         graphPane.unforceFullHeight();
         g2.setColor(Color.black);
-        if(baseSelected > 0){
-            double h = (double)graphPane.getHeight();
+        if (baseSelected > 0) {
+            double h = (double) graphPane.getHeight();
             double spos = graphPane.transformXPos(baseSelected);
             g2.draw(new Line2D.Double(spos, 0.0, spos, h));
             double rpos = graphPane.transformXPos(baseSelected + 1);
