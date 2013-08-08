@@ -46,7 +46,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>osxappbundle-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
+        <version>1.0-alpha-4-sdumitriu</version>
         <configuration>
           <bundleName>Savant Genome Browser</bundleName>
           <mainClass>savant.view.swing.Savant</mainClass>
