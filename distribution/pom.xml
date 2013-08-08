@@ -38,6 +38,7 @@
 
   <modules>
     <module>zip</module>
+    <module>installer</module>
     <module>dmg</module>
   </modules>
 </project>
