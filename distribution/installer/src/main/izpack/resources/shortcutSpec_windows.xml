@@ -23,8 +23,6 @@
     url="http://genomesavant.com/p/savant/learn"
     iconFile="$INSTALL_PATH\savant.ico"
 
-    programGroup="yes"
-
     programGroup="yes"/>
   <shortcut
     name="Uninstall $APP_NAME $APP_VER"
