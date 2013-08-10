@@ -52,7 +52,7 @@
           <mainClass>savant.view.swing.Savant</mainClass>
           <javaApplicationStub>${basedir}/src/main/app-resources/JavaApplicationStub</javaApplicationStub>
           <jvmVersion>1.6+</jvmVersion>
-          <iconFile>${basedir}/src/main/app-resources/savantlogo.icns</iconFile>
+          <iconFile>${basedir}/src/main/app-resources/application-icon.icns</iconFile>
           <volumeIconFile>${basedir}/src/main/app-resources/volume-icon.icns</volumeIconFile>
           <volumeBackgroundFile>${basedir}/src/main/app-resources/volume-background.png</volumeBackgroundFile>
           <includeApplicationsSymlink>true</includeApplicationsSymlink>
