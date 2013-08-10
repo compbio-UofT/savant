@@ -53,6 +53,9 @@
           <javaApplicationStub>${basedir}/src/main/app-resources/JavaApplicationStub</javaApplicationStub>
           <jvmVersion>1.6+</jvmVersion>
           <iconFile>${basedir}/src/main/app-resources/savantlogo.icns</iconFile>
+          <volumeIconFile>${basedir}/src/main/app-resources/volume-icon.icns</volumeIconFile>
+          <volumeBackgroundFile>${basedir}/src/main/app-resources/volume-background.png</volumeBackgroundFile>
+          <includeApplicationsSymlink>true</includeApplicationsSymlink>
           <additionalResources>
             <fileSet>
               <directory>${basedir}/src/main/app-resources</directory>
