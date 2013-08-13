@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Savant Genome Browser ${project.version}
+Name[en]=Savant Genome Browser ${project.version}
+GenericName=Savant Genome Browser
+GenericName[en]=Savant Genome Browser
+Exec=/usr/bin/savant-${project.version}
+Categories=Science;Biology;Bioinformatics;DataVisualization;Java;
+Comment=Starts Savant Genome Browser ${project.version}
+Comment[en]=Starts Savant Genome Browser ${project.version}
+Encoding=UTF-8
+Icon=/usr/local/savant-${project.version}/savant.png
+Path=/usr/local/savant-${project.version}
+ServiceTypes=
+Terminal=false
+Type=Application

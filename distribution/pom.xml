@@ -39,6 +39,7 @@
   <modules>
     <module>zip</module>
     <module>deb</module>
+    <module>rpm</module>
     <module>installer</module>
     <module>dmg</module>
     <module>exe</module>
