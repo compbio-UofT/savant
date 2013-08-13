@@ -19,7 +19,7 @@
     type="Application"
     terminal="false"
     encoding="UTF-8"
-    categories="Science;Bioinformatics;Java;"
+    categories="Science;Biology;Bioinformatics;DataVisualization;Java;"
     createForAll="true"/>
   <shortcut
     name="Documentation"
