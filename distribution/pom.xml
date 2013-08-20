@@ -39,9 +39,23 @@
   <modules>
     <module>zip</module>
     <module>deb</module>
-    <module>rpm</module>
     <module>installer</module>
     <module>dmg</module>
     <module>exe</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>rpm</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <file>
+          <exists>/usr/bin/rpmbuild</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>rpm</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
