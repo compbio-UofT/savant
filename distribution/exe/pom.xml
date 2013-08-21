@@ -95,7 +95,6 @@
               <goal>copy</goal>
             </goals>
             <configuration>
-<!--              <stripVersion>true</stripVersion>-->
               <artifactItems>
                 <artifactItem>
                   <groupId>launch4j</groupId>
