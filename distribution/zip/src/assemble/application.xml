@@ -38,6 +38,7 @@
         <dependencySet>
             <excludes>
                 <exclude>${project.groupId}:savant-core</exclude>
+                <exclude>${project.groupId}:savant-plugin-*</exclude>
             </excludes>
             <outputDirectory>lib</outputDirectory>
             <!-- This project doesn't generate any artifact -->
@@ -48,6 +49,15 @@
             <includes>
                 <include>${project.groupId}:savant-core</include>
             </includes>
+            <!-- This project doesn't generate any artifact -->
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+
+        <dependencySet>
+            <includes>
+                <include>${project.groupId}:savant-plugin-*</include>
+            </includes>
+            <outputDirectory>plugins</outputDirectory>
             <!-- This project doesn't generate any artifact -->
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>

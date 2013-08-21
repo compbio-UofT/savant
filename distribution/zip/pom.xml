@@ -38,6 +38,28 @@
       <artifactId>savant-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-sql</artifactId>
+      <version>${project.version}</version>
+      <classifier>jar-with-dependencies</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-ucscexplorer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-ucsc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

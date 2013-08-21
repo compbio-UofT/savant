@@ -38,6 +38,28 @@
       <artifactId>savant-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-sql</artifactId>
+      <version>${project.version}</version>
+      <classifier>jar-with-dependencies</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-ucscexplorer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>savant-plugin-ucsc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -78,7 +100,22 @@
               <dependency>
                 <excludes>
                   <exclude>${project.groupId}:savant-core</exclude>
+                  <exclude>${project.groupId}:savant-plugin-data</exclude>
+                  <exclude>${project.groupId}:savant-plugin-sql</exclude>
+                  <exclude>${project.groupId}:savant-plugin-ucsc</exclude>
+                  <exclude>${project.groupId}:savant-plugin-ucscexplorer</exclude>
                 </excludes>
+              </dependency>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/savant-${project.version}/plugins</directory>
+              <dependency>
+                <includes>
+                  <include>${project.groupId}:savant-plugin-data</include>
+                  <include>${project.groupId}:savant-plugin-sql</include>
+                  <include>${project.groupId}:savant-plugin-ucsc</include>
+                  <include>${project.groupId}:savant-plugin-ucscexplorer</include>
+                </includes>
               </dependency>
             </mapping>
             <mapping>
