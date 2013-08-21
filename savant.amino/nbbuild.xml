@@ -72,7 +72,7 @@
 
     -->
     <target name="-pre-jar">
-        <copy file="plugin.xml" todir="${build.classes.dir}">
+        <copy file="src/main/resources/plugin.xml" todir="${build.classes.dir}">
         </copy>
     </target>
 
