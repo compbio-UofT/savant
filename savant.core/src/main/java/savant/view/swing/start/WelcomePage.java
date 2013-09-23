@@ -70,9 +70,10 @@ public class WelcomePage extends JPanel {
         p.add(Box.createVerticalStrut(20));
         p.add(align(-1,createBoldLabel("Recent Projects")));
         p.add(getRecentProjectsInnerPanel());
-        p.add(Box.createVerticalStrut(10));
+        /*p.add(Box.createVerticalStrut(10));
         p.add(align(-1,createBoldLabel("Recent News")));
         p.add(getNewsInnerPanel());
+        */
         p.add(Box.createVerticalGlue());
         p.add(Box.createVerticalStrut(10));
         p.add(align(0,createSmallLabel("Developed by the Computational Biology Lab at University of Toronto")));
@@ -195,6 +196,7 @@ public class WelcomePage extends JPanel {
         }
     }
 
+    /*
     private JComponent getNewsInnerPanel() {
 
         JPanel p = new JPanel();
@@ -215,6 +217,7 @@ public class WelcomePage extends JPanel {
         return scroll;
 
     }
+    */
 
     private JPanel parseNewsFile(File newsFile) {
         JPanel p = null;
