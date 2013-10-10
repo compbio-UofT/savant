@@ -472,6 +472,8 @@
   </build>
 
   <modules>
+    <module>savant-analytics</module>
+    <module>savant-analytics-reporter</module>
     <module>savant.core</module>
     <module>savant.agp</module>
     <module>savant.amino</module>
