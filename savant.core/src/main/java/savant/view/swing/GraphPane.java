@@ -26,9 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
+import org.apache.commons.httpclient.NameValuePair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.GraphPaneAdapter;
@@ -933,6 +935,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 int shiftVal = gpc.getMouseClickPosition() - transformXPixel(x2);
                 Range newr = new Range(r.getFrom() + shiftVal, r.getTo() + shiftVal);
                 lc.setLocation(newr);
+                AnalyticsAgent.log(
+                    new NameValuePair[]{
+                        new NameValuePair("navigation-event", "panned"),
+                        new NameValuePair("navigation-modality", "mousedrag")
+                    });
             }
         } else if (gpc.isZooming()) {
             Range r;
@@ -946,6 +953,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / getUnitWidth()) - 1, newMin);
             Range newr = new Range(r.getFrom() + newMin, r.getFrom() + newMax);
 
+            AnalyticsAgent.log(
+                    new NameValuePair[]{
+                        new NameValuePair("navigation-event", "zoomed"),
+                        new NameValuePair("navigation-modality", "mousedrag")
+                    });
+
             lc.setLocation(newr);
         } else if (gpc.isSelecting()) {
             for (Track t : tracks) {
@@ -956,6 +969,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                     break;
                 }
             }
+            AnalyticsAgent.log(
+                    new NameValuePair[]{
+                        new NameValuePair("selection-event", "selected"),
+                        new NameValuePair("selection-modality", "mousedrag")
+                    });
         }
 
         isDragging = false;

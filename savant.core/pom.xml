@@ -103,6 +103,11 @@
       <artifactId>jnlp-api</artifactId>
       <version>1.6</version>
     </dependency>
+    <dependency>
+      <groupId>edu.toronto.cs.medsavant</groupId>
+      <artifactId>savant-analytics</artifactId>
+      <version>1.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>

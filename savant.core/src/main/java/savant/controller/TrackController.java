@@ -18,9 +18,11 @@ package savant.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.httpclient.NameValuePair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.event.TrackEvent;
@@ -73,6 +75,11 @@ public class TrackController extends Controller<TrackEvent> {
      * @param t The track to add
      */
     public void addTrack(Track t) {
+        AnalyticsAgent.log(
+                    new NameValuePair[]{
+                        new NameValuePair("track-event", "opened"),
+                        new NameValuePair("track-type", t.getClass().getSimpleName())
+                    });
         LOG.info("Added " + t + " to track list.");
         tracks.add(t);
         fireEvent(new TrackEvent(TrackEvent.Type.ADDED, t));

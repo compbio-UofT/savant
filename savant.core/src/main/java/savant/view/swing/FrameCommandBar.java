@@ -25,9 +25,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import org.apache.commons.httpclient.NameValuePair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
@@ -253,6 +255,15 @@ public final class FrameCommandBar extends JMenuBar {
                         for (int j = 0; j < modeItems.length; j++) {
                             if (item.getText().equals(validModes[j].getDescription())) {
                                 for (TrackAdapter t: frame.getTracks()) {
+
+                                    AnalyticsAgent.log(
+                                            new NameValuePair[] {
+                                                    new NameValuePair("track-event","DisplayModeChanged"),
+                                                    new NameValuePair("track-type",t.getClass().getSimpleName()),
+                                                    new NameValuePair("target-mode",validModes[j].getDescription())
+                                                }
+                                            );
+
                                     t.setDrawingMode(validModes[j]);
                                 }
                                 drawModePosition = j;

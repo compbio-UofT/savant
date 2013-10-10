@@ -46,6 +46,7 @@ import com.jidesoft.swing.JideSplitPane;
 import net.sf.samtools.SAMFileReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.event.BookmarksChangedEvent;
@@ -113,6 +114,7 @@ public class Savant extends JFrame {
         panel_main.add(masterPlaceholderPanel, BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this, masterPlaceholderPanel);
+
         masterPlaceholderPanel.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
@@ -476,9 +478,8 @@ public class Savant extends JFrame {
         panel_top.setPreferredSize(new java.awt.Dimension(0, 30));
         panel_top.setLayout(new java.awt.BorderLayout());
 
-        panelExtendedMiddle.setBackground(new java.awt.Color(51, 51, 51));
-        panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(0, 0));
-        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 25));
+        panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(990, 30));
+        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 30));
 
         javax.swing.GroupLayout panelExtendedMiddleLayout = new javax.swing.GroupLayout(panelExtendedMiddle);
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
@@ -526,9 +527,9 @@ public class Savant extends JFrame {
             .addGroup(panel_browserLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(0, 0, 0)
                 .addComponent(pluginToolbar, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(0, 0, 0)
                 .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE))
         );
 
@@ -849,7 +850,7 @@ public class Savant extends JFrame {
 
         pluginsMenu.setText("Plugins");
 
-        menuitem_pluginmanager.setText("Plugin Manager\u2026");
+        menuitem_pluginmanager.setText("Plugin Manager…");
         menuitem_pluginmanager.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_pluginmanagerActionPerformed(evt);
@@ -926,7 +927,7 @@ public class Savant extends JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panel_browser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -1182,6 +1183,8 @@ public class Savant extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+
+        AnalyticsAgent.onStartSession("Savant", BrowserSettings.VERSION);
 
         try {
             boolean loadProject = false;
@@ -1523,6 +1526,8 @@ public class Savant extends JFrame {
         try {
             if (ProjectController.getInstance().promptToSaveChanges(true)) {
                 PluginController.getInstance().shutDown();
+                LOG.info("Quitting");
+                AnalyticsAgent.onEndSession(true);
                 System.exit(0);
             }
         } catch (Exception x) {

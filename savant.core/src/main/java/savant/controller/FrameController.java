@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.controller;
 
 import java.awt.Component;
@@ -30,8 +29,10 @@ import com.jidesoft.docking.DockingManager;
 import com.jidesoft.docking.DockingManager.FrameHandle;
 import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.data.DataFormat;
 import savant.api.event.LocationChangedEvent;
@@ -46,18 +47,16 @@ import savant.view.swing.Savant;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackFactory;
 
-
 /**
  * Controller object to manage our collection of track frames.
  *
  * @author vwilliams
  */
 public class FrameController {
-    private static final Log LOG = LogFactory.getLog(FrameController.class);
 
+    private static final Log LOG = LogFactory.getLog(FrameController.class);
     private static FrameController instance;
     private static LocationController locationController = LocationController.getInstance();
-
     List<Frame> frames;
 
     public static synchronized FrameController getInstance() {
@@ -67,13 +66,12 @@ public class FrameController {
         return instance;
     }
 
-
     private FrameController() {
         frames = new ArrayList<Frame>();
         locationController.addListener(new Listener<LocationChangedEvent>() {
             /**
-             * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
-             * This code used to be in Savant.java.
+             * Listen for RangeChangedEvents, which will cause all the frames to
+             * be drawn. This code used to be in Savant.java.
              */
             @Override
             public void handleEvent(LocationChangedEvent event) {
@@ -98,7 +96,7 @@ public class FrameController {
     }
 
     public void closeFrame(Frame frame, boolean askFirst) {
-        if(!frame.isCloseable()){
+        if (!frame.isCloseable()) {
             return;
         }
         if (askFirst) {
@@ -107,11 +105,22 @@ public class FrameController {
             }
         }
         frame.getDockingManager().removeFrame(frame.getName());
+
+        try {
+            for (Track t : frame.getTracks()) {
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("track-event", "closed"),
+                            new NameValuePair("track-type", t.getClass().getSimpleName())
+                        });
+            }
+        } catch (Exception e) {
+        }
     }
 
     /**
-     * Create a frame for the given tracks.  Currently only used when creating a frame for
-     * a track which has been created by a DataSource plugin.
+     * Create a frame for the given tracks. Currently only used when creating a
+     * frame for a track which has been created by a DataSource plugin.
      *
      * FIXME: Can we use the normal track-creation code?
      */
@@ -123,7 +132,6 @@ public class FrameController {
         frame.setTracks(tracks);
         return frame;
     }
-
 
     public Frame addTrackFromPath(String fileOrURI, DataFormat df, DrawingMode dm) {
         if (df == null) {
@@ -146,8 +154,8 @@ public class FrameController {
         return frame;
     }
 
-
     private void addFrame(Frame f, DataFormat df) {
+
         frames.add(f);
 
         DockingManager dm = Savant.getInstance().getTrackDockingManager();
@@ -161,8 +169,8 @@ public class FrameController {
     }
 
     /**
-     * Determine which one of our frames is the frontmost.  This will be used to determine the
-     * insertion position for the next frame.
+     * Determine which one of our frames is the frontmost. This will be used to
+     * determine the insertion position for the next frame.
      */
     private FrameHandle getFrontmostFrame(DockingManager dm) {
         for (FrameHandle h : dm.getOrderedFrames()) {
@@ -176,7 +184,7 @@ public class FrameController {
     public Frame getActiveFrame() {
         DockingManager dm = Savant.getInstance().getTrackDockingManager();
         FrameHandle fh = getFrontmostFrame(dm);
-        return fh != null ? (Frame)dm.getFrame(fh.getKey()) : null;
+        return fh != null ? (Frame) dm.getFrame(fh.getKey()) : null;
     }
 
     /**
@@ -194,7 +202,6 @@ public class FrameController {
         }
     }
 
-
     public void hideFrame(Frame frame) {
         try {
             frame.setHidden(true);
@@ -209,11 +216,10 @@ public class FrameController {
         }
     }
 
-
     public List<Frame> getFrames() {
         return frames;
     }
-    
+
     /**
      * Returns the Frames ordered by their on-screen locations.
      */
@@ -241,10 +247,11 @@ public class FrameController {
     }
 
     /**
-     * Listens for track frames being added.  Either ordinary ones to the TrackDockingManager,
-     * or Variant frames to the AuxDockingManager.
+     * Listens for track frames being added. Either ordinary ones to the
+     * TrackDockingManager, or Variant frames to the AuxDockingManager.
      */
     private class TrackFrameAdapter extends DockableFrameAdapter {
+
         /**
          * The appearance of the first frame is a good opportunity to clear away
          * the start page and set up the main window's navigation widgets.
@@ -260,7 +267,7 @@ public class FrameController {
         public void dockableFrameRemoved(DockableFrameEvent evt) {
             DockableFrame df = evt.getDockableFrame();
             if (df instanceof Frame) {
-                Frame f = (Frame)df;
+                Frame f = (Frame) df;
                 hideFrame(f);
 
                 try {
@@ -284,8 +291,8 @@ public class FrameController {
         public void dockableFrameActivated(DockableFrameEvent evt) {
             DockableFrame df = evt.getDockableFrame();
             if (df instanceof Frame) {
-                ((Frame)df).setActiveFrame(true);
-                
+                ((Frame) df).setActiveFrame(true);
+
             }
         }
 
@@ -293,7 +300,7 @@ public class FrameController {
         public void dockableFrameDeactivated(DockableFrameEvent evt) {
             DockableFrame df = evt.getDockableFrame();
             if (df instanceof Frame) {
-                ((Frame)df).setActiveFrame(false);
+                ((Frame) df).setActiveFrame(false);
             }
         }
     }

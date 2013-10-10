@@ -19,9 +19,11 @@ package savant.controller;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
+import org.apache.commons.httpclient.NameValuePair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
@@ -189,7 +191,7 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
     }
 
     private void setRange(Range r) {
-        LOG.debug("Setting range to " + r);        
+        LOG.debug("Setting range to " + r);
 
         int from = r.getFrom();
         int to = r.getTo();
@@ -216,6 +218,8 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
         }
 
         r = new Range(from, to);
+
+
 
         // set the current viewable range
         currentViewableRange = r;
@@ -389,7 +393,7 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
         int center = GraphPaneController.getInstance().getMouseXPosition();
         zoomToLength(currentViewableRange.getLength() * 2, center);
     }
-    
+
     //HISTORY///////////////////////////////////////////////////////////////////
 
     private void updateHistory() {

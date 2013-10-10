@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -33,6 +34,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import org.apache.commons.httpclient.NameValuePair;
+import org.ut.biolab.savant.analytics.savantanalytics.AnalyticsAgent;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.event.LocationChangedEvent;
@@ -53,7 +56,7 @@ import savant.view.tracks.Track;
  *
  * @author tarkvara
  */
-public class NavigationBar extends JToolBar {
+public class NavigationBar extends JPanel {
 
     private static final Dimension LOCATION_SIZE = new Dimension(270, 22);
     private static final Dimension LENGTH_SIZE = new Dimension(100, 22);
@@ -81,9 +84,10 @@ public class NavigationBar extends JToolBar {
 
     NavigationBar() {
 
-        setFloatable(false);
+        this.setOpaque(false);
+        this.setLayout(new BoxLayout(this,BoxLayout.X_AXIS));
 
-        String buttonStyle = "segmentedTextured";
+        String buttonStyle = "segmentedCapsule";
 
         String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
 
@@ -131,7 +135,7 @@ public class NavigationBar extends JToolBar {
             loadTrackButton.setVisible(false);
         }
 
-        JLabel rangeText = new JLabel("Location: ");
+        JLabel rangeText = new JLabel("Location ");
         add(rangeText);
 
         String[] a = {" ", " ", " ", " ", " ", " ", " ", " ", " ", " "};
@@ -153,6 +157,7 @@ public class NavigationBar extends JToolBar {
                             itemText = itemText.substring(lastBracketPos + 1, itemText.length() - 1);
                         }
                         setRangeFromText(itemText);
+
                     }
                 }
             }
@@ -308,6 +313,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.zoomIn();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "zoomed"),
+                            new NameValuePair("navigation-direction", "in"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
 
@@ -318,6 +329,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.zoomOut();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "zoomed"),
+                            new NameValuePair("navigation-direction", "out"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
         zoomOut.putClientProperty("JButton.buttonType", buttonStyle);
@@ -341,6 +358,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.shiftRangeFarLeft();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "panned"),
+                            new NameValuePair("navigation-direction", "left"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
 
@@ -356,6 +379,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.shiftRangeLeft();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "panned"),
+                            new NameValuePair("navigation-direction", "left"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
 
@@ -371,6 +400,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.shiftRangeRight();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "panned"),
+                            new NameValuePair("navigation-direction", "right"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
 
@@ -386,6 +421,12 @@ public class NavigationBar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 locationController.shiftRangeFarRight();
+                AnalyticsAgent.log(
+                        new NameValuePair[]{
+                            new NameValuePair("navigation-event", "panned"),
+                            new NameValuePair("navigation-direction", "right"),
+                            new NameValuePair("navigation-modality", "navbar")
+                        });
             }
         });
 
@@ -478,6 +519,11 @@ public class NavigationBar extends JToolBar {
 
     private void updateLocation(String ref, Range r) {
         String s = String.format("%s: %,d - %,d", ref, r.getFrom(), r.getTo());
+        AnalyticsAgent.log(
+                new NameValuePair[]{
+                    new NameValuePair("navigation-event", "moved"),
+                    new NameValuePair("navigation-range", s)
+                });
         locationField.setSelectedItem(s);
         lengthLabel.setText(String.format("%,d", r.getLength()));
         locationField.requestFocusInWindow();

@@ -45,7 +45,6 @@ import savant.util.NetworkUtils;
 import savant.util.swing.HyperlinkButton;
 import savant.view.icon.SavantIconFactory;
 
-
 /**
  *
  * @author mfiume
@@ -53,44 +52,40 @@ import savant.view.icon.SavantIconFactory;
 public class WelcomePage extends JPanel {
 
     private static final Color TEXT_COLOR = Color.BLACK;
-    private static final Font TITLE_FONT = new Font("Arial",Font.BOLD,13);
-    private static final Font DATE_FONT = new Font("Arial",Font.ITALIC,12);
+    private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 13);
+    private static final Font DATE_FONT = new Font("Arial", Font.ITALIC, 12);
     private static final Border INFO_BORDER = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY, 1), BorderFactory.createLineBorder(Color.WHITE, 10));
 
     public WelcomePage() {
         setLayout(new BorderLayout());
 
+        this.setOpaque(true);
+
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setOpaque(false);
 
-        p.add(Box.createVerticalStrut(40));
+        p.add(Box.createVerticalStrut(100));
         p.add(new SpiralPanel());
-        p.add(align(0,createLabel("v" + BrowserSettings.VERSION + " " + BrowserSettings.BUILD)));
+        p.add(align(0, createLabel("v" + BrowserSettings.VERSION + " " + BrowserSettings.BUILD)));
         p.add(Box.createVerticalStrut(20));
-        p.add(align(-1,createBoldLabel("Recent Projects")));
+        p.add(align(-1, createBoldLabel("Recent Projects")));
         p.add(getRecentProjectsInnerPanel());
-        /*p.add(Box.createVerticalStrut(10));
-        p.add(align(-1,createBoldLabel("Recent News")));
-        p.add(getNewsInnerPanel());
-        */
-        p.add(Box.createVerticalGlue());
-        p.add(Box.createVerticalStrut(10));
-        p.add(align(0,createSmallLabel("Developed by the Computational Biology Lab at University of Toronto")));
-        p.add(Box.createVerticalStrut(40));
 
-        add(getSidePanel(),BorderLayout.WEST);
-        add(p,BorderLayout.CENTER);
-        add(getSidePanel(),BorderLayout.EAST);
+        p.add(Box.createVerticalGlue());
+
+        add(getSidePanel(), BorderLayout.WEST);
+        add(p, BorderLayout.CENTER);
+        add(getSidePanel(), BorderLayout.EAST);
     }
 
     private static JPanel getSidePanel() {
 
-        int width = (int) Math.round(java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*.15);
+        int width = (int) Math.round(java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth() * .15);
         JPanel p = new JPanel();
         p.setOpaque(false);
 
-        Dimension d = new Dimension(width,1);
+        Dimension d = new Dimension(width, 1);
         p.setMinimumSize(d);
         p.setPreferredSize(d);
         return p;
@@ -99,7 +94,7 @@ public class WelcomePage extends JPanel {
     private JComponent align(int dir, JComponent c) {
         JPanel p = new JPanel();
         p.setOpaque(false);
-        p.setLayout(new BoxLayout(p,BoxLayout.X_AXIS));
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Component glue = Box.createHorizontalGlue();
         switch (dir) {
@@ -136,8 +131,7 @@ public class WelcomePage extends JPanel {
             List<String> projects = RecentProjectsController.getInstance().getRecentProjects();
             for (final String t : projects) {
 
-                p.add(align(-1,HyperlinkButton.createHyperlinkButton(t, Color.black, new ActionListener() {
-
+                p.add(align(-1, HyperlinkButton.createHyperlinkButton(t, Color.black, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
@@ -150,7 +144,7 @@ public class WelcomePage extends JPanel {
             }
 
             if (projects.isEmpty()) {
-                p.add(align(-1,createLabel("No recent projects")));
+                p.add(align(-1, createLabel("No recent projects")));
             }
         } catch (IOException ex) {
         }
@@ -179,6 +173,7 @@ public class WelcomePage extends JPanel {
     }
 
     private static class SpiralPanel extends JPanel {
+
         private final Image img;
 
         public SpiralPanel() {
@@ -192,33 +187,32 @@ public class WelcomePage extends JPanel {
         public void paintComponent(Graphics g) {
             //g.setColor(Color.black);
             //g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            g.drawImage(img, this.getWidth()/2-img.getWidth(null)/2, this.getHeight()/2-img.getHeight(null)/2, null);
+            g.drawImage(img, this.getWidth() / 2 - img.getWidth(null) / 2, this.getHeight() / 2 - img.getHeight(null) / 2, null);
         }
     }
 
     /*
-    private JComponent getNewsInnerPanel() {
+     private JComponent getNewsInnerPanel() {
 
-        JPanel p = new JPanel();
+     JPanel p = new JPanel();
 
-        try {
-            File newsFile = NetworkUtils.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory(), null);
-            p = parseNewsFile(newsFile);
-            if (newsFile.exists()) { newsFile.delete(); }
+     try {
+     File newsFile = NetworkUtils.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory(), null);
+     p = parseNewsFile(newsFile);
+     if (newsFile.exists()) { newsFile.delete(); }
 
-        } catch (Exception ex) {
-            p.add(this.createLabel("Problem getting news"));
-        }
+     } catch (Exception ex) {
+     p.add(this.createLabel("Problem getting news"));
+     }
 
-        JScrollPane scroll = new JScrollPane(p);
-        scroll.setBorder(INFO_BORDER);
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+     JScrollPane scroll = new JScrollPane(p);
+     scroll.setBorder(INFO_BORDER);
+     scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        return scroll;
+     return scroll;
 
-    }
-    */
-
+     }
+     */
     private JPanel parseNewsFile(File newsFile) {
         JPanel p = null;
 
@@ -227,7 +221,7 @@ public class WelcomePage extends JPanel {
             p.setBackground(Color.WHITE);
             p.setOpaque(true);
             //p.setBackground(Color.red);
-            BoxLayout bl = new BoxLayout(p,BoxLayout.Y_AXIS);
+            BoxLayout bl = new BoxLayout(p, BoxLayout.Y_AXIS);
             p.setLayout(bl);
 
             Document d = new SAXBuilder().build(newsFile);
@@ -244,12 +238,11 @@ public class WelcomePage extends JPanel {
                 final String text = e.getChildText("description");
 
                 AutoResizingTextArea ta = new AutoResizingTextArea(text);
-                ta.setMaximumSize(new Dimension(99999,1));
+                ta.setMaximumSize(new Dimension(99999, 1));
                 ta.setForeground(TEXT_COLOR);
                 ta.setLineWrap(true);
                 //ta.setHighlighter(new BlankHighlighter());
                 ta.addMouseListener(new MouseListener() {
-
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         e.consume();
@@ -274,7 +267,6 @@ public class WelcomePage extends JPanel {
                     public void mouseExited(MouseEvent e) {
                         e.consume();
                     }
-
                 });
                 ta.setOpaque(false);
                 ta.setWrapStyleWord(true);
@@ -308,7 +300,6 @@ public class WelcomePage extends JPanel {
                             try {
                                 Desktop.getDesktop().browse(URI.create(more));
                             } catch (Exception x) {
-
                             }
                         }
                     });
@@ -326,5 +317,4 @@ public class WelcomePage extends JPanel {
 
         return p;
     }
-
 }
