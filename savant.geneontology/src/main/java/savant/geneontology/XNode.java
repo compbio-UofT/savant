@@ -17,10 +17,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package savant.geneontology;
 
 import java.util.ArrayList;
@@ -32,7 +28,7 @@ import java.util.TreeSet;
  */
 public class XNode implements Comparable{
     
-        /**
+    /**
      * String that is to be used at the beginning of the URL of any node.
      */
     public static final String beginURL = 

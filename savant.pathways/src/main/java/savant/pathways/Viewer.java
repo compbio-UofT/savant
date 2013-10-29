@@ -17,11 +17,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package savant.pathways;
 
 import java.awt.*;
@@ -64,7 +59,6 @@ import savant.util.Range;
  * @author AndrewBrook
  */
 public class Viewer extends javax.swing.JPanel {
-    
     private Loader loader;
     private PathwaysBrowser browser;
 
@@ -96,7 +90,7 @@ public class Viewer extends javax.swing.JPanel {
     /** Creates new form Viewer1 */
     public Viewer(Loader loader) {
         initComponents();
-        
+
         this.loader = loader;
 
         //this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);

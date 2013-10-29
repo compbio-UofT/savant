@@ -21,12 +21,6 @@ package savant.view.dialog;
 
 import savant.view.swing.Savant;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
 /**
  *
  * @author mfiume
