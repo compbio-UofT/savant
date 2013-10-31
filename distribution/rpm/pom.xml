@@ -89,6 +89,8 @@
             <mapping>
               <directory>/usr/bin/</directory>
               <filemode>755</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <sources>
                 <source>
                   <location>${project.build.outputDirectory}/savant.sh</location>
@@ -99,6 +101,9 @@
             </mapping>
             <mapping>
               <directory>/usr/local/savant-${project.version}/lib</directory>
+              <filemode>644</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <dependency>
                 <excludes>
                   <exclude>${project.groupId}:savant-core</exclude>
@@ -111,6 +116,9 @@
             </mapping>
             <mapping>
               <directory>/usr/local/savant-${project.version}/plugins</directory>
+              <filemode>644</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <dependency>
                 <includes>
                   <include>${project.groupId}:savant-plugin-data</include>
@@ -122,6 +130,9 @@
             </mapping>
             <mapping>
               <directory>/usr/local/savant-${project.version}</directory>
+              <filemode>644</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <dependency>
                 <includes>
                   <include>${project.groupId}:savant-core</include>
@@ -130,6 +141,9 @@
             </mapping>
             <mapping>
               <directory>/usr/local/savant-${project.version}</directory>
+              <filemode>644</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <sources>
                 <source>
                   <location>${project.build.outputDirectory}/savant.png</location>
@@ -139,6 +153,8 @@
             <mapping>
               <directory>/usr/bin</directory>
               <filemode>755</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <sources>
                 <softlinkSource>
                   <destination>savant</destination>
@@ -148,6 +164,9 @@
             </mapping>
             <mapping>
               <directory>/usr/share/applications</directory>
+              <filemode>644</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
               <sources>
                 <source>
                   <location>${project.build.outputDirectory}/savant.desktop</location>
