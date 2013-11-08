@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -44,6 +45,7 @@ import savant.settings.DirectorySettings;
 import savant.util.Controller;
 import savant.util.FileExtensionFilter;
 import savant.util.NetworkUtils;
+import savant.util.SavantHTTPAuthenticator;
 import savant.view.swing.Savant;
 
 
@@ -64,13 +66,14 @@ public class ProjectController extends Controller {
     private List<String> pendingTracks = null;
 
     public static ProjectController getInstance() {
-        if (instance == null) {
+        if (instance == null) {            
             instance = new ProjectController();
         }
         return instance;
     }
 
     private ProjectController() {
+        Authenticator.setDefault(new SavantHTTPAuthenticator());
         // Set up listeners so that when the project's state changes, we know that we have something to save.
         BookmarkController.getInstance().addListener(new Listener<BookmarksChangedEvent>() {
             @Override
