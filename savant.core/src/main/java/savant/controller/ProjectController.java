@@ -66,7 +66,7 @@ public class ProjectController extends Controller {
     private List<String> pendingTracks = null;
 
     public static ProjectController getInstance() {
-        if (instance == null) {            
+        if (instance == null) {
             instance = new ProjectController();
         }
         return instance;
