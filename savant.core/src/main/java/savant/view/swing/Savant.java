@@ -47,6 +47,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.net.Authenticator;
 import net.sf.samtools.SAMFileReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +71,7 @@ import savant.selection.SelectionController;
 import savant.settings.*;
 import savant.util.ColourKey;
 import savant.util.MiscUtils;
+import savant.util.SavantHTTPAuthenticator;
 import savant.util.Version;
 import savant.util.error.report.BugReportDialog;
 import savant.util.swing.TrackChooser;
@@ -231,6 +233,8 @@ public class Savant extends JFrame {
         if (isStandalone()) {
             s.setVisible(true);
         }
+
+        Authenticator.setDefault(new SavantHTTPAuthenticator());
 
         addComponentListener(new ComponentAdapter() {
             /**

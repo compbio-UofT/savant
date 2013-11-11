@@ -66,14 +66,14 @@ public class ProjectController extends Controller {
     private List<String> pendingTracks = null;
 
     public static ProjectController getInstance() {
-        if (instance == null) {            
+        if (instance == null) {
             instance = new ProjectController();
         }
         return instance;
     }
 
     private ProjectController() {
-        Authenticator.setDefault(new SavantHTTPAuthenticator());
+        
         // Set up listeners so that when the project's state changes, we know that we have something to save.
         BookmarkController.getInstance().addListener(new Listener<BookmarksChangedEvent>() {
             @Override
