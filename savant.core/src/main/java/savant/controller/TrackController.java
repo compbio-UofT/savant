@@ -19,6 +19,7 @@
  */
 package savant.controller;
 
+import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.NameValuePair;
@@ -31,6 +32,7 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.event.TrackEvent;
 import savant.api.data.DataFormat;
 import savant.util.Controller;
+import savant.util.SavantHTTPAuthenticator;
 import savant.view.tracks.Track;
 
 /**
@@ -54,6 +56,7 @@ public class TrackController extends Controller<TrackEvent> {
 
     private TrackController() {
         tracks = new ArrayList<Track>();
+        Authenticator.setDefault(new SavantHTTPAuthenticator());
     }
 
     /**

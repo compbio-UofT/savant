@@ -73,7 +73,6 @@ public class ProjectController extends Controller {
     }
 
     private ProjectController() {
-        Authenticator.setDefault(new SavantHTTPAuthenticator());
         // Set up listeners so that when the project's state changes, we know that we have something to save.
         BookmarkController.getInstance().addListener(new Listener<BookmarksChangedEvent>() {
             @Override
