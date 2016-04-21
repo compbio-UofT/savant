@@ -89,15 +89,34 @@
           </requires>
           <mappings>
             <mapping>
-              <directory>/usr/bin/</directory>
+              <directory>/usr/bin</directory>
               <filemode>755</filemode>
               <username>root</username>
               <groupname>root</groupname>
+              <directoryIncluded>false</directoryIncluded>
               <sources>
                 <source>
                   <location>${project.build.outputDirectory}/savant.sh</location>
                   <destination>savant-${project.version}</destination>
                   <filter>true</filter>
+                </source>
+              </sources>
+            </mapping>
+            <mapping>
+              <!-- Keep this empty mapping so that the directory is created with the right attributes -->
+              <directory>/usr/local/savant-${project.version}</directory>
+              <directoryIncluded>true</directoryIncluded>
+            </mapping>
+            <mapping>
+              <directory>/usr/local/savant-${project.version}</directory>
+              <dependency>
+                <includes>
+                  <include>${project.groupId}:savant-core</include>
+                </includes>
+              </dependency>
+              <sources>
+                <source>
+                  <location>${project.build.outputDirectory}/savant.png</location>
                 </source>
               </sources>
             </mapping>
@@ -125,26 +144,11 @@
               </dependency>
             </mapping>
             <mapping>
-              <directory>/usr/local/savant-${project.version}</directory>
-              <dependency>
-                <includes>
-                  <include>${project.groupId}:savant-core</include>
-                </includes>
-              </dependency>
-            </mapping>
-            <mapping>
-              <directory>/usr/local/savant-${project.version}</directory>
-              <sources>
-                <source>
-                  <location>${project.build.outputDirectory}/savant.png</location>
-                </source>
-              </sources>
-            </mapping>
-            <mapping>
               <directory>/usr/bin</directory>
               <filemode>755</filemode>
               <username>root</username>
               <groupname>root</groupname>
+              <directoryIncluded>false</directoryIncluded>
               <sources>
                 <softlinkSource>
                   <destination>savant</destination>
@@ -154,6 +158,7 @@
             </mapping>
             <mapping>
               <directory>/usr/share/applications</directory>
+              <directoryIncluded>false</directoryIncluded>
               <sources>
                 <source>
                   <location>${project.build.outputDirectory}/savant.desktop</location>
